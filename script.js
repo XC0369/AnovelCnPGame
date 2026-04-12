@@ -34,27 +34,33 @@
   // ——— Chapter 1 剧情数据 ———
   const ACT_ONE = [
     {
+      id: 'narr_0',
       scene: 'EXT. GRAVEYARD - DAY',
       narrative: '睁开眼时，你看到的是一片阴沉沉的天空，灰色将你吞没。雨点滴落，起先是轻微的水珠，而后变成了倾盆大雨。那些来吊唁的人都仓皇失措地逃离。而你不一样，你想象自己和母亲一样，躺在棺材里，想到这里，你不由地躺了上去，任由大雨滂沱，将浑身浇透。',
       next: 1
     },
     {
+      id: 'narr_1',
       narrative: '你的世界里只剩下了雨声，渐渐地，视线变得模糊，雨声也仿佛骤然减小，你能听见自己的心跳，一下，一下，变得十分有力，与沉重的呼吸声一同响起。你不由地感到窒息，被濒死的恐惧笼罩。',
       next: 2
     },
     {
+      id: 'narr_2',
       narrative: '就在你即将失去意识的前一刻，突然，眼前一片黑暗。一把黑色的伞罩在了你的头上。你不由地向身旁之人看去。黑色的风衣，黑色的帽子，这张脸熟悉又陌生——Anta，母亲的政敌。',
       next: 3
     },
     {
+      id: 'narr_3',
       narrative: '你没有说话，同样，她也一言不发。你没有挪动自己的身体，她也一动不动，只是任由大雨将她昂贵的大衣淋湿。她的身后站着一群西装革履的保镖，有人上前想要替她撑伞，却被她拦下。',
       next: 4
     },
     {
+      id: 'narr_4',
       narrative: '她的左手拿着一束白色的鲜花，见你没有丝毫动弹，她便俯身将鲜花放在了母亲的棺材边。她不再看你，而是注视着母亲的墓碑，她的眼神冷漠到可怕。你读不出任何情绪。',
       next: 5
     },
     {
+      id: 'narr_5',
       narrative: '就在这时，响起急促的脚步声，随之而来的高声嘶吼打破了这份诡异的平静。',
       next: 6
     },
@@ -65,6 +71,7 @@
       next: 7
     },
     {
+      id: 'narr_7',
       narrative: '记者的话语在雨声中并不清晰。',
       next: 8
     },
@@ -75,6 +82,7 @@
       next: 9
     },
     {
+      id: 'narr_9',
       narrative: '他还没说完，便被Anta身后的保镖捂住了嘴。记者拼命挣扎，却终是敌不过训练有素的保镖。',
       next: 10
     },
@@ -85,29 +93,35 @@
       next: 11
     },
     {
+      id: 'narr_11',
       narrative: '零碎的话语消失在雨声中。你看向Anta，她依旧是一脸平静，仿佛刚才的闹剧并未对她造成丝毫影响。她一言未发，转身在保镖的护送下离开了。',
       next: 12
     },
     {
+      id: 'narr_12',
       narrative: '你没有起身，那把黑伞被风吹远。你再次望向天空，任由视野由清晰再次变得模糊。',
       next: 13
     },
     {
+      id: 'narr_13',
       scene: 'EXT. PARK - DUSK',
       narrative: '记忆中的小公园变得不一样了。你回忆着童年时的自己有多调皮，那会儿，你总是与同龄的伙伴们嬉闹。年幼时你曾多次站上这个小秋千，任由母亲如何斥责都不肯回家。你不由地站了上去，使劲晃动。秋千断了，你狠狠地摔倒在地。',
       next: 14
     },
     {
+      id: 'narr_14',
       scene: 'EXT. OLD HOUSE FRONT DOOR - DUSK',
       narrative: '你一瘸一拐地来到旧宅门口。你俯身看着门口叶子泛黄几近腐烂的盆栽，随后起身，慢慢推开了门。',
       next: 15
     },
     {
+      id: 'narr_15',
       scene: 'INT. OLD HOUSE LIVING ROOM - DUSK',
       narrative: '夕阳透过窗洒在屋内，屋里和从前一样，没有太多变化。客厅里没有太多杂物，只有一盆又一盆的绿植。\n\n地板上摇曳着门前树叶的影子。你回忆起自己曾在地板上踩树影自娱自乐，心里这么想着，你便真的自顾自玩了起来。',
       next: 16
     },
     {
+      id: 'narr_16',
       scene: 'INT. OLD HOUSE BEDROOM 1 - DUSK',
       narrative: '你进入母亲的房间，屋内依旧是母亲喜欢的整洁模样。枕头上放着一件男士西装，你捡起后开始好奇这是谁的衣服。',
       next: 17
@@ -119,6 +133,7 @@
       next: 18
     },
     {
+      id: 'narr_18',
       scene: 'INT. OLD HOUSE BEDROOM 1 TOILET - DUSK',
       narrative: '你进入主卧的厕所，你留意到牙杯里有两只牙刷。\n\n镜子有些破碎。你看着镜子里憔悴的自己，觉得有些好笑。可这时，你突然发现镜子边好像藏着什么东西，你拿起一旁的吹风机，狠狠砸向镜子。镜子随即碎裂，你在夹缝里发现了一张磁卡。你拿起卡片后仔细端详，上面写着：xxxx。',
       next: 19
@@ -130,10 +145,12 @@
       next: 20
     },
     {
+      id: 'narr_20',
       narrative: '不明所以，但你还是收下了这张磁卡。',
       next: 21
     },
     {
+      id: 'narr_21',
       scene: 'INT. OLD HOUSE BEDROOM 2 - DUSK',
       narrative: '你轻轻推开房间门，里面的陈设一如既往，像是这么些年从未有人踏足过般。你摸了一下那张粉红色的儿童书桌，上面纤尘不染，看来母亲肯定打扫过这里了，即便这么些年你从未回来过一次。你看向床头那个滑稽又可笑的涂鸦，你记得那是小时候的你，第一次对母亲发出权威性挑战的尝试。你知道母亲喜欢素净的墙面，可你偏偏要用荧光色的画笔在墙上留下可笑的兔子头像。',
       next: 22
@@ -169,6 +186,7 @@
       next: 28
     },
     {
+      id: 'narr_27',
       narrative: '母亲伸手想要抹掉这个滑稽的图案，而你死死地抱住她的腰。',
       next: 29
     },
@@ -179,19 +197,23 @@
       next: 30
     },
     {
+      id: 'narr_29',
       narrative: '你再看了一眼这个兔子图案，转身走向你的书柜。你从来都不喜欢那些枯燥乏味的经典书籍，偏偏对漫画情有独钟。你打开那本童年时翻阅了无数遍的《xxx》，书页都被你摸出了毛边。你翻阅着自己最喜欢的这本漫画，可却对里面的内容感到陌生。于是你忍不住读出了声。可这时，你发现书页中竟掉落了一张纸片。你捡起纸片，上面写着三位数字——719。\n\n你意识到有些不对劲，这是母亲的笔迹，只有母亲喜欢写7这个数字的时候加上那一横，她这是想告诉我些什么吗？于是离开了卧室。',
       next: 31
     },
     {
+      id: 'narr_31',
       scene: 'INT. OLD HOUSE STUDY ROOM - DUSK',
       narrative: '你来到书房，记忆中，母亲的书房总是十分神圣。母亲的生活被工作完全侵占，而她却从不知疲倦。你想起无数个深夜里，她独自一人在书房中办公的情景。你推开门走了进去，里面和记忆中别无二致。你想起警方的尸检报告，死者在书房中，服用过度安眠药自尽。就连死亡，都要在她最喜欢的空间里。你无法分辨，是她选择了死亡，还是死亡选择了她。',
       next: 32
     },
     {
+      id: 'narr_32',
       narrative: '你翻开书桌上的笔记本，上面尽是些与保守党有关的内容，令你感到厌恶。你企图拉开书桌的抽屉，却意外发现上锁了。正好需要三位数的密码，于是你将锁转到了刚才看到的三位数。你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em>\n\n你将磁卡放入了盒子中……',
       next: 33
     },
     {
+      id: 'narr_33',
       scene: 'INT. OLD HOUSE LIVING ROOM - NIGHT',
       narrative: '天色渐暗，你看到远处的夕阳缓缓落下。屋内一片漆黑，在寂静中你隐隐约约听到远方传来歌声，这是一首耳熟能详的小曲，在昏暗的光线中，你拿起客厅里的那把吉他，随着歌声弹奏起来，直到月光洒在客厅里，你终于撑不住躺倒在沙发上。',
       end: true
@@ -223,16 +245,28 @@
   var activeSpeaker = ''; // 当前显示中的说话人（对话时有效）
   var bgm = null;
   var voiceover = null; // 语音播放器
+  var sfxPlayer = null; // 互动音效播放器
   var currentVoiceId = ''; // 当前播放的语音 ID
   var isClosingPopup = false; // 标志：正在关闭弹窗中，阻止 advance
   var visitedScenes = {}; // 已访问过的场景（键为 scene 名）
   var isReturningToVisitedScene = false; // 是否返回已访问场景
   var textBoxCollapsed = false; // 对话框是否收起
 
-  // ——— 语音播放函数 ———
-  function playVoiceover(stepId) {
+  // ——— 语音播放函数（支持对话和旁白） ———
+  function playVoiceover(stepId, stepIndex) {
+    // 优先使用步骤中指定的 id，否则使用自动生成的旁白 id
     var src = ASSETS.voiceover && ASSETS.voiceover[stepId];
-    if (!src) return;
+    
+    // 如果没有指定 id，尝试使用自动生成的旁白 id（如 narr_0, narr_1...）
+    if (!src && stepId.indexOf('narr_') === 0) {
+      src = ASSETS.voiceover && ASSETS.voiceover[stepId];
+    }
+    
+    if (!src) {
+      console.log('[语音] 未找到语音文件: ' + stepId);
+      return;
+    }
+    console.log('[语音] 播放: ' + stepId + ' -> ' + src);
     try {
       if (!voiceover) {
         voiceover = new Audio();
@@ -243,22 +277,46 @@
       voiceover.currentTime = 0;
       currentVoiceId = stepId;
       voiceover.src = src;
-      voiceover.play().catch(function() {});
-    } catch (e) {}
+      voiceover.play().catch(function(e) {
+        console.log('[语音] 播放失败: ' + e);
+      });
+    } catch (e) {
+      console.log('[语音] 异常: ' + e);
+    }
   }
 
+  // 停止语音的辅助函数（用于跳转时停止当前语音）
   function stopVoiceover() {
     if (voiceover) {
       voiceover.pause();
       voiceover.currentTime = 0;
       currentVoiceId = '';
     }
+    // 同时停止音效
+    if (sfxPlayer) {
+      sfxPlayer.pause();
+      sfxPlayer.currentTime = 0;
+    }
+  }
+
+  // 播放互动音效
+  function playInteractionSfx(sfxSrc) {
+    if (!sfxSrc) return;
+    try {
+      if (!sfxPlayer) {
+        sfxPlayer = new Audio();
+        sfxPlayer.volume = 0.7;
+      }
+      sfxPlayer.src = sfxSrc;
+      sfxPlayer.play().catch(function() {});
+    } catch (e) {}
   }
 
   // ——— 物品系统 ———
   var playerInventory = []; // 玩家物品栏
   var discoveredPasswords = {}; // 已获知的密码 { 'study_drawer': '123' }
   var mirrorClickCount = 0; // 镜子点击次数
+  var gameStates = {}; // 游戏状态（不显示在物品栏中）
 
   // 从配置中读取互动元素和导航选项
   var SCENE_INTERACTIONS = ASSETS.interactions || {};
@@ -329,6 +387,7 @@
     if (idx >= 0) {
       closePhoneMenu();
       closeInteractionPopup();
+      // 停止当前语音，确保跳转后语音同步
       stopVoiceover();
       currentIndex = idx;
       currentScene = sceneName;
@@ -397,10 +456,17 @@
     // ——— 修复角色立绘：只在当前 step 有 dialogue 时显示说话人 ———
     if (step.dialogue && step.speaker) {
       activeSpeaker = step.speaker;
-      // 播放对话语音
+      // 播放对话语音（使用步骤中的 id）
       if (step.id) {
-        playVoiceover(step.id);
+        playVoiceover(step.id, index);
       }
+    }
+
+    // ——— 如果是旁白，播放旁白语音 ———
+    if (step.narrative && !step.dialogue) {
+      // 优先使用步骤中指定的 id
+      var narrId = step.id || ('narr_' + index);
+      playVoiceover(narrId, index);
     }
 
     // 角色立绘：使用 activeSpeaker，有对话时才显示立绘
@@ -424,11 +490,15 @@
       var s = ACT_ONE[i];
       if (s.narrative) {
         var cls = 'narrative-block' + (s.document ? ' document' : '');
-        html += '<p class="' + cls + '">' + escapeHtml(s.narrative) + '</p>';
+        // 为旁白添加 id，便于语音同步
+        var narrId = 'narr_' + i;
+        html += '<p class="' + cls + '" id="' + narrId + '">' + escapeHtml(s.narrative) + '</p>';
       }
       if (s.speaker || s.dialogue) {
+        // 为对话添加 id（使用步骤中指定的 id 或 dialogue_ + 索引）
+        var dialogId = s.id || ('dialogue_' + i);
         var line = (s.speaker ? '<span class="speaker">' + escapeHtml(s.speaker) + '</span>' : '') + escapeHtml(s.dialogue || '');
-        html += '<p class="dialogue-line">' + line + '</p>';
+        html += '<p class="dialogue-line" id="' + dialogId + '">' + line + '</p>';
       }
     }
 
@@ -475,7 +545,12 @@
 
   function goTo(index) {
     if (index < 0 || index >= ACT_ONE.length) return;
+    
+    console.log('[goTo] 跳转到索引: ' + index + ' (id: ' + ACT_ONE[index].id + ')');
+    
+    // 停止当前语音，确保跳转到下一段时语音同步跳转
     stopVoiceover();
+    
     var prevIndex = currentIndex;
     currentIndex = index;
     var step = ACT_ONE[currentIndex];
@@ -559,7 +634,7 @@
       showScreen(endScreen);
       return;
     }
-    // 停止当前语音
+    // 停止当前语音，确保跳转到下一段时语音同步跳转
     stopVoiceover();
     var nextIndex = typeof step.next === 'number' ? step.next : currentIndex + 1;
     goTo(nextIndex);
@@ -601,7 +676,7 @@
     });
   }
 
-  // 点击画布其他区域：如果对话框收起则展开
+  // 点击画布其他区域：如果对话框收起则展开，关闭弹窗
   if (storyViewport) {
     storyViewport.addEventListener('click', function (e) {
       if (!storyScreen.classList.contains('active')) return;
@@ -631,6 +706,8 @@
 
   phoneBtn.addEventListener('click', function (e) {
     e.stopPropagation();
+    // 关闭其他弹窗
+    closeInventory();
     togglePhoneMenu();
   });
 
@@ -671,6 +748,14 @@
     if (phoneMenu) {
       phoneMenu.classList.add('hidden');
     }
+  }
+
+  // 统一的关闭所有弹窗函数
+  function closeAllPopups() {
+    closePhoneMenu();
+    closeInventory();
+    closeInteractionPopup();
+    closeItemViewPopup();
   }
 
   function renderPhoneMenu() {
@@ -800,6 +885,15 @@
     }
   }
 
+  // 游戏状态（不显示在物品栏中）
+  function setGameState(stateId) {
+    gameStates[stateId] = true;
+  }
+
+  function hasGameState(stateId) {
+    return !!gameStates[stateId];
+  }
+
   function hasItem(itemId) {
     return playerInventory.some(function(i) { return i.id === itemId; });
   }
@@ -844,11 +938,29 @@
   function toggleInventory() {
     var ui = getOrCreateInventoryUI();
     if (ui.classList.contains('hidden')) {
+      // 关闭其他弹窗
+      closePhoneMenu();
+      closeInteractionPopup();
       updateInventoryUI();
+      positionInventoryNearButton(ui);
       ui.classList.remove('hidden');
     } else {
       closeInventory();
     }
+  }
+
+  // 将物品栏定位到按钮正上方
+  function positionInventoryNearButton(ui) {
+    var btn = document.getElementById('inventory-btn');
+    if (!btn) return;
+    var invWidth = 280;
+    // 按钮右边缘 + 物品栏宽度/2 - 按钮宽度/2 = 居中偏移
+    var btnRight = btn.offsetLeft + btn.offsetWidth;
+    var invLeft = btnRight - invWidth;
+    ui.style.left = invLeft + 'px';
+    ui.style.right = 'auto';
+    ui.style.bottom = '82px';
+    ui.style.top = 'auto';
   }
 
   // 关闭物品栏
@@ -858,7 +970,14 @@
     }
   }
 
-  // 查看物品内容
+  // 关闭物品查看弹窗
+  function closeItemViewPopup() {
+    if (itemViewPopup) {
+      itemViewPopup.classList.add('hidden');
+    }
+  }
+
+  // 查看物品内容 - 显示为浮动框
   function showItemView(item) {
     var popup = getOrCreateItemViewPopup();
     var contentDiv = popup.querySelector('.item-view-content');
@@ -911,7 +1030,29 @@
         '<div class="item-view-text">暂无描述。</div>';
     }
 
+    // 定位在物品栏旁边
+    positionItemViewNearInventory(popup);
     popup.classList.remove('hidden');
+  }
+
+  // 将物品查看框定位到物品栏左侧
+  function positionItemViewNearInventory(popup) {
+    var invUI = document.getElementById('inventory-ui');
+    if (!invUI) return;
+
+    var invLeft = invUI.offsetLeft;
+    var invTop = invUI.offsetTop;
+    var invWidth = 280;
+    var popupWidth = 400;
+    var popupHeight = Math.min(500, window.innerHeight * 0.8);
+
+    // 显示在物品栏左侧
+    popup.style.left = (invLeft - popupWidth - 15) + 'px';
+    popup.style.top = invTop + 'px';
+    popup.style.width = popupWidth + 'px';
+    popup.style.maxHeight = popupHeight + 'px';
+    popup.style.right = 'auto';
+    popup.style.bottom = 'auto';
   }
 
   function getOrCreateItemViewPopup() {
@@ -970,118 +1111,129 @@
 
       el.addEventListener('click', function(e) {
         e.stopPropagation();
-        showInteractionPopup(item);
+        // 关闭其他弹窗后再显示
+        closeInventory();
+        closePhoneMenu();
+        showInteractionPopup(item, el);
       });
       layer.appendChild(el);
     });
   }
 
-  function showInteractionPopup(item) {
+  function showInteractionPopup(item, hotspotEl) {
     var popup = getOrCreateInteractionPopup();
     var descDiv = popup.querySelector('.popup-desc');
     var titleDiv = popup.querySelector('.popup-title');
-    var closeBtn = popup.querySelector('.popup-close');
+
+    // 播放互动音效
+    playInteractionSfx(item.sound);
 
     titleDiv.textContent = item.name;
 
     // 特殊互动处理
     if (item.id === 'mirror') {
-      handleMirrorInteraction(popup, descDiv, closeBtn);
+      handleMirrorInteraction(popup, descDiv);
     } else if (item.id === 'bookshelf') {
-      handleBookshelfInteraction(popup, descDiv, closeBtn);
+      handleBookshelfInteraction(popup, descDiv);
     } else if (item.id === 'drawer') {
-      handleDrawerInteraction(popup, descDiv, closeBtn);
+      handleDrawerInteraction(popup, descDiv);
     } else {
-      descDiv.textContent = item.desc;
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
+      descDiv.innerHTML = item.desc;
     }
+
+    // 设置浮动框位置在热区旁边
+    positionFloatingPopup(popup, hotspotEl);
 
     popup.classList.remove('hidden');
   }
 
+  // 根据热区位置设置浮动框位置
+  function positionFloatingPopup(popup, hotspotEl) {
+    var canvas = document.querySelector('.game-canvas');
+    if (!canvas) return;
+
+    var canvasRect = canvas.getBoundingClientRect();
+    var popupWidth = 320;
+    var popupHeight = 200;
+    var offset = 15;
+
+    var left, top;
+
+    if (hotspotEl) {
+      var rect = hotspotEl.getBoundingClientRect();
+      var relX = rect.left - canvasRect.left;
+      var relY = rect.top - canvasRect.top;
+      var hotspotRight = relX + rect.width;
+      var hotspotBottom = relY + rect.height;
+
+      // 优先放右边，不够则放左边
+      if (hotspotRight + popupWidth + offset <= canvasRect.width) {
+        left = hotspotRight + offset;
+      } else {
+        left = relX - popupWidth - offset;
+      }
+
+      // 垂直居中对齐
+      top = relY + rect.height / 2 - popupHeight / 2;
+
+      // 边界检查
+      if (left < 0) left = 0;
+      if (left + popupWidth > canvasRect.width) left = canvasRect.width - popupWidth;
+      if (top < 0) top = 0;
+      if (top + popupHeight > canvasRect.height) top = canvasRect.height - popupHeight;
+    } else {
+      // 默认居中
+      left = (canvasRect.width - popupWidth) / 2;
+      top = (canvasRect.height - popupHeight) / 2;
+    }
+
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+    popup.style.right = 'auto';
+    popup.style.bottom = 'auto';
+    popup.style.width = popupWidth + 'px';
+  }
+
   // 镜子互动：多次点击获得磁卡
-  function handleMirrorInteraction(popup, descDiv, closeBtn) {
+  function handleMirrorInteraction(popup, descDiv) {
     mirrorClickCount++;
     if (mirrorClickCount < 3) {
       descDiv.innerHTML = '镜子有些破碎，边上好像藏着什么东西……<br><br><em>（还需要点击 ' + (3 - mirrorClickCount) + ' 次）</em>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '继续点击';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     } else if (mirrorClickCount === 3 && !hasItem('card')) {
       addItem('card', '磁卡');
       descDiv.innerHTML = '你拿起一旁的吹风机，狠狠砸向镜子。镜子随即碎裂，你在夹缝里发现了一张磁卡！<br><br><strong>获得物品：磁卡</strong>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '收入物品栏';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     } else {
       descDiv.innerHTML = '碎裂的镜子，边上残留着一些玻璃碎片。<br><br><em>磁卡已经收入物品栏。</em>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     }
   }
 
   // 漫画书互动：获得密码提示
-  function handleBookshelfInteraction(popup, descDiv, closeBtn) {
+  function handleBookshelfInteraction(popup, descDiv) {
     if (!hasPassword('study_drawer')) {
       discoverPassword('study_drawer', '123');
       descDiv.innerHTML = '你翻阅着自己最喜欢的这本漫画，可却对里面的内容感到陌生。就在这时，你发现书页中竟掉落了一张纸片。你捡起纸片，上面写着三位数字——<strong>719</strong>。<br><br>不对……等等，这张纸片的背面还有字！<br><br>上面写着：<strong>密码提示：与漫画有关的数字</strong>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '记下提示';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     } else {
       descDiv.innerHTML = '你翻了翻那本漫画书，书页还是那么熟悉。<br><br><em>密码提示：与漫画有关的数字（答案：123）</em>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     }
   }
 
   // 抽屉互动：密码输入
-  function handleDrawerInteraction(popup, descDiv, closeBtn) {
-    if (hasItem('drawer_opened')) {
+  function handleDrawerInteraction(popup, descDiv) {
+    if (hasGameState('drawer_opened')) {
       descDiv.innerHTML = '抽屉已经被打开过了，里面空空如也。';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     } else if (hasPassword('study_drawer')) {
       descDiv.innerHTML = '书桌的抽屉，上锁了……<br><br><strong>你记得密码提示：与漫画有关的数字</strong><br><br><input type="text" id="drawer-password-input" class="password-input" maxlength="3" placeholder="输入三位数密码">';
-      closeBtn.style.display = 'none';
 
       var inputEl = popup.querySelector('#drawer-password-input');
       inputEl.focus();
 
       inputEl.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-          checkDrawerPassword(inputEl.value, popup, descDiv, closeBtn);
+          checkDrawerPassword(inputEl.value, popup, descDiv);
         }
       });
 
       inputEl.addEventListener('input', function(e) {
-        // 只允许数字
         this.value = this.value.replace(/[^0-9]/g, '');
       });
 
@@ -1092,46 +1244,27 @@
       confirmBtn.style.cssText = 'margin-top: 10px; padding: 8px 20px; background: #4a90a4; color: white; border: none; border-radius: 4px; cursor: pointer;';
       confirmBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        checkDrawerPassword(inputEl.value, popup, descDiv, closeBtn);
+        checkDrawerPassword(inputEl.value, popup, descDiv);
       });
       descDiv.appendChild(confirmBtn);
-
-      // 添加返回按钮
-      var backBtn = document.createElement('button');
-      backBtn.className = 'popup-back-btn';
-      backBtn.textContent = '返回';
-      backBtn.style.cssText = 'margin-top: 10px; margin-left: 10px; padding: 8px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;';
-      backBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      });
-      descDiv.appendChild(backBtn);
     } else {
       descDiv.innerHTML = '书桌的抽屉，上锁了……<br><br><em>需要三位数的密码，但你似乎还不知道密码在哪里。</em>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     }
   }
 
-  function checkDrawerPassword(password, popup, descDiv, closeBtn) {
+  function checkDrawerPassword(password, popup, descDiv) {
     if (password === '123') {
-      addItem('drawer_opened', '已打开的抽屉');
-      closeBtn.style.display = 'none';
-      showCardUsagePopup(popup, descDiv, closeBtn);
+      setGameState('drawer_opened');
+      showCardUsagePopup(popup, descDiv);
     } else if (password.length > 0) {
       descDiv.innerHTML = '<span style="color: #ff6b6b;">密码错误！</span><br><br>书桌的抽屉，上锁了……<br><br><strong>你记得密码提示：与漫画有关的数字</strong><br><br><input type="text" id="drawer-password-input" class="password-input" maxlength="3" placeholder="输入三位数密码">';
-      closeBtn.style.display = 'none';
 
       var inputEl = popup.querySelector('#drawer-password-input');
       inputEl.focus();
 
       inputEl.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-          checkDrawerPassword(inputEl.value, popup, descDiv, closeBtn);
+          checkDrawerPassword(inputEl.value, popup, descDiv);
         }
       });
 
@@ -1145,38 +1278,21 @@
       confirmBtn.style.cssText = 'margin-top: 10px; padding: 8px 20px; background: #4a90a4; color: white; border: none; border-radius: 4px; cursor: pointer;';
       confirmBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        checkDrawerPassword(inputEl.value, popup, descDiv, closeBtn);
+        checkDrawerPassword(inputEl.value, popup, descDiv);
       });
       descDiv.appendChild(confirmBtn);
-
-      var backBtn = document.createElement('button');
-      backBtn.className = 'popup-back-btn';
-      backBtn.textContent = '返回';
-      backBtn.style.cssText = 'margin-top: 10px; margin-left: 10px; padding: 8px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;';
-      backBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      });
-      descDiv.appendChild(backBtn);
     }
   }
 
   // 抽屉使用磁卡弹窗
-  function showCardUsagePopup(popup, descDiv, closeBtn) {
+  function showCardUsagePopup(popup, descDiv) {
     var hasCard = hasItem('card');
     var hasProposal = hasItem('proposal');
 
     if (hasProposal) {
       descDiv.innerHTML = '<strong>密码正确！</strong><br><br>抽屉已经被打开过了，盒子已经取出。';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     } else if (hasCard) {
       descDiv.innerHTML = '<strong>密码正确！</strong><br><br>你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em><br><br>盒子上有一个磁卡槽……';
-      closeBtn.style.display = '';
 
       // 使用磁卡按钮
       var useBtn = document.createElement('button');
@@ -1187,37 +1303,42 @@
         e.stopPropagation();
         addItem('proposal', '提案文件');
         descDiv.innerHTML = '<strong>成功！</strong><br><br>你将磁卡放入盒子，盒子打开，里面是一份提案文件！<br><br><strong>获得物品：提案文件</strong><br><br><em>可以在物品栏中查看提案内容。</em>';
-        closeBtn.style.display = '';
-        closeBtn.textContent = '确定';
-        closeBtn.onclick = function(e) {
-          e.stopPropagation();
-          closeInteractionPopup();
-        };
       });
       descDiv.appendChild(useBtn);
-
-      closeBtn.textContent = '返回';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     } else {
       descDiv.innerHTML = '<strong>密码正确！</strong><br><br>你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em><br><br>盒子上有一个磁卡槽，但似乎是空的……<br><br><em>也许需要找到什么东西才能打开它。</em>';
-      closeBtn.style.display = '';
-      closeBtn.textContent = '关闭';
-      closeBtn.onclick = function(e) {
-        e.stopPropagation();
-        closeInteractionPopup();
-      };
     }
   }
 
   // 初始化互动层点击事件（点击空白区域关闭弹窗）
   if (storyViewport) {
     storyViewport.addEventListener('click', function(e) {
-      if (!e.target.closest('.interaction-hotspot') && !e.target.closest('#interaction-popup')) {
-        closeInteractionPopup();
+      // 物品栏按钮点击只触发 toggle，不关闭
+      if (e.target.closest('#inventory-btn')) {
+        return;
       }
+      // 物品栏 UI 内部点击不关闭
+      if (e.target.closest('#inventory-ui')) {
+        return;
+      }
+      // 手机菜单按钮点击只触发 toggle，不关闭
+      if (e.target.closest('#phone-btn')) {
+        return;
+      }
+      // 手机菜单内部点击不关闭
+      if (e.target.closest('#phone-menu')) {
+        return;
+      }
+      // 物品查看弹窗内部点击不关闭
+      if (e.target.closest('#item-view-popup')) {
+        return;
+      }
+      // 互动弹窗内部点击不关闭
+      if (e.target.closest('.interaction-popup')) {
+        return;
+      }
+      // 关闭所有弹窗
+      closeAllPopups();
     });
   }
 
@@ -1233,6 +1354,7 @@
     playerInventory = [];
     discoveredPasswords = {};
     mirrorClickCount = 0;
+    gameStates = {};
     closePhoneMenu();
     closeInteractionPopup();
     closeInventory();

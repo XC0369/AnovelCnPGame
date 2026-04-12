@@ -29,14 +29,16 @@ window.NOVEL_ASSETS = {
     park: 'assets/music/park.mp3',
     old_house_door: 'assets/music/old_house_door.mp3',
     living_room_dusk: 'assets/music/living_room_dusk.mp3',
-    bedroom1: 'assets/music/home.mp3',
-    toilet: 'assets/music/home.mp3',
-    bedroom2: 'assets/music/home.mp3',
-    study_room: 'assets/music/study.mp3',
-    living_room_night: 'assets/music/living_room_night.mp3'
+    bedroom1: 'assets/music/bedroom1.mp3',
+    toilet: 'assets/music/toilet.mp3',
+    bedroom2: 'assets/music/bedroom1.mp3',
+    study_room: 'assets/music/study_room.mp3',
+    living_room_night: 'assets/music/living_room_dusk.mp3'
   },
   // 对话语音（键名 = 步骤中的 id，值为语音文件路径）
+  // 对话示例：步骤中有 id: 'reporter_1'，则配置 'reporter_1': 'assets/voice/reporter_1.mp3'
   voiceover: {
+    // 对话语音
     'reporter_1': 'assets/voice/reporter_1.mp3',
     'reporter_2': 'assets/voice/reporter_2.mp3',
     'reporter_3': 'assets/voice/reporter_3.mp3',
@@ -47,50 +49,88 @@ window.NOVEL_ASSETS = {
     'player_no2': 'assets/voice/player_no2.mp3',
     'player_no_erase': 'assets/voice/player_no_erase.mp3',
     'mother_wipe': 'assets/voice/mother_wipe.mp3',
-    'mother_mess': 'assets/voice/mother_mess.mp3'
+    'mother_mess': 'assets/voice/mother_mess.mp3',
+
+    // 旁白语音（键名格式：narr_ + 步骤索引）
+    'narr_0': 'assets/voice/narr_0.mp3',
+    'narr_1': 'assets/voice/narr_1.mp3',
+    'narr_2': 'assets/voice/narr_2.mp3',
+    'narr_3': 'assets/voice/narr_3.mp3',
+    'narr_4': 'assets/voice/narr_4.mp3',
+    'narr_5': 'assets/voice/narr_5.mp3',
+    'narr_7': 'assets/voice/narr_7.mp3',
+    'narr_9': 'assets/voice/narr_9.mp3',
+    'narr_11': 'assets/voice/narr_11.mp3',
+    'narr_12': 'assets/voice/narr_12.mp3',
+    'narr_13': 'assets/voice/narr_13.mp3',
+    'narr_14': 'assets/voice/narr_14.mp3',
+    'narr_15': 'assets/voice/narr_15.mp3',
+    'narr_16': 'assets/voice/narr_16.mp3',
+    'narr_18': 'assets/voice/narr_18.mp3',
+    'narr_20': 'assets/voice/narr_20.mp3',
+    'narr_21': 'assets/voice/narr_21.mp3',
+    'narr_22': 'assets/voice/narr_22.mp3',
+    'narr_27': 'assets/voice/narr_27.mp3',
+    'narr_29': 'assets/voice/narr_29.mp3',
+    'narr_31': 'assets/voice/narr_31.mp3',
+    'narr_32': 'assets/voice/narr_32.mp3',
+    'narr_33': 'assets/voice/narr_33.mp3'
   },
   // 场景互动元素（键名 = 场景 id，x/y/w/h 基于 1920×1080 画布）
   // image 字段指定图片路径，设为 null 则显示热区边框
+  // sound 字段指定点击时播放的音效文件路径
   interactions: {
     graveyard: [
       { id: 'umbrella', x: 860, y: 280, w: 200, h: 300, name: '黑伞',
-        desc: '一把黑色的伞，被风吹到了不远处。', image: 'assets/interaction/black_umb.png' },
+        desc: '一把黑色的伞，被风吹到了不远处。', image: 'assets/interaction/black_umb.png',
+        sound: 'assets/sfx/umbrella.mp3' },
       { id: 'coffin', x: 810, y: 600, w: 300, h: 280, name: '棺材',
-        desc: '母亲的棺材，静静地躺在这里。', image: 'assets/interaction/coffin.png' }
+        desc: '母亲的棺材，静静地躺在这里。', image: 'assets/interaction/coffin.png',
+        sound: 'assets/sfx/coffin.mp3' }
     ],
     park: [
       { id: 'swing', x: 550, y: 380, w: 300, h: 220, name: '秋千',
-        desc: '记忆中的秋千，如今已经破旧不堪。', image: 'assets/interaction/trapeze.png' }
+        desc: '记忆中的秋千，如今已经破旧不堪。', image: 'assets/interaction/trapeze.png',
+        sound: 'assets/sfx/swing.mp3' }
     ],
     old_house_door: [
       { id: 'potted', x: 100, y: 680, w: 140, h: 120, name: '盆栽',
-        desc: '门口叶子泛黄几近腐烂的盆栽。', image: 'assets/interaction/potplant.png' }
+        desc: '门口叶子泛黄几近腐烂的盆栽。', image: 'assets/interaction/potplant.png',
+        sound: 'assets/sfx/potplant.mp3' }
     ],
     bedroom1: [
       { id: 'suit', x: 1000, y: 420, w: 200, h: 260, name: '男士西装',
-        desc: '枕头上放着一件男士西装，你好奇这是谁的衣服……', image: 'assets/interaction/mensuit.png' }
+        desc: '枕头上放着一件男士西装，你好奇这是谁的衣服……', image: 'assets/interaction/mensuit.png',
+        sound: 'assets/sfx/suit.mp3' }
     ],
     toilet: [
       { id: 'mirror', x: 1100, y: 200, w: 280, h: 380, name: '镜子',
-        desc: '镜子有些破碎，边上好像藏着什么东西……', image: 'assets/interaction/mirror.png' }
+        desc: '镜子有些破碎，边上好像藏着什么东西……', image: 'assets/interaction/mirror.png',
+        sound: 'assets/sfx/mirror.mp3' }
     ],
     bedroom2: [
       { id: 'desk', x: 80, y: 440, w: 280, h: 200, name: '粉红书桌',
-        desc: '那张粉红色的儿童书桌，上面纤尘不染。', image: 'assets/interaction/pinkdesk.png' },
+        desc: '那张粉红色的儿童书桌，上面纤尘不染。', image: 'assets/interaction/pinkdesk.png',
+        sound: 'assets/sfx/desk.mp3' },
       { id: 'bunny', x: 1380, y: 300, w: 200, h: 200, name: '兔子涂鸦',
-        desc: '床头那个滑稽又可笑的涂鸦，小时候的你第一次对母亲发出权威性挑战的尝试。', image: 'assets/interaction/rabbitgraffiti.png' },
+        desc: '床头那个滑稽又可笑的涂鸦，小时候的你第一次对母亲发出权威性挑战的尝试。', image: 'assets/interaction/rabbitgraffiti.png',
+        sound: 'assets/sfx/bunny.mp3' },
       { id: 'bookshelf', x: 1500, y: 180, w: 280, h: 400, name: '书柜',
-        desc: '你从来都不喜欢那些枯燥乏味的经典书籍，偏偏对漫画情有独钟……', image: 'assets/interaction/bookcase.png'}
+        desc: '你从来都不喜欢那些枯燥乏味的经典书籍，偏偏对漫画情有独钟……', image: 'assets/interaction/bookcase.png',
+        sound: 'assets/sfx/bookshelf.mp3' }
     ],
-        study_room: [
+    study_room: [
       { id: 'notebook', x: 800, y: 320, w: 220, h: 140, name: '笔记本',
-        desc: '书桌上的笔记本，上面尽是些与保守党有关的内容。', image: 'assets/interaction/notebook.png' },
+        desc: '书桌上的笔记本，上面尽是些与保守党有关的内容。', image: 'assets/interaction/notebook.png',
+        sound: 'assets/sfx/notebook.mp3' },
       { id: 'drawer', x: 700, y: 500, w: 280, h: 140, name: '抽屉',
-        desc: '书桌的抽屉，上锁了……需要三位数的密码。', image: 'assets/interaction/drawer.png' }
+        desc: '书桌的抽屉，上锁了……需要三位数的密码。', image: 'assets/interaction/drawer.png',
+        sound: 'assets/sfx/drawer.mp3' }
     ],
     living_room_night: [
       { id: 'guitar', x: 280, y: 380, w: 200, h: 320, name: '吉他',
-        desc: '客厅里的吉他，你随着远处的歌声弹奏起来。', image: 'assets/interaction/gituar.png' }
+        desc: '客厅里的吉他，你随着远处的歌声弹奏起来。', image: 'assets/interaction/gituar.png',
+        sound: 'assets/sfx/guitar.mp3' }
     ]
   },
   // 手机菜单场景导航选项

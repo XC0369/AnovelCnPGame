@@ -1,15 +1,16 @@
 /* ===== 基础与变量 ===== */
 :root {
-  --bg-dark: #1a1625;
-  --bg-panel: rgba(30, 26, 40, 0.92);
-  --text-primary: #f0ebe3;
-  --text-secondary: #b8b0a0;
-  --accent: #c9a86c;
-  --accent-hover: #e0c88a;
-  --border-subtle: rgba(201, 168, 108, 0.35);
+  --bg-dark: #2a2520;
+  --bg-panel: rgba(45, 40, 35, 0.88);
+  --text-primary: #e8dfd0;
+  --text-secondary: #b5a890;
+  --text-muted: #8a7d6a;
+  --accent: #c4875a;
+  --accent-hover: #d4a07a;
+  --border-subtle: rgba(196, 135, 90, 0.4);
   --font-serif: "Noto Serif SC", "SimSun", serif;
   --font-display: "ZCOOL QingKe HuangYou", "Noto Serif SC", serif;
-  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.35);
   --game-scale: 1;
 }
 
@@ -47,7 +48,7 @@ html, body {
 
 /* ===== 标题界面 ===== */
 #title-screen {
-  background: radial-gradient(ellipse 80% 60% at 50% 40%, #2a2438 0%, #1a1625 70%);
+  background: linear-gradient(135deg, #3a3530 0%, #2a2520 50%, #352f28 100%);
 }
 
 .title-content {
@@ -126,7 +127,7 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(180deg, #252030 0%, #1a1625 50%);
+  background: linear-gradient(180deg, #3a3530 0%, #2a2520 50%);
 }
 
 .scene-bg-img {
@@ -297,7 +298,7 @@ html, body {
 
 .choice-btn:hover {
   border-color: var(--accent);
-  background: rgba(201, 168, 108, 0.12);
+  background: rgba(196, 135, 90, 0.12);
   color: var(--accent-hover);
 }
 
@@ -308,8 +309,8 @@ html, body {
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: rgba(201, 168, 108, 0.15);
-  border: 2px solid rgba(201, 168, 108, 0.5);
+  background: rgba(196, 135, 90, 0.2);
+  border: 2px solid rgba(196, 135, 90, 0.5);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -318,16 +319,16 @@ html, body {
   backdrop-filter: blur(8px);
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .icon-btn:hover {
-  background: rgba(201, 168, 108, 0.35);
-  border-color: rgba(201, 168, 108, 0.8);
+  background: rgba(196, 135, 90, 0.35);
+  border-color: rgba(196, 135, 90, 0.8);
   transform: scale(1.08);
   box-shadow:
-    0 6px 28px rgba(201, 168, 108, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 6px 28px rgba(196, 135, 90, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .icon-btn:active {
@@ -351,13 +352,13 @@ html, body {
 .icon-btn svg {
   width: 26px;
   height: 26px;
-  color: rgba(201, 168, 108, 0.9);
+  color: rgba(196, 135, 90, 0.9);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
   transition: color 0.3s ease;
 }
 
 .icon-btn:hover svg {
-  color: #e0c88a;
+  color: #d4a07a;
 }
 
 /* ===== 结束界面 ===== */
@@ -418,8 +419,8 @@ html, body {
   position: absolute;
   cursor: pointer;
   border-radius: 8px;
-  background: rgba(201, 168, 108, 0.08);
-  border: 2px solid rgba(201, 168, 108, 0.25);
+  background: rgba(196, 135, 90, 0.1);
+  border: 2px solid rgba(196, 135, 90, 0.3);
   transition: background 0.2s, border-color 0.2s;
   pointer-events: auto;
   overflow: visible;
@@ -427,8 +428,8 @@ html, body {
 
 .interaction-hotspot:hover,
 .interaction-hotspot:active {
-  background: rgba(201, 168, 108, 0.2);
-  border-color: rgba(201, 168, 108, 0.6);
+  background: rgba(196, 135, 90, 0.2);
+  border-color: rgba(196, 135, 90, 0.6);
 }
 
 /* 有图片时隐藏默认边框和提示 */
@@ -449,7 +450,7 @@ html, body {
 
 /* 有图片时悬停边框 */
 .interaction-hotspot:has(.interaction-img):hover {
-  border: 2px solid rgba(201, 168, 108, 0.6);
+  border: 2px solid rgba(196, 135, 90, 0.6);
 }
 
 /* 无图片时显示名称提示 */
@@ -475,68 +476,43 @@ html, body {
   opacity: 1;
 }
 
-/* ===== 互动弹窗 ===== */
+/* ===== 互动浮动信息框 ===== */
 .interaction-popup {
   position: absolute;
-  inset: 0;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: var(--bg-panel);
+  border: 2px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 320px;
+  max-width: 90%;
+  box-shadow: var(--shadow-soft);
   pointer-events: auto;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .interaction-popup.hidden {
   display: none;
 }
 
-.interaction-popup .popup-content {
-  background: var(--bg-panel);
-  border: 2px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 24px 32px;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: var(--shadow-soft);
-  animation: fadeIn 0.25s ease-out;
-}
-
 .interaction-popup .popup-title {
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   color: var(--accent);
-  margin-bottom: 12px;
-  padding-bottom: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .interaction-popup .popup-desc {
-  font-size: 1rem;
-  line-height: 1.8;
+  font-size: 0.95rem;
+  line-height: 1.7;
   color: var(--text-primary);
   white-space: pre-line;
-  margin-bottom: 20px;
 }
 
 .interaction-popup .popup-close {
-  display: block;
-  width: 100%;
-  font-family: var(--font-serif);
-  font-size: 0.95rem;
-  padding: 10px;
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.interaction-popup .popup-close:hover {
-  background: rgba(201, 168, 108, 0.1);
-  border-color: var(--accent);
+  display: none;
 }
 
 /* ===== 手机下拉菜单 ===== */
@@ -575,7 +551,7 @@ html, body {
   font-size: 1rem;
   color: var(--accent);
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(201, 168, 108, 0.08);
+  background: rgba(196, 135, 90, 0.08);
 }
 
 .phone-menu-list {
@@ -592,20 +568,20 @@ html, body {
   color: var(--text-primary);
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(201, 168, 108, 0.1);
+  border-bottom: 1px solid rgba(196, 135, 90, 0.12);
   cursor: pointer;
   text-align: left;
   transition: background 0.15s, color 0.15s;
 }
 
 .phone-menu-item:hover {
-  background: rgba(201, 168, 108, 0.12);
+  background: rgba(196, 135, 90, 0.12);
   color: var(--accent-hover);
 }
 
 .phone-menu-item.current {
   color: var(--accent);
-  background: rgba(201, 168, 108, 0.08);
+  background: rgba(196, 135, 90, 0.08);
   font-weight: 600;
 }
 
@@ -630,17 +606,17 @@ html, body {
 }
 
 .phone-menu-close:hover {
-  background: rgba(201, 168, 108, 0.08);
+  background: rgba(196, 135, 90, 0.08);
   color: var(--text-primary);
 }
 
 /* ——— 物品栏系统 ——— */
 .inventory-btn {
-  border: 2px solid rgba(201, 168, 108, 0.5);
+  border: 2px solid rgba(196, 135, 90, 0.5);
 }
 
 .inventory-btn:hover {
-  border-color: rgba(201, 168, 108, 0.8);
+  border-color: rgba(196, 135, 90, 0.8);
 }
 
 .inventory-icon {
@@ -649,19 +625,19 @@ html, body {
 }
 
 .inventory-ui {
-  position: fixed;
+  position: absolute;
+  bottom: 82px;
   right: 20px;
-  bottom: 90px;
-  width: 220px;
-  max-height: 320px;
-  background: rgba(30, 26, 40, 0.92);
-  border: 2px solid rgba(201, 168, 108, 0.4);
+  width: 280px;
+  max-height: 360px;
+  background: rgba(45, 40, 35, 0.92);
+  border: 2px solid rgba(196, 135, 90, 0.4);
   border-radius: 12px;
   overflow: hidden;
   z-index: 100;
   backdrop-filter: blur(12px);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -675,8 +651,8 @@ html, body {
   font-size: 1rem;
   font-weight: 600;
   color: var(--accent);
-  background: rgba(201, 168, 108, 0.12);
-  border-bottom: 1px solid rgba(201, 168, 108, 0.3);
+  background: rgba(196, 135, 90, 0.12);
+  border-bottom: 1px solid rgba(196, 135, 90, 0.3);
   cursor: pointer;
 }
 
@@ -696,7 +672,7 @@ html, body {
 }
 
 .inventory-items::-webkit-scrollbar-thumb {
-  background: rgba(201, 168, 108, 0.4);
+  background: rgba(196, 135, 90, 0.4);
   border-radius: 3px;
 }
 
@@ -717,8 +693,8 @@ html, body {
   font-family: var(--font-serif);
   font-size: 0.95rem;
   color: var(--text-primary);
-  background: rgba(201, 168, 108, 0.08);
-  border: 1px solid rgba(201, 168, 108, 0.2);
+  background: rgba(196, 135, 90, 0.08);
+  border: 1px solid rgba(196, 135, 90, 0.2);
   border-radius: 6px;
   cursor: pointer;
   text-align: left;
@@ -726,75 +702,46 @@ html, body {
 }
 
 .inventory-item-btn:hover {
-  background: rgba(201, 168, 108, 0.2);
+  background: rgba(196, 135, 90, 0.2);
   border-color: var(--accent);
 }
 
-/* ——— 物品查看弹窗 ——— */
+/* ——— 物品查看浮动框 ——— */
 .item-view-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute;
   z-index: 200;
+  background: rgba(45, 40, 35, 0.95);
+  border: 2px solid rgba(196, 135, 90, 0.4);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  pointer-events: auto;
 }
 
 .item-view-popup.hidden {
   display: none;
 }
 
-.item-view-inner {
+.item-view-popup .item-view-inner {
   position: relative;
-  width: 90%;
-  max-width: 600px;
   max-height: 80vh;
-  background: rgba(30, 26, 40, 0.98);
-  border: 2px solid rgba(201, 168, 108, 0.4);
-  border-radius: 12px;
-  overflow: hidden;
-  backdrop-filter: blur(12px);
-  box-shadow:
-    0 12px 48px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  z-index: 1;
-}
-
-.item-view-content {
-  max-height: 80vh;
-  padding: 28px;
   overflow-y: auto;
 }
 
-.item-view-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.item-view-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.item-view-content::-webkit-scrollbar-thumb {
-  background: rgba(201, 168, 108, 0.4);
-  border-radius: 3px;
-}
-
-.item-view-close-btn {
+.item-view-popup .item-view-close-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  background: rgba(201, 168, 108, 0.15);
-  border: 1px solid rgba(201, 168, 108, 0.4);
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  background: rgba(196, 135, 90, 0.15);
+  border: 1px solid rgba(196, 135, 90, 0.4);
   border-radius: 50%;
-  color: rgba(201, 168, 108, 0.8);
-  font-size: 1.2rem;
+  color: rgba(196, 135, 90, 0.8);
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -804,10 +751,10 @@ html, body {
   z-index: 10;
 }
 
-.item-view-close-btn:hover {
-  background: rgba(201, 168, 108, 0.3);
-  border-color: rgba(201, 168, 108, 0.7);
-  color: #e0c88a;
+.item-view-popup .item-view-close-btn:hover {
+  background: rgba(196, 135, 90, 0.3);
+  border-color: rgba(196, 135, 90, 0.7);
+  color: #d4a07a;
 }
 
 .item-view-title {
@@ -817,7 +764,7 @@ html, body {
   color: var(--accent);
   margin-bottom: 18px;
   padding-bottom: 14px;
-  border-bottom: 1px solid rgba(201, 168, 108, 0.3);
+  border-bottom: 1px solid rgba(196, 135, 90, 0.3);
 }
 
 .item-view-text {
@@ -844,7 +791,7 @@ html, body {
   font-family: var(--font-serif);
   font-size: 1.1rem;
   color: var(--text-primary);
-  background: rgba(20, 18, 15, 0.8);
+  background: rgba(25, 20, 18, 0.8);
   border: 1px solid var(--accent);
   border-radius: 4px;
   text-align: center;
@@ -854,5 +801,5 @@ html, body {
 
 .password-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(201, 168, 108, 0.3);
+  box-shadow: 0 0 0 2px rgba(196, 135, 90, 0.3);
 }
