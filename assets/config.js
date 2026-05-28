@@ -144,5 +144,40 @@ window.NOVEL_ASSETS = {
     { id: 'toilet', name: '主卧厕所', scene: 'INT. OLD HOUSE BEDROOM 1 TOILET - DUSK' },
     { id: 'bedroom2', name: '儿童房', scene: 'INT. OLD HOUSE BEDROOM 2 - DUSK' },
     { id: 'study_room', name: '书房', scene: 'INT. OLD HOUSE STUDY ROOM - DUSK' }
-  ]
+  ],
+
+  // 地图配置
+  map: {
+    // 地图背景图片（可配置，支持 gif/jpg/png 等格式）
+    background: 'assets/map/map_bg.gif',
+    // 地图图标（用于标记可选位置，设为空则不显示图标）
+    markerIcon: 'assets/icon/map_icon_01.png',
+    // 地图上的可点击位置
+    locations: [
+      {
+        id: 'graveyard',
+        name: '墓地',
+        x: 60,  // 百分比
+        y: 40,
+        size: 50,
+        scene: 'EXT. GRAVEYARD - DAY'
+      },
+      {
+        id: 'park',
+        name: '小公园',
+        x: 75,
+        y: 35,
+        size: 50,
+        scene: 'EXT. PARK - DUSK'
+      },
+      {
+        id: 'old_house_door',
+        name: '旧宅门口',
+        x: 90,
+        y: 45,
+        size: 50,
+        scene: 'EXT. OLD HOUSE FRONT DOOR - DUSK'
+      }
+    ]
+  }
 };

@@ -117,14 +117,14 @@
     {
       id: 'narr_15',
       scene: 'INT. OLD HOUSE LIVING ROOM - DUSK',
-      narrative: '夕阳透过窗洒在屋内，屋里和从前一样，没有太多变化。客厅里没有太多杂物，只有一盆又一盆的绿植。\n\n地板上摇曳着门前树叶的影子。你回忆起自己曾在地板上踩树影自娱自乐，心里这么想着，你便真的自顾自玩了起来。',
-      next: 16
+      narrative: '夕阳透过窗洒在屋内，屋里和从前一样，没有太多变化。客厅里没有太多杂物，只有一盆又一盆的绿植。\n\n地板上摇曳着门前树叶的影子。你回忆起自己曾在地板上踩树影自娱自乐，心里这么想着，你便真的自顾自玩了起来。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'narr_16',
       scene: 'INT. OLD HOUSE BEDROOM 1 - DUSK',
-      narrative: '你进入母亲的房间，屋内依旧是母亲喜欢的整洁模样。枕头上放着一件男士西装，你捡起后开始好奇这是谁的衣服。',
-      next: 17
+      narrative: '你进入母亲的房间，屋内依旧是母亲喜欢的整洁模样。枕头上放着一件男士西装，你捡起后开始好奇这是谁的衣服。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'player_card',
@@ -135,8 +135,8 @@
     {
       id: 'narr_18',
       scene: 'INT. OLD HOUSE BEDROOM 1 TOILET - DUSK',
-      narrative: '你进入主卧的厕所，你留意到牙杯里有两只牙刷。\n\n镜子有些破碎。你看着镜子里憔悴的自己，觉得有些好笑。可这时，你突然发现镜子边好像藏着什么东西，你拿起一旁的吹风机，狠狠砸向镜子。镜子随即碎裂，你在夹缝里发现了一张磁卡。你拿起卡片后仔细端详，上面写着：xxxx。',
-      next: 19
+      narrative: '你进入主卧的厕所，你留意到牙杯里有两只牙刷。\n\n镜子有些破碎。你看着镜子里憔悴的自己，觉得有些好笑。可这时，你突然发现镜子边好像藏着什么东西，你拿起一旁的吹风机，狠狠砸向镜子。镜子随即碎裂，你在夹缝里发现了一张磁卡。你拿起卡片后仔细端详，上面写着：xxxx。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'player_card2',
@@ -146,14 +146,14 @@
     },
     {
       id: 'narr_20',
-      narrative: '不明所以，但你还是收下了这张磁卡。',
-      next: 21
+      narrative: '不明所以，但你还是收下了这张磁卡。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'narr_21',
       scene: 'INT. OLD HOUSE BEDROOM 2 - DUSK',
-      narrative: '你轻轻推开房间门，里面的陈设一如既往，像是这么些年从未有人踏足过般。你摸了一下那张粉红色的儿童书桌，上面纤尘不染，看来母亲肯定打扫过这里了，即便这么些年你从未回来过一次。你看向床头那个滑稽又可笑的涂鸦，你记得那是小时候的你，第一次对母亲发出权威性挑战的尝试。你知道母亲喜欢素净的墙面，可你偏偏要用荧光色的画笔在墙上留下可笑的兔子头像。',
-      next: 22
+      narrative: '你轻轻推开房间门，里面的陈设一如既往，像是这么些年从未有人踏足过般。你摸了一下那张粉红色的儿童书桌，上面纤尘不染，看来母亲肯定打扫过这里了，即便这么些年你从未回来过一次。你看向床头那个滑稽又可笑的涂鸦，你记得那是小时候的你，第一次对母亲发出权威性挑战的尝试。你知道母亲喜欢素净的墙面，可你偏偏要用荧光色的画笔在墙上留下可笑的兔子头像。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'player_childhood',
@@ -183,34 +183,34 @@
       id: 'player_no2',
       dialogue: '我不要！',
       speaker: '你',
-      next: 28
+      next: 27
     },
     {
       id: 'narr_27',
       narrative: '母亲伸手想要抹掉这个滑稽的图案，而你死死地抱住她的腰。',
-      next: 29
+      next: 28
     },
     {
       id: 'player_no_erase',
       dialogue: '不许擦！不许擦！',
       speaker: '你',
-      next: 30
+      next: 29
     },
     {
       id: 'narr_29',
-      narrative: '你再看了一眼这个兔子图案，转身走向你的书柜。你从来都不喜欢那些枯燥乏味的经典书籍，偏偏对漫画情有独钟。你打开那本童年时翻阅了无数遍的《xxx》，书页都被你摸出了毛边。你翻阅着自己最喜欢的这本漫画，可却对里面的内容感到陌生。于是你忍不住读出了声。可这时，你发现书页中竟掉落了一张纸片。你捡起纸片，上面写着三位数字——719。\n\n你意识到有些不对劲，这是母亲的笔迹，只有母亲喜欢写7这个数字的时候加上那一横，她这是想告诉我些什么吗？于是离开了卧室。',
-      next: 31
+      narrative: '你再看了一眼这个兔子图案，转身走向你的书柜。你从来都不喜欢那些枯燥乏味的经典书籍，偏偏对漫画情有独钟。你打开那本童年时翻阅了无数遍的《xxx》，书页都被你摸出了毛边。你翻阅着自己最喜欢的这本漫画，可却对里面的内容感到陌生。于是你忍不住读出了声。可这时，你发现书页中竟掉落了一张纸片。你捡起纸片，上面写着三位数字——719。\n\n你意识到有些不对劲，这是母亲的笔迹，只有母亲喜欢写7这个数字的时候加上那一横，她这是想告诉我些什么吗？于是离开了卧室。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'narr_31',
       scene: 'INT. OLD HOUSE STUDY ROOM - DUSK',
-      narrative: '你来到书房，记忆中，母亲的书房总是十分神圣。母亲的生活被工作完全侵占，而她却从不知疲倦。你想起无数个深夜里，她独自一人在书房中办公的情景。你推开门走了进去，里面和记忆中别无二致。你想起警方的尸检报告，死者在书房中，服用过度安眠药自尽。就连死亡，都要在她最喜欢的空间里。你无法分辨，是她选择了死亡，还是死亡选择了她。',
-      next: 32
+      narrative: '你来到书房，记忆中，母亲的书房总是十分神圣。母亲的生活被工作完全侵占，而她却从不知疲倦。你想起无数个深夜里，她独自一人在书房中办公的情景。你推开门走了进去，里面和记忆中别无二致。你想起警方的尸检报告，死者在书房中，服用过度安眠药自尽。就连死亡，都要在她最喜欢的空间里。你无法分辨，是她选择了死亡，还是死亡选择了她。'
+      // next: 不自动跳转，等待玩家点击按钮导航
     },
     {
       id: 'narr_32',
-      narrative: '你翻开书桌上的笔记本，上面尽是些与保守党有关的内容，令你感到厌恶。你企图拉开书桌的抽屉，却意外发现上锁了。正好需要三位数的密码，于是你将锁转到了刚才看到的三位数。你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em>\n\n你将磁卡放入了盒子中……',
-      next: 33
+      narrative: '你翻开书桌上的笔记本，上面尽是些与保守党有关的内容，令你感到厌恶。你企图拉开书桌的抽屉，却意外发现上锁了。正好需要三位数的密码，于是你将锁转到了刚才看到的三位数。你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em>\n\n你将磁卡放入了盒子中……'
+      // next: 不自动跳转，等待玩家点击按钮返回客厅（会自动变为客厅-夜晚）
     },
     {
       id: 'narr_33',
@@ -232,7 +232,10 @@
   var textBoxInner = document.querySelector('.text-box-inner') || textBoxContent;
   var choicesContainer = document.getElementById('choices-container');
   var phoneBtn = document.getElementById('phone-btn');
-  var inventoryBtn = document.getElementById('inventory-btn');
+  var roomNav = document.getElementById('room-nav');
+  var roomNavLeft = document.getElementById('room-nav-left');
+  var roomNavBottom = document.getElementById('room-nav-bottom');
+  var roomNavRight = document.getElementById('room-nav-right');
   var endMessage = document.getElementById('end-message');
 
   var currentIndex = 0;
@@ -249,6 +252,7 @@
   var currentVoiceId = ''; // 当前播放的语音 ID
   var isClosingPopup = false; // 标志：正在关闭弹窗中，阻止 advance
   var visitedScenes = {}; // 已访问过的场景（键为 scene 名）
+  var displayedTexts = {}; // 已展示过的文本索引（键为索引，值为 true）
   var isReturningToVisitedScene = false; // 是否返回已访问场景
   var textBoxCollapsed = false; // 对话框是否收起
 
@@ -321,6 +325,65 @@
   // 从配置中读取互动元素和导航选项
   var SCENE_INTERACTIONS = ASSETS.interactions || {};
   var SCENE_NAV_OPTIONS = ASSETS.sceneNav || [];
+  var MAP_CONFIG = ASSETS.map || { background: '', locations: [] };
+
+  // 房间导航配置：客厅 -> 主卧、儿童房、书房；主卧 -> 主卧厕所
+  var ROOM_NAV_CONFIG = {
+    // 客厅-黄昏：左侧-儿童房，底部-书房，右侧-主卧
+    'living_room_dusk': {
+      left: [
+        { scene: 'INT. OLD HOUSE BEDROOM 2 - DUSK', name: '儿童房' }
+      ],
+      right: [
+        { scene: 'INT. OLD HOUSE BEDROOM 1 - DUSK', name: '主卧' }
+      ],
+      bottom: [
+        { scene: 'INT. OLD HOUSE STUDY ROOM - DUSK', name: '书房' }
+      ]
+    },
+    // 客厅-夜晚：不能去往其它房间（游戏结局）
+    'living_room_night': {
+      left: null,
+      right: null,
+      bottom: null
+    },
+    // 主卧：左侧返回客厅，右侧去主卧厕所
+    'bedroom1': {
+      left: [
+        { scene: 'INT. OLD HOUSE LIVING ROOM - DUSK', name: '客厅' }
+      ],
+      right: [
+        { scene: 'INT. OLD HOUSE BEDROOM 1 TOILET - DUSK', name: '主卧厕所' }
+      ],
+      bottom: null
+    },
+    // 主卧厕所：只能返回主卧
+    'toilet': {
+      left: [
+        { scene: 'INT. OLD HOUSE BEDROOM 1 - DUSK', name: '主卧' }
+      ],
+      right: null,
+      bottom: null
+    },
+    // 儿童房：返回客厅
+    'bedroom2': {
+      left: [
+        { scene: 'INT. OLD HOUSE LIVING ROOM - DUSK', name: '客厅' }
+      ],
+      right: null,
+      bottom: null
+    },
+    // 书房：返回客厅（完成后触发结局逻辑）
+    'study_room': {
+      left: [
+        { scene: 'INT. OLD HOUSE LIVING ROOM - DUSK', name: '客厅' }
+      ],
+      right: null,
+      bottom: null
+    }
+  };
+
+  var roomNavIndex = { left: 0, bottom: 0, right: 0 }; // 当前导航索引
 
   function getLocationId(index) {
     var step = ACT_ONE[index];
@@ -386,14 +449,27 @@
     var idx = sceneNameToIndex(sceneName);
     if (idx >= 0) {
       closePhoneMenu();
+      closeMap();
       closeInteractionPopup();
       // 停止当前语音，确保跳转后语音同步
       stopVoiceover();
+
+      // 特殊处理：从书房返回客厅时，如果书房已完成（获得提案文件），跳转到客厅-夜晚
+      if (sceneName === 'INT. OLD HOUSE LIVING ROOM - DUSK' && hasGameState('drawer_opened')) {
+        var nightIdx = sceneNameToIndex('INT. OLD HOUSE LIVING ROOM - NIGHT');
+        if (nightIdx >= 0) {
+          idx = nightIdx;
+          sceneName = 'INT. OLD HOUSE LIVING ROOM - NIGHT';
+        }
+      }
+
       currentIndex = idx;
       currentScene = sceneName;
       lastLocationId = '';
       lastSpeakerInScene = '';
       activeSpeaker = '';
+      // 重置房间导航索引
+      roomNavIndex = { left: 0, bottom: 0, right: 0 };
       goTo(currentIndex);
     }
   }
@@ -420,12 +496,13 @@
     [titleScreen, storyScreen, endScreen].forEach(function (s) {
       s.classList.toggle('active', s === screen);
     });
-    // 两个按钮仅在故事界面显示
-    if (inventoryBtn) {
-      inventoryBtn.classList.toggle('hidden', screen !== storyScreen);
-    }
+    // 故事界面显示手机菜单按钮
     if (phoneBtn) {
       phoneBtn.classList.toggle('hidden', screen !== storyScreen);
+    }
+    // 关闭地图弹窗
+    if (screen !== storyScreen) {
+      closeMap();
     }
   }
 
@@ -482,23 +559,43 @@
       characterWrap.classList.add('hidden');
     }
 
-    // 左上角文本框：显示当前场景的念白 + 对话历史
+    // 左上角文本框：显示念白 + 对话，追踪展示状态
     var html = '';
 
-    // 遍历从场景起始到 globalDisplayedUpTo 的内容
-    for (var i = currentSceneStart; i <= globalDisplayedUpTo; i++) {
+    // 遍历从场景起始到 currentIndex 的内容
+    for (var i = currentSceneStart; i <= currentIndex; i++) {
       var s = ACT_ONE[i];
+
+      // 判断是否已读：
+      // 1. 如果是返回已访问场景，该场景所有文本都是已读
+      // 2. 否则，只有已展示过的文本才是已读（currentIndex 本身不算已读）
+      var isRead = false;
+      if (isReturningToVisitedScene) {
+        isRead = true;
+      } else if (i < currentIndex && displayedTexts[i]) {
+        isRead = true;
+      }
+
+      // 标记当前文本为已展示
+      displayedTexts[i] = true;
+
       if (s.narrative) {
         var cls = 'narrative-block' + (s.document ? ' document' : '');
-        // 为旁白添加 id，便于语音同步
         var narrId = 'narr_' + i;
-        html += '<p class="' + cls + '" id="' + narrId + '">' + escapeHtml(s.narrative) + '</p>';
+        if (isRead) {
+          html += '<div class="read-block"><span class="read-marker">已读</span><p class="' + cls + '" id="' + narrId + '">' + escapeHtml(s.narrative) + '</p></div>';
+        } else {
+          html += '<p class="' + cls + '" id="' + narrId + '">' + escapeHtml(s.narrative) + '</p>';
+        }
       }
       if (s.speaker || s.dialogue) {
-        // 为对话添加 id（使用步骤中指定的 id 或 dialogue_ + 索引）
         var dialogId = s.id || ('dialogue_' + i);
         var line = (s.speaker ? '<span class="speaker">' + escapeHtml(s.speaker) + '</span>' : '') + escapeHtml(s.dialogue || '');
-        html += '<p class="dialogue-line" id="' + dialogId + '">' + line + '</p>';
+        if (isRead) {
+          html += '<div class="read-block"><span class="read-marker">已读</span><p class="dialogue-line" id="' + dialogId + '">' + line + '</p></div>';
+        } else {
+          html += '<p class="dialogue-line" id="' + dialogId + '">' + line + '</p>';
+        }
       }
     }
 
@@ -545,12 +642,12 @@
 
   function goTo(index) {
     if (index < 0 || index >= ACT_ONE.length) return;
-    
+
     console.log('[goTo] 跳转到索引: ' + index + ' (id: ' + ACT_ONE[index].id + ')');
-    
+
     // 停止当前语音，确保跳转到下一段时语音同步跳转
     stopVoiceover();
-    
+
     var prevIndex = currentIndex;
     currentIndex = index;
     var step = ACT_ONE[currentIndex];
@@ -568,8 +665,18 @@
 
     // 更新当前场景
     if (step.scene) {
+      // 检测是否返回已访问场景
+      if (visitedScenes[step.scene]) {
+        isReturningToVisitedScene = true;
+      } else {
+        visitedScenes[step.scene] = true;
+        isReturningToVisitedScene = false;
+      }
+
       currentScene = step.scene;
       currentSceneStart = index; // 记录场景起始位置
+      // 重置房间导航索引
+      roomNavIndex = { left: 0, bottom: 0, right: 0 };
     }
 
     // 更新全局进度
@@ -578,6 +685,9 @@
     }
 
     renderStep(step, currentIndex);
+
+    // 更新房间导航显示
+    updateRoomNav();
   }
 
   // 弹出需要提案文件的提示
@@ -601,6 +711,8 @@
     if (isClosingPopup) return;
     // 如果打开了手机菜单，忽略 advance
     if (phoneMenu && !phoneMenu.classList.contains('hidden')) return;
+    // 如果地图弹窗打开，忽略 advance
+    if (mapOverlay && mapOverlay.classList.contains('active')) return;
     // 如果弹窗打开，忽略 advance
     if (interactionPopup && !interactionPopup.classList.contains('hidden')) return;
     // 如果物品栏打开，忽略 advance
@@ -615,6 +727,10 @@
     if (ev && ev.target && ev.target.closest('.interaction-hotspot')) return;
     // 手机菜单区域忽略
     if (ev && ev.target && ev.target.closest('#phone-menu')) return;
+    // 地图弹窗区域忽略
+    if (ev && ev.target && ev.target.closest('#map-overlay')) return;
+    // 房间导航按钮忽略
+    if (ev && ev.target && ev.target.closest('.room-nav')) return;
     // 物品栏区域忽略
     if (ev && ev.target && ev.target.closest('#inventory-ui')) return;
     // 物品查看弹窗区域忽略
@@ -634,20 +750,18 @@
       showScreen(endScreen);
       return;
     }
+
+    // 检查是否有 next 指向
+    if (typeof step.next !== 'number') {
+      // 没有 next，不自动跳转（等待玩家点击按钮导航）
+      return;
+    }
+
     // 停止当前语音，确保跳转到下一段时语音同步跳转
     stopVoiceover();
-    var nextIndex = typeof step.next === 'number' ? step.next : currentIndex + 1;
+    var nextIndex = step.next;
     goTo(nextIndex);
   }
-
-  document.getElementById('start-btn').addEventListener('click', function () {
-    currentIndex = 0;
-    currentScene = '';
-    currentSceneStart = 0;
-    lastLocationId = '';
-    showScreen(storyScreen);
-    goTo(0);
-  });
 
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter' || !storyScreen.classList.contains('active')) return;
@@ -680,14 +794,22 @@
   if (storyViewport) {
     storyViewport.addEventListener('click', function (e) {
       if (!storyScreen.classList.contains('active')) return;
-      // 正在关闭弹窗时不前进
+      // 正在关闭弹窗时不处理
       if (isClosingPopup) return;
-      // 弹窗打开时不前进
+      // 弹窗打开时不处理
       if (interactionPopup && !interactionPopup.classList.contains('hidden')) return;
-      // 物品栏打开时不前进
+      // 物品栏打开时不处理
       if (inventoryUI && !inventoryUI.classList.contains('hidden')) return;
-      // 物品查看弹窗打开时不前进
+      // 物品查看弹窗打开时不处理
       if (itemViewPopup && !itemViewPopup.classList.contains('hidden')) return;
+
+      // 如果对话框收起，先展开对话框
+      if (textBoxCollapsed) {
+        toggleTextBox();
+        return;
+      }
+
+      // 对话框展开时，调用 advance 前进
       advance(e);
     });
   }
@@ -708,22 +830,21 @@
     e.stopPropagation();
     // 关闭其他弹窗
     closeInventory();
+    closeMap();
     togglePhoneMenu();
   });
 
-  // 物品栏按钮点击
-  var invBtn = document.getElementById('inventory-btn');
-  if (invBtn) {
-    invBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      toggleInventory();
-    });
-  } else {
-    console.error('inventory-btn not found');
-  }
+  // 地图按钮点击（按钮已移除，改由手机菜单控制）
+  // mapBtn 已不再使用
+
+  // 物品栏按钮点击（按钮已移除，改由手机菜单控制）
+  // inventoryBtn 已不再使用
 
   // ——— 手机下拉菜单 ———
   var phoneMenu = null;
+  var mapOverlay = null;
+  var mapCurrentIndex = 0; // 地图位置导航索引
+
   function getOrCreatePhoneMenu() {
     if (!phoneMenu) {
       phoneMenu = document.createElement('div');
@@ -733,6 +854,219 @@
     }
     return phoneMenu;
   }
+
+  // ——— 地图弹窗系统 ———
+  function getOrCreateMapOverlay() {
+    if (!mapOverlay) {
+      mapOverlay = document.createElement('div');
+      mapOverlay.id = 'map-overlay';
+      mapOverlay.className = 'map-overlay';
+      storyViewport.appendChild(mapOverlay);
+
+      var modal = document.createElement('div');
+      modal.className = 'map-modal';
+
+      var header = document.createElement('div');
+      header.className = 'map-modal-header';
+      header.innerHTML = '<span class="map-modal-title">地图</span><button class="map-modal-close">×</button>';
+
+      var body = document.createElement('div');
+      body.className = 'map-modal-body';
+      body.innerHTML = '<div class="map-image-container"><img class="map-image" alt="地图"><div class="map-hotspots"></div></div>';
+
+      modal.appendChild(header);
+      modal.appendChild(body);
+      mapOverlay.appendChild(modal);
+
+      // 关闭按钮
+      header.querySelector('.map-modal-close').addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeMap();
+      });
+
+      // 点击遮罩关闭
+      mapOverlay.addEventListener('click', function(e) {
+        if (e.target === mapOverlay) {
+          closeMap();
+        }
+      });
+    }
+    return mapOverlay;
+  }
+
+  function toggleMap() {
+    var overlay = getOrCreateMapOverlay();
+    if (overlay.classList.contains('active')) {
+      closeMap();
+    } else {
+      renderMap();
+      overlay.classList.add('active');
+    }
+  }
+
+  function closeMap() {
+    if (mapOverlay) {
+      mapOverlay.classList.remove('active');
+    }
+  }
+
+  function renderMap() {
+    var container = mapOverlay.querySelector('.map-image-container');
+    var img = container.querySelector('.map-image');
+    var hotspotsContainer = container.querySelector('.map-hotspots');
+
+    // 设置地图背景
+    img.src = MAP_CONFIG.background || '';
+    img.alt = '地图';
+
+    // 渲染可点击位置
+    hotspotsContainer.innerHTML = '';
+    var locations = MAP_CONFIG.locations || [];
+    var markerIcon = MAP_CONFIG.markerIcon || '';
+
+    // 获取当前位置
+    var currentLocId = getLocationId(currentIndex);
+    var currentLoc = locations.find(function(l) { return l.id === currentLocId; });
+
+    locations.forEach(function(loc) {
+      var isCurrent = currentLoc && loc.id === currentLocId;
+
+      // 创建热点容器
+      var hotspot = document.createElement('div');
+      hotspot.className = 'map-hotspot' + (isCurrent ? ' current' : '');
+      hotspot.dataset.name = loc.name;
+      hotspot.dataset.scene = loc.scene;
+      hotspot.style.left = loc.x + '%';
+      hotspot.style.top = loc.y + '%';
+      hotspot.style.width = loc.size + 'px';
+      hotspot.style.height = loc.size + 'px';
+      hotspot.style.transform = 'translate(-50%, -50%)';
+
+      // 如果是当前位置，显示高亮样式
+      if (isCurrent) {
+        hotspot.style.borderColor = 'var(--accent)';
+        hotspot.style.background = 'rgba(196, 135, 90, 0.5)';
+        hotspot.style.boxShadow = '0 0 20px rgba(196, 135, 90, 0.8)';
+      }
+
+      // 如果有标记图标，在位置上方显示图标
+      if (markerIcon) {
+        var marker = document.createElement('img');
+        marker.src = markerIcon;
+        marker.className = 'map-marker-icon';
+        marker.alt = loc.name;
+        hotspot.appendChild(marker);
+      }
+
+      hotspot.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var sceneName = loc.scene;
+        goToSceneByName(sceneName);
+        closeMap();
+      });
+
+      hotspotsContainer.appendChild(hotspot);
+    });
+  }
+
+  // ——— 房间导航系统 ———
+  function updateRoomNav() {
+    if (!roomNav) return;
+
+    var locId = getLocationId(currentIndex);
+    var navConfig = ROOM_NAV_CONFIG[locId];
+
+    if (!navConfig) {
+      // 不在可导航的房间中，隐藏导航
+      roomNav.classList.add('hidden');
+      return;
+    }
+
+    roomNav.classList.remove('hidden');
+
+    // 更新左按钮
+    var leftOptions = navConfig.left || [];
+    if (leftOptions.length === 0) {
+      roomNavLeft.classList.add('disabled');
+      roomNavLeft.style.visibility = 'hidden';
+    } else {
+      roomNavLeft.style.visibility = 'visible';
+      roomNavLeft.classList.remove('disabled');
+      // 循环切换
+      roomNavIndex.left = (roomNavIndex.left % leftOptions.length + leftOptions.length) % leftOptions.length;
+    }
+
+    // 更新下按钮
+    var bottomOptions = navConfig.bottom || [];
+    if (bottomOptions.length === 0) {
+      roomNavBottom.classList.add('disabled');
+      roomNavBottom.style.visibility = 'hidden';
+    } else {
+      roomNavBottom.style.visibility = 'visible';
+      roomNavBottom.classList.remove('disabled');
+      // 循环切换
+      roomNavIndex.bottom = (roomNavIndex.bottom % bottomOptions.length + bottomOptions.length) % bottomOptions.length;
+    }
+
+    // 更新右按钮
+    var rightOptions = navConfig.right || [];
+    if (rightOptions.length === 0) {
+      roomNavRight.classList.add('disabled');
+      roomNavRight.style.visibility = 'hidden';
+    } else {
+      roomNavRight.style.visibility = 'visible';
+      roomNavRight.classList.remove('disabled');
+      // 循环切换
+      roomNavIndex.right = (roomNavIndex.right % rightOptions.length + rightOptions.length) % rightOptions.length;
+    }
+  }
+
+  function navigateRoom(direction) {
+    var locId = getLocationId(currentIndex);
+    var navConfig = ROOM_NAV_CONFIG[locId];
+    if (!navConfig) return;
+
+    var options = navConfig[direction];
+    if (!options || options.length === 0) return;
+
+    var idx = roomNavIndex[direction];
+    var target = options[idx];
+
+    if (target) {
+      goToSceneByName(target.scene);
+      // 循环到下一个
+      roomNavIndex[direction] = (idx + 1) % options.length;
+    }
+  }
+
+  // 绑定房间导航按钮事件
+  if (roomNavLeft) {
+    roomNavLeft.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navigateRoom('left');
+    });
+  }
+
+  if (roomNavBottom) {
+    roomNavBottom.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navigateRoom('bottom');
+    });
+  }
+
+  if (roomNavRight) {
+    roomNavRight.addEventListener('click', function(e) {
+      e.stopPropagation();
+      navigateRoom('right');
+    });
+  }
+
+  // 场景切换时更新房间导航
+  var originalGoTo = goTo;
+  goTo = function(index) {
+    originalGoTo(index);
+    updateRoomNav();
+  };
 
   function togglePhoneMenu() {
     var menu = getOrCreatePhoneMenu();
@@ -753,6 +1087,7 @@
   // 统一的关闭所有弹窗函数
   function closeAllPopups() {
     closePhoneMenu();
+    closeMap();
     closeInventory();
     closeInteractionPopup();
     closeItemViewPopup();
@@ -760,29 +1095,46 @@
 
   function renderPhoneMenu() {
     var menu = getOrCreatePhoneMenu();
-    var html = '<div class="phone-menu-header">选择场景</div>';
-    html += '<div class="phone-menu-list">';
-    for (var i = 0; i < SCENE_NAV_OPTIONS.length; i++) {
-      var opt = SCENE_NAV_OPTIONS[i];
-      var isCurrent = getLocationId(currentIndex) === opt.id;
-      html += '<button class="phone-menu-item' + (isCurrent ? ' current' : '') + '"';
-      html += ' data-scene="' + opt.scene + '">';
-      html += opt.name + '</button>';
-    }
+    var html = '<div class="phone-menu-header">菜单</div>';
+    html += '<div class="phone-menu-apps">';
+
+    // 地图按钮
+    html += '<button class="phone-app-btn" id="menu-map-btn">';
+    html += '<svg class="phone-app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">';
+    html += '<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>';
+    html += '<line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>';
+    html += '</svg>';
+    html += '<span class="phone-app-label">地图</span>';
+    html += '</button>';
+
+    // 物品栏按钮
+    html += '<button class="phone-app-btn" id="menu-inventory-btn">';
+    html += '<svg class="phone-app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">';
+    html += '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>';
+    html += '<polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>';
+    html += '</svg>';
+    html += '<span class="phone-app-label">物品</span>';
+    html += '</button>';
+
     html += '</div>';
-    html += '<button class="phone-menu-close">继续当前</button>';
+    html += '<button class="phone-menu-close">关闭</button>';
     menu.innerHTML = html;
 
-    // 绑定点击事件
-    var items = menu.querySelectorAll('.phone-menu-item');
-    for (var j = 0; j < items.length; j++) {
-      items[j].addEventListener('click', (function(idx) {
-        return function() {
-          var sceneName = SCENE_NAV_OPTIONS[idx].scene;
-          goToSceneByName(sceneName);
-        };
-      })(j));
-    }
+    // 绑定地图按钮
+    var mapBtn = menu.querySelector('#menu-map-btn');
+    mapBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closePhoneMenu();
+      toggleMap();
+    });
+
+    // 绑定物品栏按钮
+    var invBtn = menu.querySelector('#menu-inventory-btn');
+    invBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closePhoneMenu();
+      toggleInventory();
+    });
 
     var closeBtn = menu.querySelector('.phone-menu-close');
     closeBtn.addEventListener('click', function(e) {
@@ -805,6 +1157,10 @@
       // 关闭手机菜单
       if (!e.target.closest('#phone-menu')) {
         closePhoneMenu();
+      }
+      // 关闭地图弹窗
+      if (!e.target.closest('#map-overlay')) {
+        closeMap();
       }
       // 关闭物品栏
       closeInventory();
@@ -1329,6 +1685,18 @@
       if (e.target.closest('#phone-menu')) {
         return;
       }
+      // 地图按钮点击只触发 toggle，不关闭
+      if (e.target.closest('#map-btn')) {
+        return;
+      }
+      // 地图弹窗内部点击不关闭
+      if (e.target.closest('#map-overlay')) {
+        return;
+      }
+      // 房间导航按钮忽略
+      if (e.target.closest('.room-nav')) {
+        return;
+      }
       // 物品查看弹窗内部点击不关闭
       if (e.target.closest('#item-view-popup')) {
         return;
@@ -1349,15 +1717,19 @@
     lastSpeakerInScene = '';
     activeSpeaker = '';
     visitedScenes = {};
+    displayedTexts = {};
     isReturningToVisitedScene = false;
     stopVoiceover();
     playerInventory = [];
     discoveredPasswords = {};
     mirrorClickCount = 0;
     gameStates = {};
+    roomNavIndex = { left: 0, bottom: 0, right: 0 };
     closePhoneMenu();
+    closeMap();
     closeInteractionPopup();
     closeInventory();
+    if (roomNav) roomNav.classList.add('hidden');
     showScreen(storyScreen);
     goTo(0);
   });
@@ -1365,6 +1737,7 @@
   document.getElementById('restart-btn').addEventListener('click', function () {
     if (bgm) { bgm.pause(); bgm.currentTime = 0; }
     closePhoneMenu();
+    closeMap();
     closeInteractionPopup();
     showScreen(titleScreen);
   });

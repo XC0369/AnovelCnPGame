@@ -12,10 +12,32 @@
 <body>
   <div id="app">
     <section id="title-screen" class="screen active">
+      <div class="title-bg"></div>
+      <div class="title-particles"></div>
       <div class="title-content">
-        <h1 class="game-title">Chapter 1</h1>
-        <p class="game-subtitle">互动小说</p>
-        <button id="start-btn" class="btn-primary">开始游戏</button>
+        <div class="title-logo">
+          <h1 class="game-title">东南亚合集</h1>
+          <div class="title-divider"></div>
+          <p class="game-subtitle">互动小说</p>
+        </div>
+        <nav class="title-menu">
+          <button id="start-btn" class="menu-btn menu-btn-primary">
+            <span class="menu-btn-text">开始游戏</span>
+            <span class="menu-btn-glow"></span>
+          </button>
+          <button class="menu-btn menu-btn-disabled" disabled>
+            <span class="menu-btn-text">继续游戏</span>
+          </button>
+          <button class="menu-btn menu-btn-disabled" disabled>
+            <span class="menu-btn-text">设置</span>
+          </button>
+          <button class="menu-btn menu-btn-disabled" disabled>
+            <span class="menu-btn-text">退出游戏</span>
+          </button>
+        </nav>
+        <footer class="title-footer">
+          <p>Chapter 1 · 归来</p>
+        </footer>
       </div>
     </section>
 
@@ -39,21 +61,31 @@
               <div id="text-box-content" class="text-box-inner"></div>
             </div>
             <div id="choices-container" class="choices-container"></div>
-            <!-- 右下角手机图标：前往下一场景（仅场景末显示） -->
-            <button id="phone-btn" class="icon-btn hidden" title="前往下一场景" aria-label="前往下一场景">
+            <!-- 右下角手机图标：打开菜单（仅非选项时显示） -->
+            <button id="phone-btn" class="icon-btn hidden" title="菜单" aria-label="菜单">
               <svg class="phone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                 <line x1="12" y1="18" x2="12" y2="18"/>
               </svg>
             </button>
-            <!-- 左下角物品栏按钮 -->
-            <button id="inventory-btn" class="icon-btn hidden" title="物品栏" aria-label="物品栏">
-              <svg class="inventory-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                <line x1="12" y1="22.08" x2="12" y2="12"/>
-              </svg>
-            </button>
+            <!-- 房间导航按钮（左右切换） -->
+            <div id="room-nav" class="room-nav hidden">
+              <button id="room-nav-left" class="room-nav-btn room-nav-left" title="左侧">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+              </button>
+              <button id="room-nav-bottom" class="room-nav-btn room-nav-bottom" title="下方">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <button id="room-nav-right" class="room-nav-btn room-nav-right" title="右侧">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
