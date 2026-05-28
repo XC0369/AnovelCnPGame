@@ -6,15 +6,15 @@
 window.NOVEL_ASSETS = {
   // 场景背景图（键名 = 场景 id，与步骤中的 locationId 对应）
   backgrounds: {
-    graveyard: 'assets/bg/graveyard.jpg',
-    park: 'assets/bg/park.jpg',
-    old_house_door: 'assets/bg/old_house_door.jpg',
-    living_room_dusk: 'assets/bg/living_room_dusk.jpg',
-    bedroom1: 'assets/bg/bedroom1.jpg',
-    toilet: 'assets/bg/toilet.jpg',
-    bedroom2: 'assets/bg/bedroom2.jpg',
-    study_room: 'assets/bg/study_room.jpg',
-    living_room_night: 'assets/bg/living_room_night.jpg'
+    graveyard: 'assets/bg/graveyard.png',
+    park: 'assets/bg/park.png',
+    old_house_door: 'assets/bg/old_house_door.png',
+    living_room_dusk: 'assets/bg/living_room_dusk.png',
+    bedroom1: 'assets/bg/bedroom1.png',
+    toilet: 'assets/bg/toilet.png',
+    bedroom2: 'assets/bg/bedroom2.png',
+    study_room: 'assets/bg/study_room.png',
+    living_room_night: 'assets/bg/living_room_night.png'
   },
   // 角色立绘（键名 = 说话人 speaker，有台词时在场景中显示）
   characters: {
