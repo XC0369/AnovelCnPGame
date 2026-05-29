@@ -68,6 +68,71 @@
                 <line x1="12" y1="18" x2="12" y2="18"/>
               </svg>
             </button>
+
+            <!-- 镜子击碎弹窗 -->
+            <div id="mirror-popup" class="mirror-popup hidden">
+              <div class="mirror-container">
+                <div class="mirror-header">
+                  <span>主卧镜子</span>
+                  <button class="mirror-close">×</button>
+                </div>
+                <div class="mirror-viewer">
+                  <div class="mirror-glass">
+                    <div class="mirror-cracks">
+                      <div class="crack-line crack-1-1"></div>
+                      <div class="crack-line crack-1-2"></div>
+                      <div class="crack-line crack-2-1"></div>
+                      <div class="crack-line crack-2-2"></div>
+                      <div class="crack-line crack-3-1"></div>
+                      <div class="crack-line crack-3-2"></div>
+                    </div>
+                  </div>
+                  <div class="mirror-hit-zone"></div>
+                </div>
+                <div class="mirror-hint">点击镜子击碎它</div>
+              </div>
+            </div>
+
+            <!-- 拼图弹窗 -->
+            <div id="puzzle-popup" class="puzzle-popup hidden">
+              <div class="puzzle-container">
+                <div class="puzzle-header">
+                  <span>书桌抽屉</span>
+                  <button class="puzzle-close">×</button>
+                </div>
+                <div class="puzzle-content">
+                  <div class="puzzle-grid" id="puzzle-grid"></div>
+                  <div class="puzzle-hint">点击方块交换位置，完成拼图</div>
+                </div>
+                <div class="puzzle-footer">
+                  <span id="puzzle-move-count">移动次数: 0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 解密卡弹窗 -->
+            <div id="decrypt-card-popup" class="decrypt-popup hidden">
+              <div class="decrypt-container">
+                <div class="decrypt-header">
+                  <span>使用解密卡</span>
+                  <button class="decrypt-close">×</button>
+                </div>
+                <div class="decrypt-viewer">
+                  <div class="decrypt-book-page">
+                    <div class="decrypt-hidden-code">123</div>
+                  </div>
+                  <button class="decrypt-rotate-btn decrypt-rotate-left" title="向左旋转">↺</button>
+                  <div class="decrypt-card-layer">
+                    <div class="decrypt-card">
+                      <div class="decrypt-card-pattern"></div>
+                    </div>
+                  </div>
+                  <button class="decrypt-rotate-btn decrypt-rotate-right" title="向右旋转">↻</button>
+                </div>
+                <div class="decrypt-hint">拖动卡片调整位置，点击按钮旋转角度</div>
+              </div>
+            </div>
+
             <!-- 房间导航按钮（左右切换） -->
             <div id="room-nav" class="room-nav hidden">
               <button id="room-nav-left" class="room-nav-btn room-nav-left" title="左侧">

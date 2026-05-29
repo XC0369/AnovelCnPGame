@@ -782,6 +782,553 @@ html, body {
   display: none;
 }
 
+/* ===== Toast 消息提示 ===== */
+.toast-message {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 12px 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 200;
+}
+
+.toast-message.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== 镜子弹窗 ===== */
+.mirror-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.mirror-popup.hidden {
+  display: none;
+}
+
+.mirror-container {
+  width: 90vw;
+  max-width: 500px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.mirror-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(196, 135, 90, 0.12);
+  border-bottom: 1px solid rgba(196, 135, 90, 0.3);
+  font-family: var(--font-display);
+  color: var(--accent);
+}
+
+.mirror-close {
+  width: 28px;
+  height: 28px;
+  background: rgba(196, 135, 90, 0.15);
+  border: 1px solid rgba(196, 135, 90, 0.4);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.mirror-viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.2;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.mirror-glass {
+  position: absolute;
+  inset: 10%;
+  background: linear-gradient(135deg, rgba(200, 200, 220, 0.3) 0%, rgba(150, 150, 180, 0.2) 100%);
+  border: 4px solid #555;
+  border-radius: 8px;
+  box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.mirror-glass.cracked {
+  background: linear-gradient(135deg, rgba(100, 100, 120, 0.4) 0%, rgba(80, 80, 100, 0.3) 100%);
+}
+
+.mirror-cracks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 裂纹线条基础样式 */
+.crack-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+/* 裂纹1-1：从中心向左上延伸 */
+.crack-line.crack-1-1 {
+  width: 3px;
+  height: 45%;
+  margin-top: -3px;
+  margin-left: -3px;
+  transform-origin: bottom center;
+  transform: rotate(-35deg);
+  transition-delay: 0s;
+}
+
+/* 裂纹1-2：从中心向右上延伸 */
+.crack-line.crack-1-2 {
+  width: 3px;
+  height: 35%;
+  margin-top: -3px;
+  margin-left: -3px;
+  transform-origin: bottom center;
+  transform: rotate(25deg);
+  transition-delay: 0.05s;
+}
+
+/* 裂纹2-1：从中心向右下延伸 */
+.crack-line.crack-2-1 {
+  width: 2px;
+  height: 40%;
+  margin-top: -2px;
+  margin-left: -2px;
+  transform-origin: top center;
+  transform: rotate(-50deg);
+  transition-delay: 0s;
+}
+
+/* 裂纹2-2：从中心向左下延伸 */
+.crack-line.crack-2-2 {
+  width: 2px;
+  height: 30%;
+  margin-top: -2px;
+  margin-left: -2px;
+  transform-origin: top center;
+  transform: rotate(40deg);
+  transition-delay: 0.05s;
+}
+
+/* 裂纹3-1：从中心向上下延伸 */
+.crack-line.crack-3-1 {
+  width: 4px;
+  height: 60%;
+  margin-top: -4px;
+  margin-left: -4px;
+  background: rgba(255, 255, 255, 1);
+  transition-delay: 0s;
+}
+
+/* 裂纹3-2：从中心向左右延伸 */
+.crack-line.crack-3-2 {
+  width: 35%;
+  height: 3px;
+  margin-top: -3px;
+  margin-left: -35%;
+  background: rgba(255, 255, 255, 0.9);
+  transition-delay: 0.05s;
+}
+
+/* 显示裂纹的类 */
+.mirror-cracks.show-crack-1 .crack-1-1,
+.mirror-cracks.show-crack-1 .crack-1-2 {
+  opacity: 1;
+}
+
+.mirror-cracks.show-crack-2 .crack-1-1,
+.mirror-cracks.show-crack-2 .crack-1-2,
+.mirror-cracks.show-crack-2 .crack-2-1,
+.mirror-cracks.show-crack-2 .crack-2-2 {
+  opacity: 1;
+}
+
+.mirror-cracks.show-crack-3 .crack-1-1,
+.mirror-cracks.show-crack-3 .crack-1-2,
+.mirror-cracks.show-crack-3 .crack-2-1,
+.mirror-cracks.show-crack-3 .crack-2-2,
+.mirror-cracks.show-crack-3 .crack-3-1,
+.mirror-cracks.show-crack-3 .crack-3-2 {
+  opacity: 1;
+}
+
+.mirror-glass.broken .mirror-cracks .crack-line {
+  opacity: 1;
+}
+
+.mirror-glass.broken {
+  background: radial-gradient(circle at 50% 50%, rgba(100, 100, 120, 0.6) 0%, rgba(50, 50, 70, 0.4) 100%);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.mirror-glass.broken .mirror-crack {
+  opacity: 1;
+}
+
+.mirror-hint {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: rgba(196, 135, 90, 0.08);
+  border-top: 1px solid rgba(196, 135, 90, 0.2);
+}
+
+/* ===== 拼图弹窗 ===== */
+.puzzle-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.puzzle-popup.hidden {
+  display: none;
+}
+
+.puzzle-container {
+  width: 90vw;
+  max-width: 450px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.puzzle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(196, 135, 90, 0.12);
+  border-bottom: 1px solid rgba(196, 135, 90, 0.3);
+  font-family: var(--font-display);
+  color: var(--accent);
+}
+
+.puzzle-close {
+  width: 28px;
+  height: 28px;
+  background: rgba(196, 135, 90, 0.15);
+  border: 1px solid rgba(196, 135, 90, 0.4);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.puzzle-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 270px;
+  height: 270px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-radius: 8px;
+  border: 2px solid rgba(196, 135, 90, 0.3);
+}
+
+.puzzle-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4a4035 0%, #3a3025 100%);
+  border: 1px solid rgba(196, 135, 90, 0.4);
+  border-radius: 4px;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.puzzle-tile:hover:not(.empty) {
+  background: linear-gradient(135deg, #5a5045 0%, #4a4035 100%);
+  transform: scale(1.02);
+}
+
+.puzzle-tile.empty {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px dashed rgba(196, 135, 90, 0.3);
+  cursor: default;
+}
+
+.puzzle-tile.movable {
+  background: linear-gradient(135deg, #3a5045 0%, #2a4035 100%);
+  border-color: rgba(100, 180, 150, 0.5);
+}
+
+.puzzle-hint {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.puzzle-footer {
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: rgba(196, 135, 90, 0.08);
+  border-top: 1px solid rgba(196, 135, 90, 0.2);
+}
+
+.puzzle-solved .puzzle-grid {
+  border-color: rgba(100, 200, 150, 0.6);
+}
+
+.puzzle-solved .puzzle-tile {
+  background: linear-gradient(135deg, #2a4a35 0%, #1a3a25 100%);
+  border-color: rgba(100, 200, 150, 0.5);
+  color: #8fd9a8;
+}
+
+/* ===== 解密卡弹窗 ===== */
+.decrypt-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.decrypt-popup.hidden {
+  display: none;
+}
+
+.decrypt-container {
+  width: 90vw;
+  max-width: 600px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.decrypt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(196, 135, 90, 0.12);
+  border-bottom: 1px solid rgba(196, 135, 90, 0.3);
+  font-family: var(--font-display);
+  color: var(--accent);
+}
+
+.decrypt-close {
+  width: 28px;
+  height: 28px;
+  background: rgba(196, 135, 90, 0.15);
+  border: 1px solid rgba(196, 135, 90, 0.4);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decrypt-close:hover {
+  background: rgba(196, 135, 90, 0.25);
+}
+
+.decrypt-viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, #3a3530 0%, #2a2520 100%);
+  overflow: hidden;
+  cursor: grab;
+}
+
+.decrypt-viewer:active {
+  cursor: grabbing;
+}
+
+/* 书籍页面（底层）- 空白页面 */
+.decrypt-book-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f0e6 0%, #e8e0d0 100%);
+  border: 8px solid #8b4513;
+  border-radius: 4px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 密码显示（跟随卡片位置） */
+.decrypt-hidden-code {
+  position: absolute;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2a1a0a;
+  opacity: 0;
+  user-select: none;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+
+.decrypt-hidden-code.revealed {
+  opacity: 1;
+  animation: codeReveal 0.5s ease-out;
+}
+
+@keyframes codeReveal {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* 解密卡层（上层） */
+.decrypt-card-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.decrypt-card {
+  position: absolute;
+  width: 100px;
+  height: 140px;
+  background: linear-gradient(135deg, #e8e0d0 0%, #d4c8b8 100%);
+  border: 2px solid #8b7355;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transform-origin: center center;
+  transition: box-shadow 0.3s ease;
+  pointer-events: auto;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.decrypt-card::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(139, 115, 85, 0.5);
+  border-radius: 3px;
+}
+
+.decrypt-card-pattern {
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(139, 90, 60, 0.15) 4px,
+      rgba(139, 90, 60, 0.15) 5px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 4px,
+      rgba(139, 90, 60, 0.15) 4px,
+      rgba(139, 90, 60, 0.15) 5px
+    );
+}
+
+/* 卡片对齐指示器 */
+.decrypt-card.matched {
+  box-shadow: 0 0 30px rgba(196, 135, 90, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 旋转按钮 */
+.decrypt-rotate-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 60px;
+  background: rgba(196, 135, 90, 0.2);
+  border: 1px solid rgba(196, 135, 90, 0.4);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.decrypt-rotate-btn:hover {
+  background: rgba(196, 135, 90, 0.4);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.decrypt-rotate-left {
+  left: 10px;
+}
+
+.decrypt-rotate-right {
+  right: 10px;
+}
+
+.decrypt-hint {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: rgba(196, 135, 90, 0.08);
+  border-top: 1px solid rgba(196, 135, 90, 0.2);
+}
+
 /* ===== 手机下拉菜单 ===== */
 .phone-menu {
   position: absolute;

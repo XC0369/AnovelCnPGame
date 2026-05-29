@@ -719,6 +719,12 @@
     if (inventoryUI && !inventoryUI.classList.contains('hidden')) return;
     // 如果物品查看弹窗打开，忽略 advance
     if (itemViewPopup && !itemViewPopup.classList.contains('hidden')) return;
+    // 如果解密卡弹窗打开，忽略 advance
+    if (decryptPopup && !decryptPopup.classList.contains('hidden')) return;
+    // 如果镜子弹窗打开，忽略 advance
+    if (mirrorPopup && !mirrorPopup.classList.contains('hidden')) return;
+    // 如果拼图弹窗打开，忽略 advance
+    if (puzzlePopup && !puzzlePopup.classList.contains('hidden')) return;
     // 如果是对话框收起状态，忽略 advance
     if (textBoxCollapsed) return;
     // 选项区域的点击忽略
@@ -735,6 +741,12 @@
     if (ev && ev.target && ev.target.closest('#inventory-ui')) return;
     // 物品查看弹窗区域忽略
     if (ev && ev.target && ev.target.closest('#item-view-popup')) return;
+    // 解密卡弹窗区域忽略
+    if (ev && ev.target && ev.target.closest('#decrypt-card-popup')) return;
+    // 镜子弹窗区域忽略
+    if (ev && ev.target && ev.target.closest('#mirror-popup')) return;
+    // 拼图弹窗区域忽略
+    if (ev && ev.target && ev.target.closest('#puzzle-popup')) return;
     // 对话框区域忽略（点击展开）
     if (ev && ev.target && ev.target.closest('.text-box')) return;
 
@@ -783,6 +795,7 @@
   // 对话框点击事件
   if (textBox) {
     textBox.addEventListener('click', function(e) {
+      e.stopPropagation(); // 阻止事件冒泡
       if (!storyScreen.classList.contains('active')) return;
       if (e.target.closest('.choices-container')) return;
       // 点击时：如果已收起则展开，否则收起
@@ -822,6 +835,12 @@
       if (isClosingPopup) return;
       // 弹窗打开时不前进
       if (interactionPopup && !interactionPopup.classList.contains('hidden')) return;
+      // 解密卡弹窗打开时不前进
+      if (decryptPopup && !decryptPopup.classList.contains('hidden')) return;
+      // 镜子弹窗打开时不前进
+      if (mirrorPopup && !mirrorPopup.classList.contains('hidden')) return;
+      // 拼图弹窗打开时不前进
+      if (puzzlePopup && !puzzlePopup.classList.contains('hidden')) return;
       advance(e);
     });
   }
@@ -1170,6 +1189,30 @@
   // ——— 互动元素渲染与交互 ———
   var interactionLayer = null;
   var interactionPopup = null;
+  var mirrorPopup = null;
+  var mirrorClickCount = 0;
+  var mirrorGlass = null;
+  var mirrorCrack = null;
+  var puzzlePopup = null;
+  var puzzleTiles = [];
+  var emptyIndex = 8;
+  var moveCount = 0;
+  var puzzleSolved = false;
+  var drawerUnlocked = false; // 抽屉是否已解锁
+  var decryptPopup = null;
+  var decryptCard = null;
+  var decryptCardX = 0, decryptCardY = 0;
+  var decryptCardRotation = 0;
+  var isDraggingCard = false;
+  var dragStartX, dragStartY;
+  var cardStartX, cardStartY;
+
+  // 解密卡正确位置和角度
+  var DECRYPT_CARD_CORRECT = {
+    x: 50,      // 百分比 (40-60% 范围内)
+    y: 50,      // 百分比 (40-60% 范围内)
+    rotation: 0 // 角度 (-5 到 5 度范围内)
+  };
 
   function getOrCreateInteractionLayer() {
     if (!interactionLayer) {
@@ -1239,6 +1282,27 @@
       playerInventory.push({ id: itemId, name: itemName });
       updateInventoryUI();
     }
+  }
+
+  // 显示临时消息提示
+  function showMessage(text, duration) {
+    duration = duration || 2500;
+    var existing = document.querySelector('.toast-message');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = text;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(function() {
+      toast.classList.add('show');
+    });
+
+    setTimeout(function() {
+      toast.classList.remove('show');
+      setTimeout(function() { toast.remove(); }, 300);
+    }, duration);
   }
 
   // 游戏状态（不显示在物品栏中）
@@ -1330,6 +1394,418 @@
   function closeItemViewPopup() {
     if (itemViewPopup) {
       itemViewPopup.classList.add('hidden');
+    }
+  }
+
+  // ===== 镜子击碎系统 =====
+  var mirrorBroken = false; // 镜子是否已碎裂
+  var mirrorCracks = null; // 裂纹容器
+
+  function openMirrorUI() {
+    if (!mirrorPopup) {
+      mirrorPopup = document.getElementById('mirror-popup');
+      mirrorGlass = mirrorPopup.querySelector('.mirror-glass');
+      mirrorCracks = mirrorPopup.querySelector('.mirror-cracks');
+      var closeBtn = mirrorPopup.querySelector('.mirror-close');
+      var viewer = mirrorPopup.querySelector('.mirror-viewer');
+
+      // 关闭按钮
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeMirrorUI();
+      });
+
+      // 点击背景关闭
+      mirrorPopup.addEventListener('click', function(e) {
+        if (e.target === mirrorPopup) {
+          closeMirrorUI();
+        }
+      });
+
+      // 点击镜子击打
+      mirrorGlass.addEventListener('click', function(e) {
+        e.stopPropagation();
+        hitMirror();
+      });
+    }
+
+    // 重置状态
+    mirrorClickCount = 0;
+    mirrorGlass.classList.remove('cracked', 'broken');
+    mirrorCracks.className = 'mirror-cracks';
+    updateMirrorHint();
+
+    mirrorPopup.classList.remove('hidden');
+  }
+
+  function closeMirrorUI() {
+    if (mirrorPopup) {
+      mirrorPopup.classList.add('hidden');
+    }
+  }
+
+  function hitMirror() {
+    mirrorClickCount++;
+    var totalHits = 5;
+
+    // 累积裂纹效果，保留之前的裂纹
+    if (mirrorClickCount >= 1) {
+      mirrorCracks.classList.add('show-crack-1');
+    }
+    if (mirrorClickCount >= 2) {
+      mirrorCracks.classList.remove('show-crack-1');
+      mirrorCracks.classList.add('show-crack-2');
+    }
+    if (mirrorClickCount >= 3) {
+      mirrorCracks.classList.remove('show-crack-2');
+      mirrorCracks.classList.add('show-crack-3');
+    }
+    if (mirrorClickCount >= 4) {
+      mirrorGlass.classList.add('cracked');
+    }
+    if (mirrorClickCount >= totalHits) {
+      mirrorGlass.classList.add('broken');
+      mirrorBroken = true;
+    }
+
+    updateMirrorHint();
+
+    // 达到次数后获得磁卡
+    if (mirrorClickCount >= totalHits) {
+      setTimeout(function() {
+        addItem('card', '磁卡');
+        showMessage('获得「磁卡」！');
+        closeMirrorUI();
+      }, 800);
+    }
+  }
+
+  function updateMirrorHint() {
+    var hint = mirrorPopup.querySelector('.mirror-hint');
+    var remaining = 5 - mirrorClickCount;
+    if (remaining > 0) {
+      hint.textContent = '点击镜子击碎它（还需 ' + remaining + ' 次）';
+    } else {
+      hint.textContent = '镜子已碎裂！';
+    }
+  }
+
+  // ===== 拼图系统 =====
+  function openPuzzleUI() {
+    if (!puzzlePopup) {
+      puzzlePopup = document.getElementById('puzzle-popup');
+      var closeBtn = puzzlePopup.querySelector('.puzzle-close');
+
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closePuzzleUI();
+      });
+
+      puzzlePopup.addEventListener('click', function(e) {
+        if (e.target === puzzlePopup) {
+          closePuzzleUI();
+        }
+      });
+    }
+
+    // 初始化拼图
+    resetPuzzle();
+
+    puzzlePopup.classList.remove('hidden');
+  }
+
+  function closePuzzleUI() {
+    if (puzzlePopup) {
+      puzzlePopup.classList.add('hidden');
+    }
+  }
+
+  function resetPuzzle() {
+    // 初始状态 [1,2,3,4,5,6,7,8,0] - 0表示空位
+    puzzleTiles = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+    emptyIndex = 8;
+    moveCount = 0;
+    puzzleSolved = false;
+
+    // 打乱拼图
+    for (var i = 0; i < 50; i++) {
+      var movable = getMovableTiles();
+      var randomIdx = movable[Math.floor(Math.random() * movable.length)];
+      swapTiles(randomIdx, emptyIndex);
+    }
+
+    renderPuzzle();
+    updateMoveCount();
+  }
+
+  function getMovableTiles() {
+    var movable = [];
+    var row = Math.floor(emptyIndex / 3);
+    var col = emptyIndex % 3;
+
+    if (row > 0) movable.push(emptyIndex - 3); // 上
+    if (row < 2) movable.push(emptyIndex + 3); // 下
+    if (col > 0) movable.push(emptyIndex - 1); // 左
+    if (col < 2) movable.push(emptyIndex + 1); // 右
+
+    return movable;
+  }
+
+  function swapTiles(idx1, idx2) {
+    var temp = puzzleTiles[idx1];
+    puzzleTiles[idx1] = puzzleTiles[idx2];
+    puzzleTiles[idx2] = temp;
+    emptyIndex = idx1;
+  }
+
+  function renderPuzzle() {
+    var grid = document.getElementById('puzzle-grid');
+    grid.innerHTML = '';
+
+    var movable = getMovableTiles();
+
+    for (var i = 0; i < 9; i++) {
+      var tile = document.createElement('div');
+      tile.className = 'puzzle-tile';
+      tile.dataset.index = i;
+
+      if (puzzleTiles[i] === 0) {
+        tile.classList.add('empty');
+      } else {
+        tile.textContent = puzzleTiles[i];
+        if (movable.indexOf(i) !== -1) {
+          tile.classList.add('movable');
+        }
+        tile.addEventListener('click', function() {
+          var idx = parseInt(this.dataset.index);
+          handleTileClick(idx);
+        });
+      }
+
+      grid.appendChild(tile);
+    }
+
+    // 检查是否完成
+    checkPuzzleSolved();
+  }
+
+  function handleTileClick(idx) {
+    if (puzzleSolved) return;
+
+    var movable = getMovableTiles();
+    if (movable.indexOf(idx) !== -1) {
+      swapTiles(idx, emptyIndex);
+      moveCount++;
+      renderPuzzle();
+      updateMoveCount();
+    }
+  }
+
+  function updateMoveCount() {
+    var el = document.getElementById('puzzle-move-count');
+    if (el) el.textContent = '移动次数: ' + moveCount;
+  }
+
+  function checkPuzzleSolved() {
+    var solution = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+    var solved = true;
+    for (var i = 0; i < 9; i++) {
+      if (puzzleTiles[i] !== solution[i]) {
+        solved = false;
+        break;
+      }
+    }
+
+    if (solved && !puzzleSolved) {
+      puzzleSolved = true;
+      puzzlePopup.classList.add('puzzle-solved');
+
+      // 显示使用磁卡提示
+      var hint = puzzlePopup.querySelector('.puzzle-hint');
+      hint.innerHTML = '拼图完成！<br><strong>请使用磁卡打开抽屉</strong>';
+
+      // 添加使用磁卡按钮
+      var useCardBtn = document.createElement('button');
+      useCardBtn.className = 'popup-confirm-btn';
+      useCardBtn.textContent = '使用磁卡';
+      useCardBtn.style.cssText = 'margin-top: 15px; padding: 10px 30px; background: #4a7a5a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;';
+      useCardBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (hasItem('card')) {
+          setGameState('drawer_unlocked');
+          showMessage('抽屉已解锁！获得提案文件！');
+          closePuzzleUI();
+        } else {
+          showMessage('需要磁卡才能打开抽屉');
+        }
+      });
+      hint.appendChild(useCardBtn);
+    }
+  }
+
+  // ===== 解密卡系统 =====
+  var ROTATE_STEP = 15; // 每次旋转角度
+
+  function openDecryptCardUI() {
+    if (!decryptPopup) {
+      decryptPopup = document.getElementById('decrypt-card-popup');
+      decryptCard = decryptPopup.querySelector('.decrypt-card');
+      var viewer = decryptPopup.querySelector('.decrypt-viewer');
+      var closeBtn = decryptPopup.querySelector('.decrypt-close');
+      var rotateLeftBtn = decryptPopup.querySelector('.decrypt-rotate-left');
+      var rotateRightBtn = decryptPopup.querySelector('.decrypt-rotate-right');
+
+      // 关闭按钮
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeDecryptCardUI();
+      });
+
+      // 点击背景关闭
+      decryptPopup.addEventListener('click', function(e) {
+        if (e.target === decryptPopup) {
+          closeDecryptCardUI();
+        }
+      });
+
+      // 旋转按钮
+      rotateLeftBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        decryptCardRotation -= ROTATE_STEP;
+        updateCardTransform();
+        checkAlignment();
+      });
+
+      rotateRightBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        decryptCardRotation += ROTATE_STEP;
+        updateCardTransform();
+        checkAlignment();
+      });
+
+      // 拖拽卡片
+      decryptCard.addEventListener('mousedown', startDrag);
+      decryptCard.addEventListener('touchstart', startDrag, { passive: false });
+      viewer.addEventListener('mousemove', drag);
+      viewer.addEventListener('touchmove', drag, { passive: false });
+      viewer.addEventListener('mouseup', endDrag);
+      viewer.addEventListener('touchend', endDrag);
+      viewer.addEventListener('mouseleave', endDrag);
+
+      // 点击卡片检查对齐
+      decryptCard.addEventListener('click', function(e) {
+        e.stopPropagation();
+        checkAlignment();
+      });
+    }
+
+    // 重置状态
+    var hiddenCode = decryptPopup.querySelector('.decrypt-hidden-code');
+    hiddenCode.classList.remove('revealed');
+    decryptCard.classList.remove('matched');
+    // 随机初始位置和角度
+    decryptCardX = (Math.random() - 0.5) * 100;
+    decryptCardY = (Math.random() - 0.5) * 80;
+    var randomAngle = [15, -15, 30, -30, 45, -45][Math.floor(Math.random() * 6)];
+    decryptCardRotation = randomAngle;
+    updateCardTransform();
+
+    decryptPopup.classList.remove('hidden');
+  }
+
+  function closeDecryptCardUI() {
+    if (decryptPopup) {
+      decryptPopup.classList.add('hidden');
+    }
+  }
+
+  function updateCardTransform() {
+    if (!decryptCard) return;
+    var viewer = decryptPopup.querySelector('.decrypt-viewer');
+    var viewerRect = viewer.getBoundingClientRect();
+    var cardWidth = 100;
+    var cardHeight = 140;
+
+    var left = (viewerRect.width - cardWidth) / 2 + decryptCardX;
+    var top = (viewerRect.height - cardHeight) / 2 + decryptCardY;
+
+    decryptCard.style.left = left + 'px';
+    decryptCard.style.top = top + 'px';
+    decryptCard.style.transform = 'rotate(' + decryptCardRotation + 'deg)';
+  }
+
+  function startDrag(e) {
+    e.preventDefault();
+    isDraggingCard = true;
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragStartX = clientX;
+    dragStartY = clientY;
+    cardStartX = decryptCardX;
+    cardStartY = decryptCardY;
+  }
+
+  function drag(e) {
+    if (!isDraggingCard) return;
+    e.preventDefault();
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    var deltaX = clientX - dragStartX;
+    var deltaY = clientY - dragStartY;
+
+    decryptCardX = cardStartX + deltaX;
+    decryptCardY = cardStartY + deltaY;
+
+    updateCardTransform();
+    checkAlignment();
+  }
+
+  function endDrag(e) {
+    if (!isDraggingCard) return;
+    isDraggingCard = false;
+    checkAlignment();
+  }
+
+  function checkAlignment() {
+    // 位置误差小于30px 且 角度接近0°时成功
+    var positionOk = Math.abs(decryptCardX) < 30 && Math.abs(decryptCardY) < 30;
+    var normalizedAngle = ((decryptCardRotation % 360) + 360) % 360;
+    var rotationOk = normalizedAngle < 15 || normalizedAngle > 345;
+
+    console.log('[解密卡] 位置:', decryptCardX.toFixed(1), decryptCardY.toFixed(1), '角度:', normalizedAngle.toFixed(1), '位置OK:', positionOk, '角度OK:', rotationOk);
+
+    // 更新密码位置跟随卡片
+    var hiddenCode = decryptPopup.querySelector('.decrypt-hidden-code');
+    var viewer = decryptPopup.querySelector('.decrypt-viewer');
+    var viewerRect = viewer.getBoundingClientRect();
+    var cardWidth = 100;
+    var cardHeight = 140;
+
+    var cardCenterX = (viewerRect.width - cardWidth) / 2 + decryptCardX + cardWidth / 2;
+    var cardCenterY = (viewerRect.height - cardHeight) / 2 + decryptCardY + cardHeight / 2;
+
+    hiddenCode.style.left = cardCenterX + 'px';
+    hiddenCode.style.top = cardCenterY + 'px';
+    hiddenCode.style.transform = 'translate(-50%, -50%) rotate(' + (-decryptCardRotation) + 'deg)';
+
+    // 只有位置和角度都正确时才显示密码
+    if (positionOk && rotationOk) {
+      console.log('[解密卡] 解密成功!');
+      // 对齐成功
+      decryptCardX = 0;
+      decryptCardY = 0;
+      decryptCardRotation = 0;
+      updateCardTransform();
+      decryptCard.classList.add('matched');
+
+      hiddenCode.classList.add('revealed');
+
+      // 发现密码
+      discoverPassword('bookshelf', '123');
+      // 窗口不关闭，让玩家自己关闭
+    } else {
+      // 位置或角度不正确时隐藏密码
+      hiddenCode.classList.remove('revealed');
     }
   }
 
@@ -1488,11 +1964,33 @@
 
     // 特殊互动处理
     if (item.id === 'mirror') {
-      handleMirrorInteraction(popup, descDiv);
+      if (mirrorBroken) {
+        // 镜子已碎裂，显示提示
+        descDiv.innerHTML = '碎裂的镜子，边上残留着一些玻璃碎片。<br><br><em>磁卡已经收入物品栏。</em>';
+      } else {
+        openMirrorUI();
+        return; // 不显示普通弹窗
+      }
     } else if (item.id === 'bookshelf') {
-      handleBookshelfInteraction(popup, descDiv);
+      // 书柜需要解密卡才能查看
+      if (hasItem('decrypt_card')) {
+        openDecryptCardUI();
+        return; // 不显示普通弹窗
+      } else {
+        descDiv.innerHTML = '书柜里有很多漫画书……似乎需要什么特殊工具才能看到隐藏的内容。';
+      }
     } else if (item.id === 'drawer') {
       handleDrawerInteraction(popup, descDiv);
+    } else if (item.id === 'desk') {
+      // 粉红书桌可以获得解密卡
+      if (!hasItem('decrypt_card')) {
+        addItem('decrypt_card', '解密卡');
+        showMessage('获得「解密卡」！');
+        setGameState('got_decrypt_card');
+        descDiv.innerHTML = item.desc + '\n\n获得了解密卡！';
+      } else {
+        descDiv.innerHTML = item.desc;
+      }
     } else {
       descDiv.innerHTML = item.desc;
     }
@@ -1551,33 +2049,12 @@
   }
 
   // 镜子互动：多次点击获得磁卡
-  function handleMirrorInteraction(popup, descDiv) {
-    mirrorClickCount++;
-    if (mirrorClickCount < 3) {
-      descDiv.innerHTML = '镜子有些破碎，边上好像藏着什么东西……<br><br><em>（还需要点击 ' + (3 - mirrorClickCount) + ' 次）</em>';
-    } else if (mirrorClickCount === 3 && !hasItem('card')) {
-      addItem('card', '磁卡');
-      descDiv.innerHTML = '你拿起一旁的吹风机，狠狠砸向镜子。镜子随即碎裂，你在夹缝里发现了一张磁卡！<br><br><strong>获得物品：磁卡</strong>';
-    } else {
-      descDiv.innerHTML = '碎裂的镜子，边上残留着一些玻璃碎片。<br><br><em>磁卡已经收入物品栏。</em>';
-    }
-  }
-
   // 漫画书互动：获得密码提示
-  function handleBookshelfInteraction(popup, descDiv) {
-    if (!hasPassword('study_drawer')) {
-      discoverPassword('study_drawer', '123');
-      descDiv.innerHTML = '你翻阅着自己最喜欢的这本漫画，可却对里面的内容感到陌生。就在这时，你发现书页中竟掉落了一张纸片。你捡起纸片，上面写着三位数字——<strong>719</strong>。<br><br>不对……等等，这张纸片的背面还有字！<br><br>上面写着：<strong>密码提示：与漫画有关的数字</strong>';
-    } else {
-      descDiv.innerHTML = '你翻了翻那本漫画书，书页还是那么熟悉。<br><br><em>密码提示：与漫画有关的数字（答案：123）</em>';
-    }
-  }
-
   // 抽屉互动：密码输入
   function handleDrawerInteraction(popup, descDiv) {
-    if (hasGameState('drawer_opened')) {
+    if (hasGameState('drawer_unlocked')) {
       descDiv.innerHTML = '抽屉已经被打开过了，里面空空如也。';
-    } else if (hasPassword('study_drawer')) {
+    } else if (hasPassword('bookshelf')) {
       descDiv.innerHTML = '书桌的抽屉，上锁了……<br><br><strong>你记得密码提示：与漫画有关的数字</strong><br><br><input type="text" id="drawer-password-input" class="password-input" maxlength="3" placeholder="输入三位数密码">';
 
       var inputEl = popup.querySelector('#drawer-password-input');
@@ -1610,8 +2087,9 @@
 
   function checkDrawerPassword(password, popup, descDiv) {
     if (password === '123') {
-      setGameState('drawer_opened');
-      showCardUsagePopup(popup, descDiv);
+      // 密码正确，打开拼图
+      closeInteractionPopup();
+      openPuzzleUI();
     } else if (password.length > 0) {
       descDiv.innerHTML = '<span style="color: #ff6b6b;">密码错误！</span><br><br>书桌的抽屉，上锁了……<br><br><strong>你记得密码提示：与漫画有关的数字</strong><br><br><input type="text" id="drawer-password-input" class="password-input" maxlength="3" placeholder="输入三位数密码">';
 
@@ -1637,32 +2115,6 @@
         checkDrawerPassword(inputEl.value, popup, descDiv);
       });
       descDiv.appendChild(confirmBtn);
-    }
-  }
-
-  // 抽屉使用磁卡弹窗
-  function showCardUsagePopup(popup, descDiv) {
-    var hasCard = hasItem('card');
-    var hasProposal = hasItem('proposal');
-
-    if (hasProposal) {
-      descDiv.innerHTML = '<strong>密码正确！</strong><br><br>抽屉已经被打开过了，盒子已经取出。';
-    } else if (hasCard) {
-      descDiv.innerHTML = '<strong>密码正确！</strong><br><br>你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em><br><br>盒子上有一个磁卡槽……';
-
-      // 使用磁卡按钮
-      var useBtn = document.createElement('button');
-      useBtn.className = 'popup-use-card-btn';
-      useBtn.textContent = '使用磁卡';
-      useBtn.style.cssText = 'margin-top: 12px; width: 100%; padding: 10px 20px; background: #4a90a4; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: var(--font-serif); font-size: 1rem;';
-      useBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        addItem('proposal', '提案文件');
-        descDiv.innerHTML = '<strong>成功！</strong><br><br>你将磁卡放入盒子，盒子打开，里面是一份提案文件！<br><br><strong>获得物品：提案文件</strong><br><br><em>可以在物品栏中查看提案内容。</em>';
-      });
-      descDiv.appendChild(useBtn);
-    } else {
-      descDiv.innerHTML = '<strong>密码正确！</strong><br><br>你打开锁，在里面发现了一个盒子。盒子上印着一句话：<em>"时间不应成为特权"</em><br><br>盒子上有一个磁卡槽，但似乎是空的……<br><br><em>也许需要找到什么东西才能打开它。</em>';
     }
   }
 
@@ -1719,6 +2171,7 @@
     visitedScenes = {};
     displayedTexts = {};
     isReturningToVisitedScene = false;
+    mirrorBroken = false; // 重置镜子状态
     stopVoiceover();
     playerInventory = [];
     discoveredPasswords = {};

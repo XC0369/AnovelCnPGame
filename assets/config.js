@@ -110,7 +110,7 @@ window.NOVEL_ASSETS = {
     ],
     bedroom2: [
       { id: 'desk', x: 80, y: 440, w: 280, h: 200, name: '粉红书桌',
-        desc: '那张粉红色的儿童书桌，上面纤尘不染。', image: 'assets/interaction/pinkdesk.png',
+        desc: '那张粉红色的儿童书桌，上面纤尘不染。抽屉里有一张卡片……', image: 'assets/interaction/pinkdesk.png',
         sound: 'assets/sfx/desk.mp3' },
       { id: 'bunny', x: 1380, y: 300, w: 200, h: 200, name: '兔子涂鸦',
         desc: '床头那个滑稽又可笑的涂鸦，小时候的你第一次对母亲发出权威性挑战的尝试。', image: 'assets/interaction/rabbitgraffiti.png',
