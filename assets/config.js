@@ -195,6 +195,7 @@ window.NOVEL_ASSETS = {
     // ===== 基础证据（可通过场景互动获得） =====
     evidence_suit: {
       id: 'evidence_suit',
+      icon: '👔',
       name: '神秘男士西装',
       category: 'item', // 物品类证据
       location: 'bedroom1', // 获得地点
@@ -213,6 +214,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_card: {
       id: 'evidence_card',
+      icon: '💳',
       name: '隐藏的磁卡',
       category: 'item',
       location: 'toilet',
@@ -229,6 +231,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_password: {
       id: 'evidence_password',
+      icon: '🔑',
       name: '密码便签719',
       category: 'document', // 文档类证据
       location: 'bedroom2',
@@ -245,6 +248,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_proposal: {
       id: 'evidence_proposal',
+      icon: '📜',
       name: '《延寿技术禁止提案》',
       category: 'document',
       location: 'study_room',
@@ -261,6 +265,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_notebook: {
       id: 'evidence_notebook',
+      icon: '📓',
       name: '母亲的笔记本',
       category: 'document',
       location: 'study_room',
@@ -277,6 +282,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_anta_visit: {
       id: 'evidence_anta_visit',
+      icon: '🌧️',
       name: 'Anta的出现',
       category: 'event', // 事件类证据
       location: 'graveyard',
@@ -293,6 +299,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_reporter: {
       id: 'evidence_reporter',
+      icon: '📢',
       name: '记者的嘶吼',
       category: 'event',
       location: 'graveyard',
@@ -309,6 +316,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_anta_whisper: {
       id: 'evidence_anta_whisper',
+      icon: '🤫',
       name: 'Anta的低语',
       category: 'dialogue', // 对话类证据
       location: 'graveyard',
@@ -325,6 +333,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_decrypt_card: {
       id: 'evidence_decrypt_card',
+      icon: '🔮',
       name: '解密卡',
       category: 'item',
       location: 'bedroom2',
@@ -341,6 +350,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_letter: {
       id: 'evidence_letter',
+      icon: '✉️',
       name: '未寄出的信',
       category: 'document',
       location: 'bedroom2',
@@ -357,6 +367,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_photo: {
       id: 'evidence_photo',
+      icon: '📷',
       name: '泛黄的照片',
       category: 'item',
       location: 'bedroom1',
@@ -373,6 +384,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_autopsy: {
       id: 'evidence_autopsy',
+      icon: '🔬',
       name: '尸检报告摘要',
       category: 'document',
       location: 'study_room',
@@ -389,6 +401,7 @@ window.NOVEL_ASSETS = {
     },
     evidence_safe_opened: {
       id: 'evidence_safe_opened',
+      icon: '🔐',
       name: '被打开的保险箱',
       category: 'event',
       location: 'study_room',
@@ -410,6 +423,7 @@ window.NOVEL_ASSETS = {
   truths: {
     truth_murder: {
       id: 'truth_murder',
+      icon: '🔪',
       name: '母亲的死因',
       title: '母亲之死：谋杀而非自杀',
       description: '根据收集到的证据，母亲并非自杀，而是一场精心策划的谋杀。',
@@ -431,6 +445,7 @@ window.NOVEL_ASSETS = {
     },
     truth_conspiracy: {
       id: 'truth_conspiracy',
+      icon: '🧬',
       name: '延寿技术阴谋',
       title: '永生计划：政商勾结的黑暗产业链',
       description: '一个涉及政商两界的巨大阴谋，通过延寿技术建立新型权力垄断。',
@@ -446,6 +461,7 @@ window.NOVEL_ASSETS = {
     },
     truth_anta: {
       id: 'truth_anta',
+      icon: '🎭',
       name: 'Anta的真相',
       title: 'Anta：敌人还是盟友？',
       description: 'Anta的真实身份和立场，远比表面看起来复杂得多。',
@@ -461,6 +477,7 @@ window.NOVEL_ASSETS = {
     },
     truth_final: {
       id: 'truth_final',
+      icon: '👁️',
       name: '最终真相',
       title: '继承遗志：揭开一切的钥匙',
       description: '当所有线索汇聚一处，完整的真相终于浮出水面。',
