@@ -713,6 +713,8 @@
     if (phoneMenu && !phoneMenu.classList.contains('hidden')) return;
     // 如果地图弹窗打开，忽略 advance
     if (mapOverlay && mapOverlay.classList.contains('active')) return;
+    // 如果证据台菜单打开，忽略 advance
+    if (evidenceTableOverlay && evidenceTableOverlay.classList.contains('active')) return;
     // 如果弹窗打开，忽略 advance
     if (interactionPopup && !interactionPopup.classList.contains('hidden')) return;
     // 如果物品栏打开，忽略 advance
@@ -725,6 +727,8 @@
     if (mirrorPopup && !mirrorPopup.classList.contains('hidden')) return;
     // 如果拼图弹窗打开，忽略 advance
     if (puzzlePopup && !puzzlePopup.classList.contains('hidden')) return;
+    // 如果证据台弹窗打开，忽略 advance
+    if (evidenceTableOverlay && evidenceTableOverlay.classList.contains('active')) return;
     // 如果是对话框收起状态，忽略 advance
     if (textBoxCollapsed) return;
     // 选项区域的点击忽略
@@ -809,6 +813,8 @@
       if (!storyScreen.classList.contains('active')) return;
       // 正在关闭弹窗时不处理
       if (isClosingPopup) return;
+      // 证据台弹窗打开时不处理
+      if (evidenceTableOverlay && evidenceTableOverlay.classList.contains('active')) return;
       // 弹窗打开时不处理
       if (interactionPopup && !interactionPopup.classList.contains('hidden')) return;
       // 物品栏打开时不处理
@@ -1964,6 +1970,10 @@
 
     // 特殊互动处理
     if (item.id === 'mirror') {
+      // 添加镜子相关证据
+      if (!hasEvidence('evidence_card')) {
+        // 证据会在hitMirror成功后通过addItem自动添加
+      }
       if (mirrorBroken) {
         // 镜子已碎裂，显示提示
         descDiv.innerHTML = '碎裂的镜子，边上残留着一些玻璃碎片。<br><br><em>磁卡已经收入物品栏。</em>';
@@ -1972,8 +1982,10 @@
         return; // 不显示普通弹窗
       }
     } else if (item.id === 'bookshelf') {
-      // 书柜需要解密卡才能查看
+      // 书柜需要解密卡才能查看，查看后获得信件证据
       if (hasItem('decrypt_card')) {
+        // 添加书柜信件证据
+        addEvidence('evidence_letter');
         openDecryptCardUI();
         return; // 不显示普通弹窗
       } else {
@@ -1981,16 +1993,34 @@
       }
     } else if (item.id === 'drawer') {
       handleDrawerInteraction(popup, descDiv);
+      // 添加抽屉证据（如果已解锁）
+      if (hasGameState('drawer_unlocked') && !hasEvidence('evidence_proposal')) {
+        addEvidence('evidence_proposal');
+      }
     } else if (item.id === 'desk') {
-      // 粉红书桌可以获得解密卡
+      // 粉红书桌可以获得解密卡和密码证据
       if (!hasItem('decrypt_card')) {
         addItem('decrypt_card', '解密卡');
         showMessage('获得「解密卡」！');
         setGameState('got_decrypt_card');
-        descDiv.innerHTML = item.desc + '\n\n获得了解密卡！';
+        // 添加密码证据
+        addEvidence('evidence_password');
+        descDiv.innerHTML = item.desc + '\n\n获得了解密卡！还在抽屉里发现了一张写着"719"的便签。';
       } else {
         descDiv.innerHTML = item.desc;
       }
+    } else if (item.id === 'suit') {
+      // 男士西装证据
+      addEvidence('evidence_suit');
+      descDiv.innerHTML = item.desc + '\n\n<em>（西装上残留的香水味，与Anta身上的味道如出一辙...）</em>';
+    } else if (item.id === 'notebook') {
+      // 笔记本证据
+      addEvidence('evidence_notebook');
+      descDiv.innerHTML = item.desc + '\n\n<em>（笔记本中记录着母亲对延寿技术阴谋的调查...）</em>';
+    } else if (item.id === 'bunny') {
+      // 兔子涂鸦证据（童年回忆）
+      addEvidence('evidence_photo');
+      descDiv.innerHTML = item.desc + '\n\n<em>（回忆涌上心头，那段与母亲争执的往事...）</em>';
     } else {
       descDiv.innerHTML = item.desc;
     }
@@ -2145,6 +2175,18 @@
       if (e.target.closest('#map-overlay')) {
         return;
       }
+      // 证据台菜单内部点击不关闭
+      if (e.target.closest('#evidence-table-overlay')) {
+        return;
+      }
+      // 真相核实对话框内部点击不关闭
+      if (e.target.closest('.truth-verified-dialog') || e.target.closest('.truth-failure-dialog')) {
+        return;
+      }
+      // 推理提示对话框内部点击不关闭
+      if (e.target.closest('.inference-prompt-dialog')) {
+        return;
+      }
       // 房间导航按钮忽略
       if (e.target.closest('.room-nav')) {
         return;
@@ -2194,4 +2236,1087 @@
     closeInteractionPopup();
     showScreen(titleScreen);
   });
+
+  // ========== 证据系统 ==========
+  
+  // 玩家已获得的证据
+  var playerEvidences = []; // { id, name, category, description, factionScores, obtainedBy, isNecessary, isSufficient }
+  
+  // 阵营分数
+  var factionScores = {
+    order: 0,
+    innovation: 0,
+    questioning: 0,
+    economy: 0
+  };
+  
+  // 真相连线状态
+  var truthConnections = []; // { fromEvidenceId, toEvidenceId }
+  var activeTruthId = null; // 当前选中的真相
+  
+  // 真相核实状态
+  var verifiedTruths = {}; // { truthId: true }
+  var failedTruths = {}; // { truthId: failureReason }
+  
+  // 获取证据配置
+  var EVIDENCE_CONFIG = ASSETS.evidences || {};
+  var TRUTH_CONFIG = ASSETS.truths || {};
+  var FACTION_CONFIG = ASSETS.factions || {};
+  var FAILURE_CONFIG = ASSETS.failureScenes || {};
+  var TRUTH_CONNECTIONS_CONFIG = ASSETS.truthConnections || {};
+  
+  // 添加证据
+  function addEvidence(evidenceId) {
+    var evidenceData = EVIDENCE_CONFIG[evidenceId];
+    if (!evidenceData) {
+      console.log('[证据系统] 未找到证据配置: ' + evidenceId);
+      return false;
+    }
+    
+    // 检查是否已获得
+    if (playerEvidences.find(function(e) { return e.id === evidenceId; })) {
+      return false;
+    }
+    
+    // 添加到玩家证据列表
+    var newEvidence = {
+      id: evidenceData.id,
+      name: evidenceData.name,
+      category: evidenceData.category,
+      description: evidenceData.description,
+      factionScores: evidenceData.factionScores ? { ...evidenceData.factionScores } : { order: 0, innovation: 0, questioning: 0, economy: 0 },
+      obtainedBy: evidenceData.obtainedBy,
+      isNecessary: evidenceData.isNecessary || false,
+      isSufficient: evidenceData.isSufficient || false,
+      icon: getEvidenceIcon(evidenceData.category)
+    };
+    
+    playerEvidences.push(newEvidence);
+    
+    // 更新阵营分数
+    updateFactionScores(newEvidence.factionScores);
+    
+    // 显示获得证据提示
+    showMessage('获得线索：「' + newEvidence.name + '」');
+    
+    console.log('[证据系统] 获得证据: ' + newEvidence.name);
+    console.log('[证据系统] 阵营分数: ', factionScores);
+    
+    return true;
+  }
+  
+  // 更新阵营分数
+  function updateFactionScores(scores) {
+    if (!scores) return;
+    if (scores.order) factionScores.order += scores.order;
+    if (scores.innovation) factionScores.innovation += scores.innovation;
+    if (scores.questioning) factionScores.questioning += scores.questioning;
+    if (scores.economy) factionScores.economy += scores.economy;
+  }
+  
+  // 获取证据图标
+  function getEvidenceIcon(category) {
+    var icons = {
+      item: '📦',
+      document: '📄',
+      event: '📍',
+      dialogue: '💬'
+    };
+    return icons[category] || '🔍';
+  }
+  
+  // 检查是否拥有某证据
+  function hasEvidence(evidenceId) {
+    return playerEvidences.some(function(e) { return e.id === evidenceId; });
+  }
+  
+  // 获取已获得的证据列表
+  function getObtainedEvidences() {
+    return playerEvidences.slice();
+  }
+  
+  // 计算必要证据阵营分数
+  function calculateNecessaryFactionScores() {
+    var scores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+    playerEvidences.forEach(function(evidence) {
+      if (evidence.isNecessary) {
+        scores.order += evidence.factionScores.order || 0;
+        scores.innovation += evidence.factionScores.innovation || 0;
+        scores.questioning += evidence.factionScores.questioning || 0;
+        scores.economy += evidence.factionScores.economy || 0;
+      }
+    });
+    return scores;
+  }
+  
+  // 计算充分证据阵营分数
+  function calculateSufficientFactionScores() {
+    var scores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+    playerEvidences.forEach(function(evidence) {
+      if (evidence.isSufficient) {
+        scores.order += evidence.factionScores.order || 0;
+        scores.innovation += evidence.factionScores.innovation || 0;
+        scores.questioning += evidence.factionScores.questioning || 0;
+        scores.economy += evidence.factionScores.economy || 0;
+      }
+    });
+    return scores;
+  }
+  
+  // ========== 证据台菜单系统 ==========
+  var evidenceTableOverlay = null;
+  
+  function getOrCreateEvidenceTableOverlay() {
+    if (!evidenceTableOverlay) {
+      evidenceTableOverlay = document.createElement('div');
+      evidenceTableOverlay.id = 'evidence-table-overlay';
+      evidenceTableOverlay.className = 'evidence-table-overlay';
+      storyViewport.appendChild(evidenceTableOverlay);
+      
+      // 初始化HTML结构
+      evidenceTableOverlay.innerHTML = createEvidenceTableHTML();
+      
+      // 绑定事件
+      bindEvidenceTableEvents();
+    }
+    return evidenceTableOverlay;
+  }
+  
+  function createEvidenceTableHTML() {
+    return '<div class="evidence-table-modal">' +
+      '<div class="evidence-table-header">' +
+        '<div class="evidence-table-tabs">' +
+          '<button class="evidence-tab active" data-tab="clues">线索</button>' +
+          '<button class="evidence-tab" data-tab="truth">真相面板</button>' +
+        '</div>' +
+        '<button class="evidence-table-close">×</button>' +
+      '</div>' +
+      '<div class="evidence-table-body">' +
+        // 线索面板
+        '<div class="evidence-panel clues-panel active">' +
+          '<div class="clues-list"></div>' +
+        '</div>' +
+        // 真相面板
+        '<div class="evidence-panel truth-panel">' +
+          '<div class="truth-section">' +
+            '<div class="truth-selector"></div>' +
+            '<div class="truth-canvas">' +
+              '<div class="truth-node-area"></div>' +
+              '<svg class="connection-lines"></svg>' +
+            '</div>' +
+            '<div class="truth-info"></div>' +
+            '<div class="faction-scores-display"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  
+  function bindEvidenceTableEvents() {
+    var overlay = evidenceTableOverlay;
+    
+    // 关闭按钮
+    overlay.querySelector('.evidence-table-close').addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeEvidenceTable();
+    });
+    
+    // 点击遮罩关闭
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        closeEvidenceTable();
+      }
+    });
+    
+    // Tab切换
+    overlay.querySelectorAll('.evidence-tab').forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var tabName = this.dataset.tab;
+        switchEvidenceTab(tabName);
+      });
+    });
+    
+    // 真相选择器事件（事件委托）
+    overlay.querySelector('.truth-selector').addEventListener('click', function(e) {
+      var btn = e.target.closest('.truth-select-btn');
+      if (btn) {
+        var truthId = btn.dataset.truthId;
+        selectTruth(truthId);
+      }
+    });
+    
+    // 真相面板拖拽事件
+    setupTruthCanvasDrag();
+  }
+  
+  function switchEvidenceTab(tabName) {
+    var overlay = evidenceTableOverlay;
+    overlay.querySelectorAll('.evidence-tab').forEach(function(tab) {
+      tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    overlay.querySelectorAll('.evidence-panel').forEach(function(panel) {
+      panel.classList.toggle('active', panel.classList.contains(tabName + '-panel'));
+    });
+    
+    if (tabName === 'truth') {
+      renderTruthPanel();
+    } else if (tabName === 'clues') {
+      renderCluesList();
+    }
+  }
+  
+  function renderCluesList() {
+    var container = evidenceTableOverlay.querySelector('.clues-list');
+    var evidences = getObtainedEvidences();
+    
+    if (evidences.length === 0) {
+      container.innerHTML = '<div class="clues-empty">' +
+        '<p>暂无获得任何线索</p>' +
+        '<p class="clues-hint">在场景中与物品互动或对话来获取线索</p>' +
+      '</div>';
+      return;
+    }
+    
+    var html = '';
+    evidences.forEach(function(evidence) {
+      var typeLabel = '';
+      if (evidence.isNecessary) typeLabel = '<span class="evidence-tag necessary">必要</span>';
+      if (evidence.isSufficient) typeLabel += '<span class="evidence-tag sufficient">充分</span>';
+      
+      html += '<div class="clue-item" data-evidence-id="' + evidence.id + '">' +
+        '<div class="clue-header">' +
+          '<span class="clue-icon">' + evidence.icon + '</span>' +
+          '<span class="clue-name">' + evidence.name + '</span>' +
+          typeLabel +
+        '</div>' +
+        '<div class="clue-desc">' + evidence.description + '</div>' +
+        '<div class="clue-source">来源：' + evidence.obtainedBy + '</div>' +
+      '</div>';
+    });
+    
+    container.innerHTML = html;
+  }
+  
+  function renderTruthPanel() {
+    renderTruthSelector();
+    renderTruthCanvas();
+    renderFactionScores();
+  }
+  
+  function renderTruthSelector() {
+    var container = evidenceTableOverlay.querySelector('.truth-selector');
+    var truths = Object.values(TRUTH_CONFIG);
+    
+    var html = '<div class="truth-selector-title">选择要核实的真相</div>';
+    
+    truths.forEach(function(truth) {
+      var isVerified = verifiedTruths[truth.id];
+      var statusClass = isVerified ? 'verified' : '';
+      var statusText = isVerified ? '✓ 已核实' : '';
+      
+      html += '<button class="truth-select-btn ' + statusClass + '" data-truth-id="' + truth.id + '">' +
+        '<span class="truth-select-name">' + truth.name + '</span>' +
+        '<span class="truth-select-status">' + statusText + '</span>' +
+      '</button>';
+    });
+    
+    container.innerHTML = html;
+  }
+  
+  function selectTruth(truthId) {
+    activeTruthId = truthId;
+    truthConnections = []; // 切换真相时清空连线
+
+    // 更新选择器样式
+    evidenceTableOverlay.querySelectorAll('.truth-select-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.truthId === truthId);
+    });
+
+    console.log('[真相面板] 选择真相: ' + truthId);
+    
+    renderTruthCanvas();
+    renderTruthInfo();
+    renderFactionScores();
+  }
+  
+  function renderTruthCanvas() {
+    var container = evidenceTableOverlay.querySelector('.truth-node-area');
+    var svg = evidenceTableOverlay.querySelector('.connection-lines');
+    
+    if (!activeTruthId) {
+      container.innerHTML = '<div class="truth-canvas-hint">请先选择一个真相</div>';
+      svg.innerHTML = '';
+      return;
+    }
+    
+    var truth = TRUTH_CONFIG[activeTruthId];
+    var connections = TRUTH_CONNECTIONS_CONFIG[activeTruthId];
+    
+    // 获取所有需要的证据
+    var allRequired = [...(truth.requiredEvidences || []), ...(truth.sufficientEvidences || [])];
+    var uniqueRequired = [...new Set(allRequired)];
+    
+    // 创建证据节点
+    var html = '<div class="truth-canvas-title">' + truth.title + '</div>';
+    
+    // 真相节点（中心）
+    html += '<div class="truth-central-node" data-truth-id="' + truth.id + '">' +
+      '<span class="truth-node-icon">🎯</span>' +
+      '<span class="truth-node-name">真相</span>' +
+    '</div>';
+    
+    // 证据节点（围绕真相）
+    var nodeIndex = 0;
+    uniqueRequired.forEach(function(evidenceId) {
+      var evidenceData = EVIDENCE_CONFIG[evidenceId];
+      if (!evidenceData) return;
+      
+      var hasTheEvidence = hasEvidence(evidenceId);
+      var isRequired = truth.requiredEvidences && truth.requiredEvidences.includes(evidenceId);
+      var isSufficient = truth.sufficientEvidences && truth.sufficientEvidences.includes(evidenceId);
+      
+      var angle = (nodeIndex / uniqueRequired.length) * 360 - 90;
+      var radius = 140;
+      var x = Math.cos(angle * Math.PI / 180) * radius;
+      var y = Math.sin(angle * Math.PI / 180) * radius;
+      
+      var nodeClass = 'evidence-node';
+      if (!hasTheEvidence) nodeClass += ' locked';
+      if (isRequired) nodeClass += ' required';
+      if (isSufficient) nodeClass += ' sufficient';
+      
+      var lockIcon = hasTheEvidence ? '' : '<span class="lock-icon">🔒</span>';
+      
+      html += '<div class="' + nodeClass + '" ' +
+        'data-evidence-id="' + evidenceId + '" ' +
+        'data-x="' + x + '" data-y="' + y + '" ' +
+        'style="left: 50%; top: 50%; transform: translate(-50%, -50%) translate(' + x + 'px, ' + y + 'px);">' +
+        '<span class="evidence-node-icon">' + getEvidenceIcon(evidenceData.category) + '</span>' +
+        '<span class="evidence-node-name">' + evidenceData.name + '</span>' +
+        lockIcon +
+      '</div>';
+      
+      nodeIndex++;
+    });
+    
+    container.innerHTML = html;
+    
+    // 渲染连线
+    renderConnections();
+    
+    // 添加节点拖拽事件
+    setupNodeDrag();
+  }
+  
+  function renderConnections() {
+    var svg = evidenceTableOverlay.querySelector('.connection-lines');
+    var container = evidenceTableOverlay.querySelector('.truth-node-area');
+    
+    svg.innerHTML = '';
+    
+    // 获取当前真相的连线配置
+    var connections = TRUTH_CONNECTIONS_CONFIG[activeTruthId];
+    if (!connections || !connections.connections) return;
+    
+    var containerRect = container.getBoundingClientRect();
+    var centerX = containerRect.width / 2;
+    var centerY = containerRect.height / 2;
+    
+    // 获取真相节点的实际位置
+    var truthNode = container.querySelector('.truth-central-node');
+    var truthRect = truthNode ? truthNode.getBoundingClientRect() : null;
+    var truthX = truthRect ? (truthRect.left - containerRect.left + truthRect.width / 2) : centerX;
+    var truthY = truthRect ? (truthRect.top - containerRect.top + truthRect.height / 2) : centerY;
+    
+    connections.connections.forEach(function(conn) {
+      // 检查这两个证据是否都被连线到真相
+      var fromNode = container.querySelector('[data-evidence-id="' + conn.from + '"]');
+      var toNode = container.querySelector('[data-evidence-id="' + conn.to + '"]');
+      
+      if (!fromNode || !toNode) return;
+      
+      // 检查是否有连线连接到真相
+      var fromConnected = truthConnections.some(function(c) {
+        return (c.from === conn.from && c.to === 'truth') || (c.from === 'truth' && c.to === conn.from);
+      });
+      var toConnected = truthConnections.some(function(c) {
+        return (c.to === conn.to && c.from === 'truth') || (c.from === 'truth' && c.to === conn.to);
+      });
+      
+      if (!fromConnected || !toConnected) return;
+      
+      // 计算连线端点
+      var fromX, fromY, toX, toY;
+      
+      if (fromNode.classList.contains('truth-central-node')) {
+        fromX = truthX;
+        fromY = truthY;
+      } else {
+        fromX = centerX + parseFloat(fromNode.dataset.x || 0);
+        fromY = centerY + parseFloat(fromNode.dataset.y || 0);
+      }
+      
+      if (toNode.classList.contains('truth-central-node')) {
+        toX = truthX;
+        toY = truthY;
+      } else {
+        toX = centerX + parseFloat(toNode.dataset.x || 0);
+        toY = centerY + parseFloat(toNode.dataset.y || 0);
+      }
+      
+      // 获取连线颜色
+      var lineColor = 'rgba(196, 135, 90, 0.6)';
+      
+      var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', fromX);
+      line.setAttribute('y1', fromY);
+      line.setAttribute('x2', toX);
+      line.setAttribute('y2', toY);
+      line.setAttribute('stroke', lineColor);
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('stroke-dasharray', '5,5');
+      
+      svg.appendChild(line);
+    });
+  }
+  
+  function setupNodeDrag() {
+    var container = evidenceTableOverlay.querySelector('.truth-node-area');
+    var svg = evidenceTableOverlay.querySelector('.connection-lines');
+    
+    container.querySelectorAll('.evidence-node').forEach(function(node) {
+      var isDragging = false;
+      var startX, startY, startNodeX, startNodeY;
+      
+      node.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var evidenceId = node.dataset.evidenceId;
+        if (!hasEvidence(evidenceId)) return;
+        
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startNodeX = parseFloat(node.dataset.x);
+        startNodeY = parseFloat(node.dataset.y);
+        
+        node.classList.add('dragging');
+      });
+      
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        
+        var newX = startNodeX + dx;
+        var newY = startNodeY + dy;
+        
+        // 限制在一定范围内
+        var maxRadius = 200;
+        var distance = Math.sqrt(newX * newX + newY * newY);
+        if (distance > maxRadius) {
+          newX = (newX / distance) * maxRadius;
+          newY = (newY / distance) * maxRadius;
+        }
+        
+        node.dataset.x = newX;
+        node.dataset.y = newY;
+        node.style.transform = 'translate(' + newX + 'px, ' + newY + 'px)';
+        
+        // 更新连线
+        renderConnections();
+      });
+      
+      document.addEventListener('mouseup', function(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        node.classList.remove('dragging');
+        
+        // 检查是否拖到真相节点附近
+        var truthNode = container.querySelector('.truth-central-node');
+        if (!truthNode) return;
+        
+        var nodeRect = node.getBoundingClientRect();
+        var truthRect = truthNode.getBoundingClientRect();
+        
+        var nodeCenterX = nodeRect.left + nodeRect.width / 2;
+        var nodeCenterY = nodeRect.top + nodeRect.height / 2;
+        var truthCenterX = truthRect.left + truthRect.width / 2;
+        var truthCenterY = truthRect.top + truthRect.height / 2;
+        
+        var distance = Math.sqrt(
+          Math.pow(nodeCenterX - truthCenterX, 2) +
+          Math.pow(nodeCenterY - truthCenterY, 2)
+        );
+        
+        var evidenceId = node.dataset.evidenceId;
+        
+        // 如果拖到真相附近，添加连线
+        if (distance < 80) {
+          // 检查是否已存在连线
+          var exists = truthConnections.some(function(c) {
+            return (c.from === evidenceId && c.to === 'truth') ||
+                   (c.from === 'truth' && c.to === evidenceId);
+          });
+          
+          if (!exists) {
+            truthConnections.push({ from: evidenceId, to: 'truth' });
+            node.classList.add('connected');
+            
+            // 添加视觉反馈
+            showConnectionFeedback(node);
+          }
+        } else {
+          // 如果拖离真相，移除连线
+          truthConnections = truthConnections.filter(function(c) {
+            return !((c.from === evidenceId && c.to === 'truth') ||
+                     (c.from === 'truth' && c.to === evidenceId));
+          });
+          node.classList.remove('connected');
+        }
+        
+        // 更新连线
+        renderConnections();
+        renderTruthInfo();
+      });
+    });
+  }
+  
+  function setupTruthCanvasDrag() {
+    // 真相节点可以被拖拽到证据节点
+    var container = evidenceTableOverlay.querySelector('.truth-node-area');
+    
+    var isDragging = false;
+    var draggingNode = null;
+    var offsetX, offsetY;
+    
+    container.addEventListener('mousedown', function(e) {
+      var truthNode = e.target.closest('.truth-central-node');
+      if (!truthNode) return;
+      
+      isDragging = true;
+      draggingNode = truthNode;
+      
+      var rect = truthNode.getBoundingClientRect();
+      offsetX = e.clientX - rect.left - rect.width / 2;
+      offsetY = e.clientY - rect.top - rect.height / 2;
+      
+      truthNode.classList.add('dragging');
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      
+      var containerRect = container.getBoundingClientRect();
+      var x = e.clientX - containerRect.left - containerRect.width / 2 - offsetX;
+      var y = e.clientY - containerRect.top - containerRect.height / 2 - offsetY;
+      
+      // 限制在一定范围内
+      var maxRadius = 100;
+      var distance = Math.sqrt(x * x + y * y);
+      if (distance > maxRadius) {
+        x = (x / distance) * maxRadius;
+        y = (y / distance) * maxRadius;
+      }
+      
+      draggingNode.style.left = x + 'px';
+      draggingNode.style.top = y + 'px';
+      
+      // 更新连线
+      renderConnections();
+    });
+    
+    document.addEventListener('mouseup', function(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      draggingNode.classList.remove('dragging');
+      
+      // 重置真相节点位置
+      draggingNode.style.left = '0';
+      draggingNode.style.top = '0';
+      
+      renderConnections();
+    });
+  }
+  
+  function showConnectionFeedback(node) {
+    node.classList.add('connection-flash');
+    setTimeout(function() {
+      node.classList.remove('connection-flash');
+    }, 500);
+  }
+  
+  function renderTruthInfo() {
+    var container = evidenceTableOverlay.querySelector('.truth-info');
+    
+    if (!activeTruthId) {
+      container.innerHTML = '';
+      return;
+    }
+    
+    var truth = TRUTH_CONFIG[activeTruthId];
+    
+    // 计算当前连线状态
+    var connectedEvidence = truthConnections
+      .filter(function(c) { return c.to === 'truth' || c.from === 'truth'; })
+      .map(function(c) { return c.from === 'truth' ? c.to : c.from; });
+    
+    var requiredConnected = (truth.requiredEvidences || []).filter(function(id) {
+      return connectedEvidence.includes(id);
+    });
+    
+    var sufficientConnected = (truth.sufficientEvidences || []).filter(function(id) {
+      return connectedEvidence.includes(id);
+    });
+    
+    var canVerify = requiredConnected.length === (truth.requiredEvidences || []).length;
+    var hasEnoughSufficient = sufficientConnected.length >= Math.ceil((truth.sufficientEvidences || []).length / 2);
+    
+    var html = '<div class="truth-info-title">' + truth.description + '</div>';
+    
+    html += '<div class="truth-progress">';
+    html += '<div class="progress-label">必要证据连线: ' + requiredConnected.length + '/' + (truth.requiredEvidences || []).length + '</div>';
+    html += '<div class="progress-label">充分证据连线: ' + sufficientConnected.length + '/' + (truth.sufficientEvidences || []).length + '</div>';
+    html += '</div>';
+    
+    // 阵营分数检查
+    var necessaryScores = calculateNecessaryFactionScores();
+    var totalScores = factionScores;
+    var reqs = truth.factionRequirements;
+    
+    var necessaryOk = necessaryScores.order >= reqs.necessary.order &&
+                       necessaryScores.questioning >= reqs.necessary.questioning;
+    var totalOk = totalScores.order >= reqs.total.order &&
+                   totalScores.questioning >= reqs.total.questioning;
+    
+    html += '<div class="score-check">';
+    html += '<div class="score-check-item ' + (necessaryOk ? 'ok' : 'fail') + '">';
+    html += '必要证据阵营分数: ' + (necessaryOk ? '✓ 满足' : '✗ 不满足');
+    html += '</div>';
+    html += '<div class="score-check-item ' + (totalOk ? 'ok' : 'fail') + '">';
+    html += '总阵营分数: ' + (totalOk ? '✓ 满足' : '✗ 不满足');
+    html += '</div>';
+    html += '</div>';
+    
+    // 核实按钮
+    if (canVerify && necessaryOk) {
+      html += '<button class="verify-truth-btn" data-truth-id="' + truth.id + '">核实真相</button>';
+    } else {
+      html += '<div class="verify-hint">';
+      if (!canVerify) {
+        html += '请将所有必要证据连线到真相';
+      } else if (!necessaryOk) {
+        html += '阵营分数不满足要求';
+      }
+      html += '</div>';
+    }
+    
+    container.innerHTML = html;
+    
+    // 绑定核实按钮
+    var verifyBtn = container.querySelector('.verify-truth-btn');
+    if (verifyBtn) {
+      verifyBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var truthId = this.dataset.truthId;
+        verifyTruth(truthId);
+      });
+    }
+  }
+  
+  function renderFactionScores() {
+    var container = evidenceTableOverlay.querySelector('.faction-scores-display');
+    
+    var html = '<div class="faction-scores-title">现有线索链接的阵营分数</div>';
+    html += '<div class="faction-scores-grid">';
+    
+    html += '<div class="faction-score-item">';
+    html += '<span class="faction-icon">' + FACTION_CONFIG.order.icon + '</span>';
+    html += '<span class="faction-name">秩序</span>';
+    html += '<span class="faction-value">' + factionScores.order + '</span>';
+    html += '</div>';
+    
+    html += '<div class="faction-score-item">';
+    html += '<span class="faction-icon">' + FACTION_CONFIG.innovation.icon + '</span>';
+    html += '<span class="faction-name">创新</span>';
+    html += '<span class="faction-value">' + factionScores.innovation + '</span>';
+    html += '</div>';
+    
+    html += '<div class="faction-score-item">';
+    html += '<span class="faction-icon">' + FACTION_CONFIG.questioning.icon + '</span>';
+    html += '<span class="faction-name">质疑</span>';
+    html += '<span class="faction-value">' + factionScores.questioning + '</span>';
+    html += '</div>';
+    
+    html += '<div class="faction-score-item">';
+    html += '<span class="faction-icon">' + FACTION_CONFIG.economy.icon + '</span>';
+    html += '<span class="faction-name">经济</span>';
+    html += '<span class="faction-value">' + factionScores.economy + '</span>';
+    html += '</div>';
+    
+    html += '</div>';
+    
+    // 显示必要证据和充分证据的分数
+    var necessaryScores = calculateNecessaryFactionScores();
+    html += '<div class="evidence-scores-breakdown">';
+    html += '<div class="breakdown-title">必要证据阵营分数</div>';
+    html += '<div class="breakdown-scores">';
+    html += '秩序: ' + necessaryScores.order + ' | 创新: ' + necessaryScores.innovation + ' | 质疑: ' + necessaryScores.questioning + ' | 经济: ' + necessaryScores.economy;
+    html += '</div>';
+    html += '</div>';
+    
+    container.innerHTML = html;
+  }
+  
+  // 打开证据台菜单
+  function openEvidenceTable() {
+    var overlay = getOrCreateEvidenceTableOverlay();
+    closePhoneMenu();
+    closeInventory();
+    closeMap();
+    
+    // 重置状态
+    activeTruthId = null;
+    renderCluesList();
+    
+    overlay.classList.add('active');
+  }
+  
+  function closeEvidenceTable() {
+    if (evidenceTableOverlay) {
+      evidenceTableOverlay.classList.remove('active');
+    }
+  }
+  
+  function toggleEvidenceTable() {
+    var overlay = getOrCreateEvidenceTableOverlay();
+    if (overlay.classList.contains('active')) {
+      closeEvidenceTable();
+    } else {
+      openEvidenceTable();
+    }
+  }
+  
+  // 核实真相
+  function verifyTruth(truthId) {
+    var truth = TRUTH_CONFIG[truthId];
+    if (!truth) return;
+    
+    // 检查阵营分数
+    var necessaryScores = calculateNecessaryFactionScores();
+    var totalScores = factionScores;
+    var reqs = truth.factionRequirements;
+    
+    // 检查必要证据阵营分数
+    var necessaryPass = necessaryScores.order >= reqs.necessary.order &&
+                        necessaryScores.innovation >= reqs.necessary.innovation &&
+                        necessaryScores.questioning >= reqs.necessary.questioning &&
+                        necessaryScores.economy >= reqs.necessary.economy;
+    
+    // 检查总阵营分数
+    var totalPass = totalScores.order >= reqs.total.order &&
+                     totalScores.innovation >= reqs.total.innovation &&
+                     totalScores.questioning >= reqs.total.questioning &&
+                     totalScores.economy >= reqs.total.economy;
+    
+    console.log('[真相核实] 必要证据分数检查: ' + necessaryPass);
+    console.log('[真相核实] 总分数检查: ' + totalPass);
+    console.log('[真相核实] 必要分数: ', reqs.necessary);
+    console.log('[真相核实] 当前必要分数: ', necessaryScores);
+    console.log('[真相核实] 总分数要求: ', reqs.total);
+    console.log('[真相核实] 当前总分数: ', totalScores);
+    
+    if (!necessaryPass) {
+      // 必要证据阵营分数不足，失败
+      showTruthFailureDialog(truthId, 'necessary');
+      return;
+    }
+    
+    if (!totalPass) {
+      // 总分数不足，失败
+      showTruthFailureDialog(truthId, 'total');
+      return;
+    }
+    
+    // 核实成功
+    verifiedTruths[truthId] = true;
+    
+    // 显示真相内容
+    showTruthVerifiedDialog(truthId);
+  }
+  
+  function showTruthVerifiedDialog(truthId) {
+    var truth = TRUTH_CONFIG[truthId];
+    
+    // 创建确认对话框
+    var dialog = document.createElement('div');
+    dialog.className = 'truth-verified-dialog';
+    dialog.innerHTML = '<div class="truth-dialog-content">' +
+      '<div class="truth-dialog-header">真相核实完成</div>' +
+      '<div class="truth-dialog-body">' +
+        '<h3>' + truth.title + '</h3>' +
+        truth.content +
+      '</div>' +
+      '<div class="truth-dialog-footer">' +
+        '<button class="confirm-truth-btn">确认真相</button>' +
+      '</div>' +
+    '</div>';
+    
+    storyViewport.appendChild(dialog);
+    
+    // 绑定确认按钮
+    dialog.querySelector('.confirm-truth-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      
+      // 移除对话框
+      dialog.remove();
+      
+      // 解锁后续剧情
+      if (truth.unlocksStory) {
+        unlockStoryWithTruth(truth);
+      }
+      
+      // 更新UI
+      closeEvidenceTable();
+      
+      // 显示成功消息
+      showMessage('真相已确认识别，剧情已解锁！');
+    });
+    
+    // 点击遮罩关闭
+    dialog.addEventListener('click', function(e) {
+      if (e.target === dialog) {
+        dialog.remove();
+      }
+    });
+  }
+  
+  function showTruthFailureDialog(truthId, reason) {
+    var truth = TRUTH_CONFIG[truthId];
+    
+    var reasonText = reason === 'necessary' 
+      ? '必要证据的阵营分数不满足要求' 
+      : '必要证据加充分证据的总阵营分数不满足要求';
+    
+    var dialog = document.createElement('div');
+    dialog.className = 'truth-failure-dialog';
+    dialog.innerHTML = '<div class="truth-dialog-content">' +
+      '<div class="truth-dialog-header failure">真相核实失败</div>' +
+      '<div class="truth-dialog-body">' +
+        '<p class="failure-reason">' + reasonText + '</p>' +
+        '<p class="failure-hint">你的阵营倾向与真相揭示所需不符。</p>' +
+        '<p class="failure-hint">在确认前，请确保收集了足够的必要证据和充分证据。</p>' +
+      '</div>' +
+      '<div class="truth-dialog-footer">' +
+        '<button class="close-failure-btn">返回</button>' +
+      '</div>' +
+    '</div>';
+    
+    storyViewport.appendChild(dialog);
+    
+    // 记录失败
+    failedTruths[truthId] = reason;
+    
+    // 绑定按钮
+    dialog.querySelector('.close-failure-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      dialog.remove();
+    });
+  }
+  
+  function unlockStoryWithTruth(truth) {
+    // 记录解锁的真相
+    setGameState('truth_verified_' + truth.id);
+    
+    // 设置剧情解锁标记
+    setGameState('story_unlocked');
+    
+    console.log('[剧情解锁] 已解锁真相: ' + truth.name);
+    console.log('[剧情解锁] 后续剧情: ' + truth.unlocksStory);
+    
+    // 这里可以添加后续剧情跳转逻辑
+    // 例如：跳转到新的场景
+    if (truth.unlocksStory) {
+      // 延迟跳转，让玩家看到成功消息
+      setTimeout(function() {
+        goToSceneByName(truth.unlocksStory);
+      }, 2000);
+    }
+  }
+  
+  // 更新手机菜单，添加证据台按钮
+  var originalRenderPhoneMenu = renderPhoneMenu;
+  renderPhoneMenu = function() {
+    originalRenderPhoneMenu();
+    
+    var menu = getOrCreatePhoneMenu();
+    
+    // 添加证据台按钮
+    var appsContainer = menu.querySelector('.phone-menu-apps');
+    
+    // 创建证据台按钮
+    var evidenceBtn = document.createElement('button');
+    evidenceBtn.className = 'phone-app-btn';
+    evidenceBtn.id = 'menu-evidence-btn';
+    evidenceBtn.innerHTML = '<svg class="phone-app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
+      '<polyline points="14 2 14 8 20 8"/>' +
+      '<line x1="16" y1="13" x2="8" y2="13"/>' +
+      '<line x1="16" y1="17" x2="8" y2="17"/>' +
+      '<polyline points="10 9 9 9 8 9"/>' +
+    '</svg>' +
+    '<span class="phone-app-label">证据台</span>';
+    
+    // 插入到物品按钮之前
+    var inventoryBtn = menu.querySelector('#menu-inventory-btn');
+    if (inventoryBtn) {
+      appsContainer.insertBefore(evidenceBtn, inventoryBtn);
+    } else {
+      appsContainer.appendChild(evidenceBtn);
+    }
+    
+    // 绑定事件
+    evidenceBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closePhoneMenu();
+      openEvidenceTable();
+    });
+  };
+  
+  // 修改advance函数，添加对证据台菜单的检查
+  var originalAdvance = advance;
+  advance = function(ev) {
+    // 如果证据台菜单打开，忽略advance
+    if (evidenceTableOverlay && evidenceTableOverlay.classList.contains('active')) return;
+    
+    // 调用原始advance
+    originalAdvance(ev);
+  };
+  
+  // 在advance的忽略条件中添加证据台相关
+  var originalAdvanceCheck = advance;
+  
+  // 修改点击画布的事件处理，添加对证据台的检查
+  var storyViewportClick = storyViewport ? storyViewport.onclick : null;
+  
+  // 重写点击事件处理
+  if (storyViewport) {
+    storyViewport.removeEventListener('click', storyViewportClick);
+    storyViewport.addEventListener('click', function(e) {
+      // 证据台打开时不处理
+      if (evidenceTableOverlay && evidenceTableOverlay.classList.contains('active')) {
+        // 除非点击的是证据台本身
+        if (!e.target.closest('#evidence-table-overlay')) {
+          return;
+        }
+      }
+      
+      // 原有逻辑...
+    });
+  }
+  
+  // 在证据获得时自动触发（当获得某些关键证据时）
+  // 这需要在现有的互动逻辑中调用 addEvidence()
+  
+  // ========== 整合证据获取到现有系统 ==========
+  
+  // 修改 addItem 函数，在获得物品时检查是否需要添加为证据
+  var originalAddItem = addItem;
+  addItem = function(itemId, itemName) {
+    var result = originalAddItem(itemId, itemName);
+    
+    // 将物品也添加为证据
+    // 物品ID映射到证据ID
+    var evidenceMapping = {
+      'card': 'evidence_card',
+      'proposal': 'evidence_proposal',
+      'decrypt_card': 'evidence_decrypt_card'
+    };
+    
+    if (evidenceMapping[itemId]) {
+      addEvidence(evidenceMapping[itemId]);
+    }
+    
+    return result;
+  };
+  
+  // 在场景互动中自动添加证据
+  // 这需要在相应的互动处理中添加 addEvidence 调用
+  
+  // ========== 对话自动获取证据 ==========
+  // 当播放某些关键对话时，自动添加证据
+  
+  // 修改 playVoiceover 函数，在播放特定语音时添加证据
+  var originalPlayVoiceover = playVoiceover;
+  playVoiceover = function(stepId, stepIndex) {
+    // 特定对话自动添加证据（使用Set确保不重复添加）
+    if (!window._evidenceAdded) window._evidenceAdded = {};
+    
+    if ((stepId === 'reporter_1' || stepId === 'reporter_2' || stepId === 'reporter_3') && !window._evidenceAdded['evidence_reporter']) {
+      addEvidence('evidence_reporter');
+      window._evidenceAdded['evidence_reporter'] = true;
+    }
+    if ((stepId === 'narr_2' || stepId === 'narr_3' || stepId === 'narr_4' || stepId === 'narr_5') && !window._evidenceAdded['evidence_anta_visit']) {
+      addEvidence('evidence_anta_visit');
+      window._evidenceAdded['evidence_anta_visit'] = true;
+    }
+    
+    originalPlayVoiceover(stepId, stepIndex);
+  };
+  
+  // ========== 剧情结束后进入证据推理阶段 ==========
+  // 修改 goTo 函数，在书房完成后进入推理阶段
+  
+  var originalGoToLogic = goTo;
+  goTo = function(index) {
+    originalGoToLogic(index);
+    
+    // 检查是否到达书房场景
+    var step = ACT_ONE[index];
+    if (step && step.scene === 'INT. OLD HOUSE LIVING ROOM - NIGHT') {
+      // 检查是否已解锁故事
+      if (hasGameState('story_unlocked') || verifiedTruths && Object.keys(verifiedTruths).length > 0) {
+        // 已有真相解锁，继续正常剧情
+      } else {
+        // 首次到达夜晚场景，提示进入推理阶段
+        setTimeout(function() {
+          showInferencePrompt();
+        }, 1500);
+      }
+    }
+  };
+  
+  function showInferencePrompt() {
+    var dialog = document.createElement('div');
+    dialog.className = 'inference-prompt-dialog';
+    dialog.innerHTML = '<div class="inference-dialog-content">' +
+      '<div class="inference-dialog-header">证据推理阶段</div>' +
+      '<div class="inference-dialog-body">' +
+        '<p>夜色已深，你决定整理手头的线索。</p>' +
+        '<p>打开手机，点击「证据台」，开始你的调查。</p>' +
+        '<p class="inference-hint">通过将线索连线到真相，揭露母亲之死的秘密。</p>' +
+      '</div>' +
+      '<div class="inference-dialog-footer">' +
+        '<button class="start-inference-btn">开始调查</button>' +
+      '</div>' +
+    '</div>';
+    
+    storyViewport.appendChild(dialog);
+    
+    dialog.querySelector('.start-inference-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      dialog.remove();
+      openEvidenceTable();
+    });
+  }
+  
+  // ========== 初始化证据系统 ==========
+  console.log('[证据系统] 初始化完成');
+  console.log('[证据系统] 可用证据数量: ' + Object.keys(EVIDENCE_CONFIG).length);
+  console.log('[证据系统] 可用真相数量: ' + Object.keys(TRUTH_CONFIG).length);
+
 })();
