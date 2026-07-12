@@ -471,6 +471,8 @@
       // 重置房间导航索引
       roomNavIndex = { left: 0, bottom: 0, right: 0 };
       goTo(currentIndex);
+    } else {
+      console.warn('[跳转] 未找到场景: ' + sceneName);
     }
   }
 
@@ -2042,6 +2044,22 @@
       // 笔记本证据
       addEvidence('evidence_notebook');
       descDiv.innerHTML = item.desc + '\n\n<em>（笔记本中记录着母亲对延寿技术阴谋的调查...）</em>';
+    } else if (item.id === 'files') {
+      // 案头文件：尸检报告摘要
+      if (!hasEvidence('evidence_autopsy')) {
+        addEvidence('evidence_autopsy');
+        descDiv.innerHTML = item.desc + '\n\n<em>（报告显示，母亲体内既有超量安眠药，又有一种罕见的神经抑制剂...）</em>';
+      } else {
+        descDiv.innerHTML = item.desc;
+      }
+    } else if (item.id === 'safe') {
+      // 保险箱已被打开
+      if (!hasEvidence('evidence_safe_opened')) {
+        addEvidence('evidence_safe_opened');
+        descDiv.innerHTML = item.desc + '\n\n<em>（箱门上有细微划痕，像被某种磁卡工具刷开，但里面已经空了。）</em>';
+      } else {
+        descDiv.innerHTML = item.desc;
+      }
     } else if (item.id === 'bunny') {
       // 兔子涂鸦证据（童年回忆）
       addEvidence('evidence_photo');
@@ -2370,6 +2388,36 @@
     return playerEvidences.slice();
   }
   
+  // 计算指定真相下已勾选证据的阵营分数
+  function calculateScoresForSubmittedTruth(truthId, filterFn) {
+    var scores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+    var list = submittedToTruth[truthId] || [];
+    list.forEach(function(evidenceId) {
+      var evidence = EVIDENCE_CONFIG[evidenceId];
+      if (!evidence || !filterFn || !filterFn(evidence)) return;
+      scores.order += evidence.factionScores.order || 0;
+      scores.innovation += evidence.factionScores.innovation || 0;
+      scores.questioning += evidence.factionScores.questioning || 0;
+      scores.economy += evidence.factionScores.economy || 0;
+    });
+    return scores;
+  }
+  
+  // 计算指定真相下已勾选充分证据的阵营分数
+  function calculateSufficientScoresForSubmittedTruth(truthId) {
+    var scores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+    var list = submittedToTruth[truthId] || [];
+    list.forEach(function(evidenceId) {
+      var evidence = EVIDENCE_CONFIG[evidenceId];
+      if (!evidence || !evidence.isSufficient) return;
+      scores.order += evidence.factionScores.order || 0;
+      scores.innovation += evidence.factionScores.innovation || 0;
+      scores.questioning += evidence.factionScores.questioning || 0;
+      scores.economy += evidence.factionScores.economy || 0;
+    });
+    return scores;
+  }
+  
   // 计算必要证据阵营分数
   function calculateNecessaryFactionScores() {
     var scores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
@@ -2674,7 +2722,16 @@
 
     // 显示当前阵营分数和差距
     if (scoresSection) {
-      var currentScores = factionScores;
+      var submittedList = submittedToTruth[activeTruthId] || [];
+      var currentScores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+      submittedList.forEach(function(id) {
+        var evidence = EVIDENCE_CONFIG[id];
+        if (!evidence) return;
+        currentScores.order += evidence.factionScores.order || 0;
+        currentScores.innovation += evidence.factionScores.innovation || 0;
+        currentScores.questioning += evidence.factionScores.questioning || 0;
+        currentScores.economy += evidence.factionScores.economy || 0;
+      });
       var reqs = truth.factionRequirements ? (truth.factionRequirements.total || truth.factionRequirements) : {};
       var canSubmit = checkTruthSubmitable(activeTruthId);
       scoresSection.innerHTML = '<div class="scores-comparison">' +
@@ -2704,14 +2761,7 @@
   function submitTruth() {
     if (!activeTruthId) return;
     if (!checkTruthSubmitable(activeTruthId)) return;
-
-    var truth = TRUTH_CONFIG[activeTruthId];
-    var content = truth.content || '<p>真相已确认。</p>';
-    showModal('真相揭露：' + truth.name, content, function() {
-      confirmedTruths[activeTruthId] = true;
-      renderTruthList();
-      updateTruthProgress();
-    });
+    verifyTruth(activeTruthId);
   }
 
   function renderFactionCompact() {
@@ -3299,33 +3349,47 @@
     html += '</div>';
     
     // 阵营分数检查
-    var necessaryScores = calculateNecessaryFactionScores();
-    var totalScores = factionScores;
+    var necessaryScores = calculateScoresForSubmittedTruth(truth.id, function(e) { return e.isNecessary; });
+    var sufficientScores = calculateSufficientScoresForSubmittedTruth(truth.id);
+    var totalScores = calculateScoresForSubmittedTruth(truth.id, function(e) { return true; });
     var reqs = truth.factionRequirements;
     
     var necessaryOk = necessaryScores.order >= reqs.necessary.order &&
-                       necessaryScores.questioning >= reqs.necessary.questioning;
+                       necessaryScores.innovation >= reqs.necessary.innovation &&
+                       necessaryScores.questioning >= reqs.necessary.questioning &&
+                       necessaryScores.economy >= reqs.necessary.economy;
+    var sufficientOk = sufficientScores.order >= reqs.sufficient.order &&
+                       sufficientScores.innovation >= reqs.sufficient.innovation &&
+                       sufficientScores.questioning >= reqs.sufficient.questioning &&
+                       sufficientScores.economy >= reqs.sufficient.economy;
     var totalOk = totalScores.order >= reqs.total.order &&
-                   totalScores.questioning >= reqs.total.questioning;
+                   totalScores.innovation >= reqs.total.innovation &&
+                   totalScores.questioning >= reqs.total.questioning &&
+                   totalScores.economy >= reqs.total.economy;
     
     html += '<div class="score-check">';
     html += '<div class="score-check-item ' + (necessaryOk ? 'ok' : 'fail') + '">';
-    html += '必要证据阵营分数: ' + (necessaryOk ? '✓ 满足' : '✗ 不满足');
+    html += '已勾选必要证据阵营分数: ' + (necessaryOk ? '✓ 满足' : '✗ 不满足');
+    html += '</div>';
+    html += '<div class="score-check-item ' + (sufficientOk ? 'ok' : 'fail') + '">';
+    html += '已勾选充分证据阵营分数: ' + (sufficientOk ? '✓ 满足' : '✗ 不满足');
     html += '</div>';
     html += '<div class="score-check-item ' + (totalOk ? 'ok' : 'fail') + '">';
-    html += '总阵营分数: ' + (totalOk ? '✓ 满足' : '✗ 不满足');
+    html += '已勾选证据总阵营分数: ' + (totalOk ? '✓ 满足' : '✗ 不满足');
     html += '</div>';
     html += '</div>';
     
     // 核实按钮
-    if (canVerify && necessaryOk) {
+    if (canVerify && necessaryOk && sufficientOk && totalOk) {
       html += '<button class="verify-truth-btn" data-truth-id="' + truth.id + '">核实真相</button>';
     } else {
       html += '<div class="verify-hint">';
       if (!canVerify) {
         html += '请将所有必要证据连线到真相';
       } else if (!necessaryOk) {
-        html += '阵营分数不满足要求';
+        html += '必要证据阵营分数不满足要求';
+      } else if (!sufficientOk) {
+        html += '充分证据阵营分数不满足要求';
       }
       html += '</div>';
     }
@@ -3346,41 +3410,78 @@
   function renderFactionScores() {
     var container = evidenceTableOverlay.querySelector('.faction-scores-display');
     
-    var html = '<div class="faction-scores-title">现有线索链接的阵营分数</div>';
+    if (!container || !activeTruthId) {
+      return;
+    }
+    
+    var truth = TRUTH_CONFIG[activeTruthId];
+    var submittedList = submittedToTruth[activeTruthId] || [];
+    
+    var necessaryIds = (truth.requiredEvidences || []).filter(function(id) {
+      return submittedList.indexOf(id) !== -1;
+    });
+    var totalIds = submittedList.slice();
+    
+    var necessaryScores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+    necessaryIds.forEach(function(id) {
+      var evidence = EVIDENCE_CONFIG[id];
+      if (!evidence) return;
+      necessaryScores.order += evidence.factionScores.order || 0;
+      necessaryScores.innovation += evidence.factionScores.innovation || 0;
+      necessaryScores.questioning += evidence.factionScores.questioning || 0;
+      necessaryScores.economy += evidence.factionScores.economy || 0;
+    });
+    
+    var totalScores = { order: 0, innovation: 0, questioning: 0, economy: 0 };
+    totalIds.forEach(function(id) {
+      var evidence = EVIDENCE_CONFIG[id];
+      if (!evidence) return;
+      totalScores.order += evidence.factionScores.order || 0;
+      totalScores.innovation += evidence.factionScores.innovation || 0;
+      totalScores.questioning += evidence.factionScores.questioning || 0;
+      totalScores.economy += evidence.factionScores.economy || 0;
+    });
+    
+    var html = '<div class="faction-scores-title">当前真相已勾选证据的阵营分数</div>';
     html += '<div class="faction-scores-grid">';
     
     html += '<div class="faction-score-item">';
     html += '<span class="faction-icon">' + FACTION_CONFIG.order.icon + '</span>';
     html += '<span class="faction-name">秩序</span>';
-    html += '<span class="faction-value">' + factionScores.order + '</span>';
+    html += '<span class="faction-value">' + totalScores.order + '</span>';
     html += '</div>';
     
     html += '<div class="faction-score-item">';
     html += '<span class="faction-icon">' + FACTION_CONFIG.innovation.icon + '</span>';
     html += '<span class="faction-name">创新</span>';
-    html += '<span class="faction-value">' + factionScores.innovation + '</span>';
+    html += '<span class="faction-value">' + totalScores.innovation + '</span>';
     html += '</div>';
     
     html += '<div class="faction-score-item">';
     html += '<span class="faction-icon">' + FACTION_CONFIG.questioning.icon + '</span>';
     html += '<span class="faction-name">质疑</span>';
-    html += '<span class="faction-value">' + factionScores.questioning + '</span>';
+    html += '<span class="faction-value">' + totalScores.questioning + '</span>';
     html += '</div>';
     
     html += '<div class="faction-score-item">';
     html += '<span class="faction-icon">' + FACTION_CONFIG.economy.icon + '</span>';
     html += '<span class="faction-name">经济</span>';
-    html += '<span class="faction-value">' + factionScores.economy + '</span>';
+    html += '<span class="faction-value">' + totalScores.economy + '</span>';
     html += '</div>';
     
     html += '</div>';
     
-    // 显示必要证据和充分证据的分数
-    var necessaryScores = calculateNecessaryFactionScores();
     html += '<div class="evidence-scores-breakdown">';
-    html += '<div class="breakdown-title">必要证据阵营分数</div>';
+    html += '<div class="breakdown-title">已勾选充分证据阵营分数</div>';
     html += '<div class="breakdown-scores">';
-    html += '秩序: ' + necessaryScores.order + ' | 创新: ' + necessaryScores.innovation + ' | 质疑: ' + necessaryScores.questioning + ' | 经济: ' + necessaryScores.economy;
+    html += '秩序: ' + sufficientScores.order + ' | 创新: ' + sufficientScores.innovation + ' | 质疑: ' + sufficientScores.questioning + ' | 经济: ' + sufficientScores.economy;
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="evidence-scores-breakdown">';
+    html += '<div class="breakdown-title">已勾选证据总阵营分数</div>';
+    html += '<div class="breakdown-scores">';
+    html += '秩序: ' + totalScores.order + ' | 创新: ' + totalScores.innovation + ' | 质疑: ' + totalScores.questioning + ' | 经济: ' + totalScores.economy;
     html += '</div>';
     html += '</div>';
     
@@ -3393,26 +3494,40 @@
     if (!truth) return;
     
     // 检查阵营分数
-    var necessaryScores = calculateNecessaryFactionScores();
-    var totalScores = factionScores;
-    var reqs = truth.factionRequirements;
+    var necessaryScores = calculateScoresForSubmittedTruth(truthId, function(e) { return e.isNecessary; });
+    var sufficientScores = calculateSufficientScoresForSubmittedTruth(truthId);
+    var totalScores = calculateScoresForSubmittedTruth(truthId, function(e) { return true; });
+    var reqs = truth.factionRequirements || {};
+    
+    var necessaryReqs = reqs.necessary || {};
+    var sufficientReqs = reqs.sufficient || {};
+    var totalReqs = reqs.total || {};
     
     // 检查必要证据阵营分数
-    var necessaryPass = necessaryScores.order >= reqs.necessary.order &&
-                        necessaryScores.innovation >= reqs.necessary.innovation &&
-                        necessaryScores.questioning >= reqs.necessary.questioning &&
-                        necessaryScores.economy >= reqs.necessary.economy;
+    var necessaryPass = necessaryScores.order >= (necessaryReqs.order || 0) &&
+                        necessaryScores.innovation >= (necessaryReqs.innovation || 0) &&
+                        necessaryScores.questioning >= (necessaryReqs.questioning || 0) &&
+                        necessaryScores.economy >= (necessaryReqs.economy || 0);
+    
+    // 检查充分证据阵营分数
+    var sufficientPass = sufficientScores.order >= (sufficientReqs.order || 0) &&
+                         sufficientScores.innovation >= (sufficientReqs.innovation || 0) &&
+                         sufficientScores.questioning >= (sufficientReqs.questioning || 0) &&
+                         sufficientScores.economy >= (sufficientReqs.economy || 0);
     
     // 检查总阵营分数
-    var totalPass = totalScores.order >= reqs.total.order &&
-                     totalScores.innovation >= reqs.total.innovation &&
-                     totalScores.questioning >= reqs.total.questioning &&
-                     totalScores.economy >= reqs.total.economy;
+    var totalPass = totalScores.order >= (totalReqs.order || 0) &&
+                    totalScores.innovation >= (totalReqs.innovation || 0) &&
+                    totalScores.questioning >= (totalReqs.questioning || 0) &&
+                    totalScores.economy >= (totalReqs.economy || 0);
     
     console.log('[真相核实] 必要证据分数检查: ' + necessaryPass);
+    console.log('[真相核实] 充分证据分数检查: ' + sufficientPass);
     console.log('[真相核实] 总分数检查: ' + totalPass);
     console.log('[真相核实] 必要分数: ', reqs.necessary);
     console.log('[真相核实] 当前必要分数: ', necessaryScores);
+    console.log('[真相核实] 充分分数: ', reqs.sufficient);
+    console.log('[真相核实] 当前充分分数: ', sufficientScores);
     console.log('[真相核实] 总分数要求: ', reqs.total);
     console.log('[真相核实] 当前总分数: ', totalScores);
     
@@ -3422,10 +3537,33 @@
       return;
     }
     
+    if (!sufficientPass) {
+      // 充分证据阵营分数不足，失败
+      showTruthFailureDialog(truthId, 'sufficient');
+      return;
+    }
+    
     if (!totalPass) {
       // 总分数不足，失败
       showTruthFailureDialog(truthId, 'total');
       return;
+    }
+    
+    // 检查失败阵营：基于当前真相已勾选证据的充分+总阵营分数
+    var failureFactions = truth.failureFactions || [];
+    if (failureFactions.length > 0) {
+      var failureScores = {
+        order: sufficientScores.order + totalScores.order,
+        innovation: sufficientScores.innovation + totalScores.innovation,
+        questioning: sufficientScores.questioning + totalScores.questioning,
+        economy: sufficientScores.economy + totalScores.economy
+      };
+      var failingFaction = getFailingFaction(failureScores, failureFactions, 5);
+      if (failingFaction) {
+        console.log('[真相核实] 触发失败阵营: ' + failingFaction);
+        showTruthFailureDialog(truthId, 'faction', failingFaction);
+        return;
+      }
     }
     
     // 核实成功
@@ -3437,6 +3575,9 @@
   
   function showTruthVerifiedDialog(truthId) {
     var truth = TRUTH_CONFIG[truthId];
+    
+    // 关闭证据台，避免后续确认按钮被点击拦截
+    closeEvidenceTable();
     
     // 创建确认对话框
     var dialog = document.createElement('div');
@@ -3481,21 +3622,46 @@
     });
   }
   
-  function showTruthFailureDialog(truthId, reason) {
+  // 获取当前真相下超过阈值的失败阵营
+  function getFailingFaction(scores, allowedFactions, threshold) {
+    threshold = threshold || 0;
+    var factions = [
+      { key: 'order', value: scores.order || 0 },
+      { key: 'innovation', value: scores.innovation || 0 },
+      { key: 'questioning', value: scores.questioning || 0 },
+      { key: 'economy', value: scores.economy || 0 }
+    ];
+    factions.sort(function(a, b) { return b.value - a.value; });
+    for (var i = 0; i < factions.length; i++) {
+      if (factions[i].value >= threshold && allowedFactions.indexOf(factions[i].key) !== -1) {
+        return factions[i].key;
+      }
+    }
+    return null;
+  }
+  
+  function showTruthFailureDialog(truthId, reason, failureFaction) {
     var truth = TRUTH_CONFIG[truthId];
     
     var reasonText = reason === 'necessary' 
       ? '必要证据的阵营分数不满足要求' 
       : '必要证据加充分证据的总阵营分数不满足要求';
     
+    var failureTitle = '真相核实失败';
+    var failureNarrative = '你的阵营倾向与真相揭示所需不符。\n\n在确认前，请确保收集了足够的必要证据和充分证据。';
+    
+    if (failureFaction && FAILURE_CONFIG && FAILURE_CONFIG[failureFaction]) {
+      failureTitle = FAILURE_CONFIG[failureFaction].title || failureTitle;
+      failureNarrative = FAILURE_CONFIG[failureFaction].narrative || failureNarrative;
+    }
+    
     var dialog = document.createElement('div');
     dialog.className = 'truth-failure-dialog';
     dialog.innerHTML = '<div class="truth-dialog-content">' +
-      '<div class="truth-dialog-header failure">真相核实失败</div>' +
+      '<div class="truth-dialog-header failure">' + failureTitle + '</div>' +
       '<div class="truth-dialog-body">' +
         '<p class="failure-reason">' + reasonText + '</p>' +
-        '<p class="failure-hint">你的阵营倾向与真相揭示所需不符。</p>' +
-        '<p class="failure-hint">在确认前，请确保收集了足够的必要证据和充分证据。</p>' +
+        '<p class="failure-hint">' + failureNarrative.replace(/\n/g, '</p><p class="failure-hint">') + '</p>' +
       '</div>' +
       '<div class="truth-dialog-footer">' +
         '<button class="close-failure-btn">返回</button>' +
@@ -3610,6 +3776,10 @@
     if ((stepId === 'narr_2' || stepId === 'narr_3' || stepId === 'narr_4' || stepId === 'narr_5') && !window._evidenceAdded['evidence_anta_visit']) {
       addEvidence('evidence_anta_visit');
       window._evidenceAdded['evidence_anta_visit'] = true;
+    }
+    if ((stepId === 'reporter_2') && !window._evidenceAdded['evidence_anta_whisper']) {
+      addEvidence('evidence_anta_whisper');
+      window._evidenceAdded['evidence_anta_whisper'] = true;
     }
     
     originalPlayVoiceover(stepId, stepIndex);

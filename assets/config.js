@@ -125,6 +125,12 @@ window.NOVEL_ASSETS = {
         sound: 'assets/sfx/notebook.mp3' },
       { id: 'drawer', x: 700, y: 500, w: 280, h: 140, name: '抽屉',
         desc: '书桌的抽屉，上锁了……需要三位数的密码。', image: 'assets/interaction/drawer.png',
+        sound: 'assets/sfx/drawer.mp3' },
+      { id: 'files', x: 1200, y: 340, w: 180, h: 120, name: '案头文件',
+        desc: '书桌旁堆放的案头文件，最上面一份写着“尸检报告摘要”。', image: 'assets/interaction/notebook.png',
+        sound: 'assets/sfx/notebook.mp3' },
+      { id: 'safe', x: 1100, y: 620, w: 160, h: 220, name: '保险箱',
+        desc: '墙角的保险箱，箱门半开着，里面已经空了。', image: 'assets/interaction/drawer.png',
         sound: 'assets/sfx/drawer.mp3' }
     ],
     living_room_night: [
@@ -435,8 +441,8 @@ window.NOVEL_ASSETS = {
       sufficientEvidences: ['evidence_notebook', 'evidence_reporter', 'evidence_anta_whisper', 'evidence_autopsy', 'evidence_password'],
       // 阵营分数要求（确认真相时必须满足）
       factionRequirements: {
-        necessary: { order: 5, innovation: 0, questioning: 8, economy: 0 },
-        total: { order: 8, innovation: 2, questioning: 15, economy: 3 }
+        necessary: { order: 7, innovation: 0, questioning: 10, economy: 0 },
+        total: { order: 12, innovation: 2, questioning: 16, economy: 3 }
       },
       // 失败条件阵营（如果阵营分数倾向这些阵营，真相将被扭曲）
       failureFactions: ['economy', 'innovation'],
@@ -454,7 +460,7 @@ window.NOVEL_ASSETS = {
       sufficientEvidences: ['evidence_reporter', 'evidence_letter', 'evidence_anta_whisper'],
       factionRequirements: {
         necessary: { order: 6, innovation: 0, questioning: 10, economy: 0 },
-        total: { order: 10, innovation: 1, questioning: 18, economy: 2 }
+        total: { order: 10, innovation: 1, questioning: 15, economy: 1 }
       },
       failureFactions: ['economy'],
       unlocksStory: 'INT. OLD HOUSE BASEMENT - NIGHT'
@@ -469,8 +475,8 @@ window.NOVEL_ASSETS = {
       requiredEvidences: ['evidence_suit', 'evidence_anta_visit', 'evidence_anta_whisper', 'evidence_photo'],
       sufficientEvidences: ['evidence_notebook', 'evidence_letter', 'evidence_reporter'],
       factionRequirements: {
-        necessary: { order: 4, innovation: 2, questioning: 10, economy: 2 },
-        total: { order: 7, innovation: 4, questioning: 18, economy: 4 }
+        necessary: { order: 4, innovation: 4, questioning: 10, economy: 4 },
+        total: { order: 9, innovation: 6, questioning: 21, economy: 5 }
       },
       failureFactions: ['innovation'],
       unlocksStory: 'INT. OLD HOUSE STUDY ROOM - DAWN'
@@ -483,10 +489,10 @@ window.NOVEL_ASSETS = {
       description: '当所有线索汇聚一处，完整的真相终于浮出水面。',
       content: '<p><strong>真相揭露：</strong></p><p>母亲——林清漪，是秩序党的核心领袖，也是"延寿技术禁止立法"的发起人。她用一生的时间与"永生计划"抗争，因为她深知：当死亡不再是必然，权力将永世固化，社会将彻底失去活力。</p><p>你继承了她的遗志。Anta已经将"永生计划"的核心证据交到了你手中。接下来的路，将由你来走完。</p><p>但请记住：真相的力量不在于复仇，而在于改变。当你握有真相时，你将面临最后的抉择——是将这一切公之于众，还是用另一种方式改变这个世界？</p>',
       requiredEvidences: ['evidence_proposal', 'evidence_letter', 'evidence_photo', 'evidence_autopsy'],
-      sufficientEvidences: ['evidence_notebook', 'evidence_notebook', 'evidence_anta_visit', 'evidence_anta_whisper', 'evidence_reporter'],
+      sufficientEvidences: ['evidence_notebook', 'evidence_anta_visit', 'evidence_anta_whisper', 'evidence_reporter'],
       factionRequirements: {
-        necessary: { order: 10, innovation: 2, questioning: 15, economy: 2 },
-        total: { order: 18, innovation: 5, questioning: 28, economy: 5 }
+        necessary: { order: 8, innovation: 0, questioning: 12, economy: 0 },
+        total: { order: 11, innovation: 3, questioning: 19, economy: 3 }
       },
       failureFactions: ['economy'],
       unlocksStory: 'INT. OLD HOUSE ENDING'
@@ -542,6 +548,14 @@ window.NOVEL_ASSETS = {
     innovation: {
       title: '另一种选择',
       narrative: '延寿技术...也许并没有母亲说得那么可怕。当权力和金钱可以换来更长的生命时，为什么要拒绝呢？\n\n你理解了创新党的逻辑——也许在这个世界上，总有些人比其他人更"平等"。而你，完全可以成为其中之一。\n\n你销毁了那些证据，选择加入"永生计划"。毕竟，谁不想活得更久呢？\n\n—— Chapter 1 · 完（创新结局）'
+    },
+    questioning: {
+      title: '质疑的代价',
+      narrative: '你开始怀疑一切：母亲的死、真相的意义、甚至你自己追查这一切的初衷。\n\n当怀疑吞噬了信念，你发现自己再也无法站定立场。你收集的证据变成了无意义的碎片，真相在你手中化为了虚无。\n\n也许，有些门一旦打开，就再也关不上了。\n\n—— Chapter 1 · 完（质疑结局）'
+    },
+    order: {
+      title: '秩序的代价',
+      narrative: '你选择了维护现有的秩序。母亲的死、阴谋的存在、真相的意义——这些都不重要。\n\n重要的是稳定，是规则，是不动摇的体制。你亲手将证据封存，让真相永远埋藏在档案室的深处。\n\n毕竟，秩序需要牺牲。而母亲，只是其中一个罢了。\n\n—— Chapter 1 · 完（秩序结局）'
     }
   }
 };
