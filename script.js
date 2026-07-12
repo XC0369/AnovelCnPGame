@@ -2707,7 +2707,7 @@
     html += '<div class="req-title">阵营分数要求</div>';
 
     if (truth.factionRequirements) {
-      var reqs = truth.factionRequirements.total || truth.factionRequirements;
+      var reqs = truth.factionRequirements.threshold || truth.factionRequirements.total || truth.factionRequirements;
       if (reqs) {
         html += '<div class="req-grid">';
         html += '<div class="req-item"><span class="req-icon">⚖️</span><span>' + (reqs.order || 0) + '</span></div>';
@@ -2715,6 +2715,10 @@
         html += '<div class="req-item"><span class="req-icon">🔍</span><span>' + (reqs.questioning || 0) + '</span></div>';
         html += '<div class="req-item"><span class="req-icon">💰</span><span>' + (reqs.economy || 0) + '</span></div>';
         html += '</div>';
+        if (truth.failureFaction) {
+          var ffLabel = ({order:'秩序', innovation:'创新', questioning:'质疑', economy:'经济'})[truth.failureFaction] || truth.failureFaction;
+          html += '<div class="req-note">⚠ ' + ffLabel + '阵营需要精确等于阈值（过高将触发该阵营失败结局）</div>';
+        }
       }
     }
     html += '</div>';
@@ -2732,7 +2736,7 @@
         currentScores.questioning += evidence.factionScores.questioning || 0;
         currentScores.economy += evidence.factionScores.economy || 0;
       });
-      var reqs = truth.factionRequirements ? (truth.factionRequirements.total || truth.factionRequirements) : {};
+      var reqs = truth.factionRequirements ? (truth.factionRequirements.threshold || truth.factionRequirements.total || truth.factionRequirements) : {};
       var canSubmit = checkTruthSubmitable(activeTruthId);
       scoresSection.innerHTML = '<div class="scores-comparison">' +
         '<div class="scores-row"><span>当前</span><span>⚖️' + currentScores.order + '</span><span>💡' + currentScores.innovation + '</span><span>🔍' + currentScores.questioning + '</span><span>💰' + currentScores.economy + '</span></div>' +
@@ -3348,48 +3352,63 @@
     html += '<div class="progress-label">充分证据连线: ' + sufficientConnected.length + '/' + (truth.sufficientEvidences || []).length + '</div>';
     html += '</div>';
     
-    // 阵营分数检查
-    var necessaryScores = calculateScoresForSubmittedTruth(truth.id, function(e) { return e.isNecessary; });
-    var sufficientScores = calculateSufficientScoresForSubmittedTruth(truth.id);
+    // 阵营分数检查（新逻辑：单一 threshold + failureFaction）
     var totalScores = calculateScoresForSubmittedTruth(truth.id, function(e) { return true; });
-    var reqs = truth.factionRequirements;
-    
-    var necessaryOk = necessaryScores.order >= reqs.necessary.order &&
-                       necessaryScores.innovation >= reqs.necessary.innovation &&
-                       necessaryScores.questioning >= reqs.necessary.questioning &&
-                       necessaryScores.economy >= reqs.necessary.economy;
-    var sufficientOk = sufficientScores.order >= reqs.sufficient.order &&
-                       sufficientScores.innovation >= reqs.sufficient.innovation &&
-                       sufficientScores.questioning >= reqs.sufficient.questioning &&
-                       sufficientScores.economy >= reqs.sufficient.economy;
-    var totalOk = totalScores.order >= reqs.total.order &&
-                   totalScores.innovation >= reqs.total.innovation &&
-                   totalScores.questioning >= reqs.total.questioning &&
-                   totalScores.economy >= reqs.total.economy;
-    
+    var threshold = (truth.factionRequirements && truth.factionRequirements.threshold) || {};
+    var failureFaction = truth.failureFaction;
+
+    var otherFactionsOk = true;
+    var failureFactionExact = true;
+    var failureFactionOver = false;
+    var missing = [];
+
+    ['order', 'innovation', 'questioning', 'economy'].forEach(function(faction) {
+      var score = totalScores[faction] || 0;
+      var req = threshold[faction] || 0;
+      if (faction === failureFaction) {
+        if (score > req) {
+          failureFactionOver = true;
+        } else if (score < req) {
+          failureFactionExact = false;
+          missing.push(faction + '(' + score + '/' + req + ')');
+        }
+      } else {
+        if (score < req) {
+          otherFactionsOk = false;
+          missing.push(faction + '(' + score + '/' + req + ')');
+        }
+      }
+    });
+
+    var overallOk = otherFactionsOk && failureFactionExact && !failureFactionOver;
+    var ffLabel = ({order:'秩序', innovation:'创新', questioning:'质疑', economy:'经济'})[failureFaction] || failureFaction;
+
     html += '<div class="score-check">';
-    html += '<div class="score-check-item ' + (necessaryOk ? 'ok' : 'fail') + '">';
-    html += '已勾选必要证据阵营分数: ' + (necessaryOk ? '✓ 满足' : '✗ 不满足');
+    html += '<div class="score-check-item ' + (otherFactionsOk ? 'ok' : 'fail') + '">';
+    html += '其他阵营分数: ' + (otherFactionsOk ? '✓ 满足' : '✗ 不满足');
     html += '</div>';
-    html += '<div class="score-check-item ' + (sufficientOk ? 'ok' : 'fail') + '">';
-    html += '已勾选充分证据阵营分数: ' + (sufficientOk ? '✓ 满足' : '✗ 不满足');
+    if (failureFactionExact && !failureFactionOver) {
+      html += '<div class="score-check-item ok">' + ffLabel + '阵营（精确平衡）: ✓ 等于阈值</div>';
+    } else if (failureFactionOver) {
+      html += '<div class="score-check-item fail">' + ffLabel + '阵营: ✗ 超出阈值（将触发失败）</div>';
+    } else {
+      html += '<div class="score-check-item fail">' + ffLabel + '阵营: ✗ 低于阈值</div>';
+    }
     html += '</div>';
-    html += '<div class="score-check-item ' + (totalOk ? 'ok' : 'fail') + '">';
-    html += '已勾选证据总阵营分数: ' + (totalOk ? '✓ 满足' : '✗ 不满足');
-    html += '</div>';
-    html += '</div>';
-    
+
     // 核实按钮
-    if (canVerify && necessaryOk && sufficientOk && totalOk) {
+    if (canVerify && overallOk) {
       html += '<button class="verify-truth-btn" data-truth-id="' + truth.id + '">核实真相</button>';
     } else {
       html += '<div class="verify-hint">';
       if (!canVerify) {
         html += '请将所有必要证据连线到真相';
-      } else if (!necessaryOk) {
-        html += '必要证据阵营分数不满足要求';
-      } else if (!sufficientOk) {
-        html += '充分证据阵营分数不满足要求';
+      } else if (!overallOk) {
+        if (missing.length > 0) {
+          html += '阵营分数不足：' + missing.join(', ');
+        } else {
+          html += ffLabel + '阵营超出阈值，将触发' + ffLabel + '结局';
+        }
       }
       html += '</div>';
     }
@@ -3492,83 +3511,61 @@
   function verifyTruth(truthId) {
     var truth = TRUTH_CONFIG[truthId];
     if (!truth) return;
-    
-    // 检查阵营分数
-    var necessaryScores = calculateScoresForSubmittedTruth(truthId, function(e) { return e.isNecessary; });
-    var sufficientScores = calculateSufficientScoresForSubmittedTruth(truthId);
+
+    // 检查阵营分数（新逻辑：单一 threshold + 单数 failureFaction）
     var totalScores = calculateScoresForSubmittedTruth(truthId, function(e) { return true; });
-    var reqs = truth.factionRequirements || {};
-    
-    var necessaryReqs = reqs.necessary || {};
-    var sufficientReqs = reqs.sufficient || {};
-    var totalReqs = reqs.total || {};
-    
-    // 检查必要证据阵营分数
-    var necessaryPass = necessaryScores.order >= (necessaryReqs.order || 0) &&
-                        necessaryScores.innovation >= (necessaryReqs.innovation || 0) &&
-                        necessaryScores.questioning >= (necessaryReqs.questioning || 0) &&
-                        necessaryScores.economy >= (necessaryReqs.economy || 0);
-    
-    // 检查充分证据阵营分数
-    var sufficientPass = sufficientScores.order >= (sufficientReqs.order || 0) &&
-                         sufficientScores.innovation >= (sufficientReqs.innovation || 0) &&
-                         sufficientScores.questioning >= (sufficientReqs.questioning || 0) &&
-                         sufficientScores.economy >= (sufficientReqs.economy || 0);
-    
-    // 检查总阵营分数
-    var totalPass = totalScores.order >= (totalReqs.order || 0) &&
-                    totalScores.innovation >= (totalReqs.innovation || 0) &&
-                    totalScores.questioning >= (totalReqs.questioning || 0) &&
-                    totalScores.economy >= (totalReqs.economy || 0);
-    
-    console.log('[真相核实] 必要证据分数检查: ' + necessaryPass);
-    console.log('[真相核实] 充分证据分数检查: ' + sufficientPass);
-    console.log('[真相核实] 总分数检查: ' + totalPass);
-    console.log('[真相核实] 必要分数: ', reqs.necessary);
-    console.log('[真相核实] 当前必要分数: ', necessaryScores);
-    console.log('[真相核实] 充分分数: ', reqs.sufficient);
-    console.log('[真相核实] 当前充分分数: ', sufficientScores);
-    console.log('[真相核实] 总分数要求: ', reqs.total);
-    console.log('[真相核实] 当前总分数: ', totalScores);
-    
-    if (!necessaryPass) {
-      // 必要证据阵营分数不足，失败
-      showTruthFailureDialog(truthId, 'necessary');
-      return;
-    }
-    
-    if (!sufficientPass) {
-      // 充分证据阵营分数不足，失败
-      showTruthFailureDialog(truthId, 'sufficient');
-      return;
-    }
-    
-    if (!totalPass) {
-      // 总分数不足，失败
-      showTruthFailureDialog(truthId, 'total');
-      return;
-    }
-    
-    // 检查失败阵营：基于当前真相已勾选证据的充分+总阵营分数
-    var failureFactions = truth.failureFactions || [];
-    if (failureFactions.length > 0) {
-      var failureScores = {
-        order: sufficientScores.order + totalScores.order,
-        innovation: sufficientScores.innovation + totalScores.innovation,
-        questioning: sufficientScores.questioning + totalScores.questioning,
-        economy: sufficientScores.economy + totalScores.economy
-      };
-      var failingFaction = getFailingFaction(failureScores, failureFactions, 5);
-      if (failingFaction) {
-        console.log('[真相核实] 触发失败阵营: ' + failingFaction);
-        showTruthFailureDialog(truthId, 'faction', failingFaction);
-        return;
+    var threshold = (truth.factionRequirements && truth.factionRequirements.threshold) || {};
+
+    // 检查其他阵营是否 >= threshold，失败阵营是否 == threshold（不能 >）
+    var failureFaction = truth.failureFaction;
+    var otherFactionsPass = true;
+    var failureFactionFail = false;
+    var missingFactions = [];
+    var overFactions = [];
+
+    ['order', 'innovation', 'questioning', 'economy'].forEach(function(faction) {
+      var score = totalScores[faction] || 0;
+      var req = threshold[faction] || 0;
+      if (faction === failureFaction) {
+        // 失败阵营：必须 == threshold；> threshold 触发失败结局
+        if (score > req) {
+          failureFactionFail = true;
+        } else if (score < req) {
+          // < threshold 也视为不满足
+          otherFactionsPass = false;
+          missingFactions.push(faction + '(' + score + '/' + req + ')');
+        }
+      } else {
+        // 其他阵营：必须 >= threshold
+        if (score < req) {
+          otherFactionsPass = false;
+          missingFactions.push(faction + '(' + score + '/' + req + ')');
+        }
       }
+    });
+
+    console.log('[真相核实] 总分数要求: ', threshold);
+    console.log('[真相核实] 当前总分数: ', totalScores);
+    console.log('[真相核实] 失败阵营: ' + failureFaction);
+    console.log('[真相核实] 其他阵营通过: ' + otherFactionsPass);
+    console.log('[真相核实] 失败阵营超出: ' + failureFactionFail);
+
+    if (!otherFactionsPass) {
+      // 其他阵营分数不足，失败
+      showTruthFailureDialog(truthId, 'necessary', null, '阵营分数不足：' + missingFactions.join(', '));
+      return;
     }
-    
+
+    if (failureFactionFail) {
+      // 失败阵营超出阈值，触发失败结局
+      console.log('[真相核实] 触发失败阵营: ' + failureFaction);
+      showTruthFailureDialog(truthId, 'faction', failureFaction);
+      return;
+    }
+
     // 核实成功
     verifiedTruths[truthId] = true;
-    
+
     // 显示真相内容
     showTruthVerifiedDialog(truthId);
   }
@@ -3640,16 +3637,16 @@
     return null;
   }
   
-  function showTruthFailureDialog(truthId, reason, failureFaction) {
+  function showTruthFailureDialog(truthId, reason, failureFaction, customReasonText) {
     var truth = TRUTH_CONFIG[truthId];
-    
-    var reasonText = reason === 'necessary' 
-      ? '必要证据的阵营分数不满足要求' 
-      : '必要证据加充分证据的总阵营分数不满足要求';
-    
+
+    var reasonText = customReasonText || (reason === 'necessary'
+      ? '必要证据的阵营分数不满足要求'
+      : '必要证据加充分证据的总阵营分数不满足要求');
+
     var failureTitle = '真相核实失败';
     var failureNarrative = '你的阵营倾向与真相揭示所需不符。\n\n在确认前，请确保收集了足够的必要证据和充分证据。';
-    
+
     if (failureFaction && FAILURE_CONFIG && FAILURE_CONFIG[failureFaction]) {
       failureTitle = FAILURE_CONFIG[failureFaction].title || failureTitle;
       failureNarrative = FAILURE_CONFIG[failureFaction].narrative || failureNarrative;

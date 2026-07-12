@@ -209,10 +209,10 @@ window.NOVEL_ASSETS = {
       obtainedBy: '点击主卧的男士西装',
       // 阵营分数贡献
       factionScores: {
-        order: 2,    // 秩序派关注传统家庭伦理
+        order: 1,
         innovation: 0,
         questioning: 1, // 质疑派会追查来源
-        economy: 1
+        economy: 2
       },
       // 证据类型
       isNecessary: false,  // 是否为必要证据
@@ -230,7 +230,7 @@ window.NOVEL_ASSETS = {
         order: 1,
         innovation: 2,
         questioning: 2,
-        economy: 1
+        economy: 0
       },
       isNecessary: false,
       isSufficient: false
@@ -262,9 +262,9 @@ window.NOVEL_ASSETS = {
       obtainedBy: '打开书房的抽屉锁（密码719）',
       factionScores: {
         order: 4,
-        innovation: -2,
-        questioning: 2,
-        economy: -1
+        innovation: 0,
+        questioning: 1,
+        economy: 0
       },
       isNecessary: true,   // 必要证据
       isSufficient: false
@@ -278,7 +278,7 @@ window.NOVEL_ASSETS = {
       description: '书房桌上的笔记本，记录着母亲对延寿技术的担忧，以及对"创新党"背后势力的调查笔记。',
       obtainedBy: '翻阅书房的笔记本',
       factionScores: {
-        order: 2,
+        order: 1,
         innovation: 0,
         questioning: 3,
         economy: 1
@@ -297,7 +297,7 @@ window.NOVEL_ASSETS = {
       factionScores: {
         order: 1,
         innovation: 1,
-        questioning: 3,
+        questioning: 2,
         economy: 2
       },
       isNecessary: true,
@@ -313,9 +313,9 @@ window.NOVEL_ASSETS = {
       obtainedBy: '墓地场景剧情自动获得',
       factionScores: {
         order: 1,
-        innovation: 2,
-        questioning: 4,
-        economy: 0
+        innovation: 1,
+        questioning: 3,
+        economy: 1
       },
       isNecessary: false,
       isSufficient: true
@@ -348,7 +348,7 @@ window.NOVEL_ASSETS = {
       factionScores: {
         order: 0,
         innovation: 1,
-        questioning: 2,
+        questioning: 1,
         economy: 0
       },
       isNecessary: false,
@@ -365,7 +365,7 @@ window.NOVEL_ASSETS = {
       factionScores: {
         order: 2,
         innovation: 0,
-        questioning: 4,
+        questioning: 3,
         economy: 0
       },
       isNecessary: true,
@@ -382,7 +382,7 @@ window.NOVEL_ASSETS = {
       factionScores: {
         order: 1,
         innovation: 2,
-        questioning: 3,
+        questioning: 2,
         economy: 1
       },
       isNecessary: true,
@@ -399,7 +399,7 @@ window.NOVEL_ASSETS = {
       factionScores: {
         order: 2,
         innovation: 1,
-        questioning: 3,
+        questioning: 2,
         economy: 0
       },
       isNecessary: false,
@@ -440,12 +440,13 @@ window.NOVEL_ASSETS = {
       // 充分证据列表（至少需要获得一半以上才能充分证明）
       sufficientEvidences: ['evidence_notebook', 'evidence_reporter', 'evidence_anta_whisper', 'evidence_autopsy', 'evidence_password'],
       // 阵营分数要求（确认真相时必须满足）
+      // threshold: 各阵营所需达到的最低分数
+      // failureFaction: 该阵营若 total > threshold 则真相失败；若 total == threshold 则成功
       factionRequirements: {
-        necessary: { order: 7, innovation: 0, questioning: 10, economy: 0 },
-        total: { order: 12, innovation: 2, questioning: 16, economy: 3 }
+        threshold: { order: 9, innovation: 5, questioning: 16, economy: 3 }
       },
-      // 失败条件阵营（如果阵营分数倾向这些阵营，真相将被扭曲）
-      failureFactions: ['economy', 'innovation'],
+      // 单一失败阵营
+      failureFaction: 'innovation',
       // 解锁的后续剧情
       unlocksStory: 'INT. OLD HOUSE STUDY ROOM - NIGHT'
     },
@@ -459,10 +460,9 @@ window.NOVEL_ASSETS = {
       requiredEvidences: ['evidence_proposal', 'evidence_photo', 'evidence_notebook', 'evidence_autopsy'],
       sufficientEvidences: ['evidence_reporter', 'evidence_letter', 'evidence_anta_whisper'],
       factionRequirements: {
-        necessary: { order: 6, innovation: 0, questioning: 10, economy: 0 },
-        total: { order: 10, innovation: 1, questioning: 15, economy: 1 }
+        threshold: { order: 9, innovation: 4, questioning: 14, economy: 2 }
       },
-      failureFactions: ['economy'],
+      failureFaction: 'economy',
       unlocksStory: 'INT. OLD HOUSE BASEMENT - NIGHT'
     },
     truth_anta: {
@@ -475,10 +475,9 @@ window.NOVEL_ASSETS = {
       requiredEvidences: ['evidence_suit', 'evidence_anta_visit', 'evidence_anta_whisper', 'evidence_photo'],
       sufficientEvidences: ['evidence_notebook', 'evidence_letter', 'evidence_reporter'],
       factionRequirements: {
-        necessary: { order: 4, innovation: 4, questioning: 10, economy: 4 },
-        total: { order: 9, innovation: 6, questioning: 21, economy: 5 }
+        threshold: { order: 5, innovation: 4, questioning: 14, economy: 5 }
       },
-      failureFactions: ['innovation'],
+      failureFaction: 'questioning',
       unlocksStory: 'INT. OLD HOUSE STUDY ROOM - DAWN'
     },
     truth_final: {
@@ -491,10 +490,9 @@ window.NOVEL_ASSETS = {
       requiredEvidences: ['evidence_proposal', 'evidence_letter', 'evidence_photo', 'evidence_autopsy'],
       sufficientEvidences: ['evidence_notebook', 'evidence_anta_visit', 'evidence_anta_whisper', 'evidence_reporter'],
       factionRequirements: {
-        necessary: { order: 8, innovation: 0, questioning: 12, economy: 0 },
-        total: { order: 11, innovation: 3, questioning: 19, economy: 3 }
+        threshold: { order: 10, innovation: 3, questioning: 13, economy: 1 }
       },
-      failureFactions: ['economy'],
+      failureFaction: 'order',
       unlocksStory: 'INT. OLD HOUSE ENDING'
     }
   },
