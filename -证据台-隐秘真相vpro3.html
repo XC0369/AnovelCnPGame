@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🕯️ 证据台 · 隐秘连线 (多结局)</title>
+    <style>
+        :root {
+            --bg: #0f0c08;
+            --surface: #1c1610;
+            --panel: #241e16;
+            --border: #3a3226;
+            --text: #c8b99a;
+            --text-dim: #8a7a60;
+            --text-bright: #ede0c8;
+            --gold: #c9a95c;
+            --gold-dark: #6b5a3a;
+            --gold-glow: rgba(200, 170, 100, 0.12);
+            --red: #c06050;
+            --green: #80a060;
+            --blue: #6088a0;
+            --order: #c9b896;
+            --innovation: #8090c0;
+            --doubt: #c08080;
+            --economy: #90b870;
+            --font-main: 'Georgia', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+            --font-ui: 'Georgia', 'Noto Serif SC', serif;
+            --card-width: 150px;
+            --card-height: 90px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            background-image: radial-gradient(ellipse at 20% 30%, rgba(60,40,20,0.2) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(30,20,40,0.25) 0%, transparent 50%);
+            user-select: none; -webkit-user-select: none;
+        }
+        body::before { content:''; position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.002) 2px, rgba(255,255,255,0.002) 4px), repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.01) 3px, rgba(0,0,0,0.01) 6px); opacity:0.45; }
+        .app-container { position:relative; z-index:1; width:1820px; max-width:98vw; height:950px; max-height:95vh; background: var(--surface); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(180,140,90,0.06); border:1px solid rgba(180,140,90,0.06); display:flex; flex-direction:column; overflow:hidden; backdrop-filter:blur(4px); }
+        .top-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:12px 20px; gap:16px; border-bottom:1px solid rgba(180,140,90,0.08); background:rgba(16,12,8,0.7); z-index:10; }
+        .logo { display:flex; align-items:center; gap:8px; }
+        .logo-icon { font-size:24px; filter:drop-shadow(0 0 8px rgba(200,160,80,0.4)); }
+        .logo-text { font-family:var(--font-ui); font-size:16px; font-weight:700; letter-spacing:3px; color:var(--text-bright); }
+        .logo-text span { color:var(--gold-dark); font-weight:400; }
+        .chapter-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+        .chapter-tab { padding:6px 16px; border-radius:20px; border:1px solid rgba(180,140,90,0.15); background:rgba(20,16,10,0.6); color:var(--text-dim); font-family:var(--font-ui); font-size:12px; letter-spacing:1px; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
+        .chapter-tab:hover { border-color:rgba(200,160,100,0.3); color:var(--text); }
+        .chapter-tab.active { background:rgba(180,140,80,0.12); border-color:var(--gold); color:var(--text-bright); box-shadow:0 0 20px var(--gold-glow); }
+        .aspects { display:flex; gap:8px 16px; flex-wrap:wrap; background:rgba(10,8,4,0.5); border-radius:24px; padding:4px 16px; border:1px solid rgba(180,140,90,0.04); }
+        .aspect-item { font-family:var(--font-ui); font-size:11px; letter-spacing:1px; color:var(--text-dim); display:flex; align-items:center; gap:4px; }
+        .aspect-val { color:var(--text-bright); font-weight:700; min-width:18px; text-align:center; background:rgba(200,170,100,0.06); padding:0 6px; border-radius:10px; }
+        .main-body { display:flex; flex:1; overflow:hidden; position:relative; }
+        .sidebar-left { width:230px; min-width:180px; background:rgba(20,16,10,0.4); border-right:1px solid rgba(180,140,90,0.06); display:flex; flex-direction:column; padding:14px 10px; gap:12px; overflow-y:auto; }
+        .sidebar-right { width:230px; min-width:180px; background:rgba(20,16,10,0.4); border-left:1px solid rgba(180,140,90,0.06); display:flex; flex-direction:column; padding:14px 10px; gap:10px; overflow-y:auto; }
+        .canvas-area { flex:1; position:relative; background: radial-gradient(circle at 30% 40%, rgba(60,40,20,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(30,20,40,0.15) 0%, transparent 50%), #1a1510; background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M0 0 L100 100 M100 0 L0 100" stroke="rgba(200,170,100,0.03)" stroke-width="0.5"/></svg>'); background-size:40px 40px; overflow:hidden; cursor:default; }
+        .section-title { font-family:var(--font-ui); font-size:10px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; padding:0 4px; margin-bottom:4px; border-bottom:1px solid rgba(180,140,90,0.06); padding-bottom:6px; }
+        .card-list { display:flex; flex-direction:column; gap:8px; flex:1; overflow-y:auto; padding-right:2px; }
+        .card-list::-webkit-scrollbar { width:3px; }
+        .card-list::-webkit-scrollbar-thumb { background:rgba(200,160,100,0.15); border-radius:20px; }
+        .resource-card { background:var(--panel); border-radius:12px; padding:10px 12px; border:1px solid var(--border); cursor:grab; transition:all 0.25s; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-family:var(--font-main); position:relative; color:var(--text); }
+        .resource-card:hover { border-color:rgba(200,160,100,0.2); box-shadow:0 6px 18px rgba(0,0,0,0.4), 0 0 20px var(--gold-glow); transform:translateY(-2px); }
+        .resource-card .card-name { font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px; }
+        .resource-card .card-emoji { font-size:16px; }
+        .resource-card .card-desc { font-size:10px; color:var(--text-dim); margin-top:4px; line-height:1.4; }
+        .resource-card .card-aspects { display:flex; gap:3px; margin-top:5px; flex-wrap:wrap; }
+        .resource-card .asp-tag { font-size:9px; padding:1px 7px; border-radius:10px; background:rgba(200,180,140,0.06); color:var(--text-dim); font-family:var(--font-ui); }
+        .resource-card.truth-card { border-color:rgba(200,160,100,0.2); background:#2a2216; box-shadow:0 0 30px var(--gold-glow); }
+        .canvas-card { position:absolute; width:var(--card-width); min-height:var(--card-height); background:var(--panel); border-radius:12px; border:1px solid var(--border); padding:10px 12px; cursor:move; box-shadow:0 10px 30px rgba(0,0,0,0.5); font-family:var(--font-main); transition:box-shadow 0.2s; z-index:10; color:var(--text); user-select:none; display:flex; flex-direction:column; justify-content:center; }
+        .canvas-card:hover { box-shadow:0 14px 36px rgba(0,0,0,0.6), 0 0 24px var(--gold-glow); z-index:20; }
+        .canvas-card .card-name { font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px; pointer-events:none; }
+        .canvas-card .card-desc { font-size:10px; color:var(--text-dim); margin-top:4px; pointer-events:none; }
+        .canvas-card .card-aspects { display:flex; gap:2px; margin-top:4px; pointer-events:none; }
+        .canvas-card.truth-node { border-color:var(--gold); background:#2a2216; box-shadow:0 0 40px var(--gold-glow); width:200px; min-height:110px; cursor:default; z-index:5; }
+        .canvas-card.truth-node .slot-points { display:flex; gap:8px; margin-top:8px; }
+        .slot-point { width:12px; height:12px; border-radius:50%; background:var(--border); border:1px solid rgba(200,160,100,0.3); cursor:pointer; transition:all 0.3s; }
+        .slot-point.filled { background:var(--green); border-color:var(--green); box-shadow:0 0 12px rgba(120,180,100,0.4); }
+        .slot-point.highlight { background:var(--gold); box-shadow:0 0 20px var(--gold-glow); }
+        .anchor-point { position:absolute; width:14px; height:14px; background:var(--border); border-radius:50%; right:-7px; top:50%; transform:translateY(-50%); cursor:crosshair; border:1px solid rgba(200,160,100,0.3); transition:all 0.2s; z-index:25; }
+        .anchor-point:hover { background:var(--gold); box-shadow:0 0 16px var(--gold-glow); }
+        .canvas-card.selected { border-color:var(--gold) !important; box-shadow:0 0 30px var(--gold-glow); }
+        .svg-layer { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:15; }
+        .svg-layer line { stroke:rgba(200,160,100,0.25); stroke-width:2; transition:stroke 0.3s; }
+        .svg-layer line.active-line { stroke:rgba(180,200,140,0.65); stroke-width:2.5; filter:drop-shadow(0 0 6px rgba(140,180,100,0.3)); }
+        .svg-layer line.error-line { stroke:rgba(200,80,60,0.7); stroke-width:2; }
+        .btn { padding:7px 16px; border-radius:20px; border:1px solid rgba(180,140,90,0.15); background:rgba(20,16,10,0.6); color:var(--text-dim); font-family:var(--font-ui); font-size:11px; letter-spacing:2px; cursor:pointer; transition:all 0.3s; white-space:nowrap; }
+        .btn:hover { border-color:rgba(200,160,100,0.2); color:var(--text); }
+        .btn.primary { background:rgba(180,140,80,0.08); border-color:var(--gold); color:var(--text-bright); box-shadow:0 0 24px var(--gold-glow); }
+        .btn.primary:hover { background:rgba(200,160,100,0.12); }
+        .btn:disabled { opacity:0.4; pointer-events:none; }
+        .toast { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(20,15,10,0.9); border:1px solid rgba(200,160,100,0.2); padding:8px 20px; border-radius:30px; font-family:var(--font-ui); font-size:12px; letter-spacing:1px; color:var(--text); z-index:50; backdrop-filter:blur(8px); transition:opacity 0.4s; pointer-events:none; }
+        .toast.err { border-color:var(--red); color:#f0c0b0; }
+        .toast.ok { border-color:var(--green); color:#c0e0b0; }
+        .toast.info { border-color:var(--blue); color:#b0d0f0; }
+        .modal-shroud { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(12px); display:flex; justify-content:center; align-items:center; z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.5s; }
+        .modal-shroud.open { opacity:1; pointer-events:auto; }
+        .modal-content { max-width:520px; background:#1c1812; border-radius:24px; padding:28px 32px; border:1px solid rgba(200,160,100,0.1); box-shadow:0 40px 120px rgba(0,0,0,0.9); transform:translateY(20px); transition:transform 0.5s; }
+        .modal-shroud.open .modal-content { transform:translateY(0); }
+        .modal-title { font-size:22px; font-weight:700; color:var(--text-bright); text-align:center; letter-spacing:2px; }
+        .modal-subtitle { text-align:center; color:var(--text-dim); font-size:13px; margin-bottom:16px; }
+        .modal-body { color:var(--text); line-height:1.8; background:rgba(0,0,0,0.2); padding:16px; border-radius:14px; border-left:2px solid rgba(200,160,100,0.2); }
+        .modal-scores { display:flex; justify-content:center; gap:20px; margin:16px 0; }
+        .btn-close { display:block; margin:0 auto; }
+        @media (max-width:800px) { .main-body{flex-direction:column;} .sidebar-left,.sidebar-right{width:100%;flex:0 0 auto;border:none;} .canvas-area{height:400px;} }
+    </style>
+</head>
+<body>
+<div class="app-container" id="app">
+    <div class="top-bar">
+        <div class="logo"><span class="logo-icon">🕯️</span><span class="logo-text">证据台<span>·隐秘连线</span></span></div>
+        <div class="chapter-tabs" id="chapterTabs">
+            <div class="chapter-tab active" data-ch="0">📜 午夜图书馆</div>
+            <div class="chapter-tab" data-ch="1">⚓ 港口走私案</div>
+            <div class="chapter-tab" data-ch="2">🧪 禁忌实验</div>
+        </div>
+        <div class="aspects" id="aspectsPanel">
+            <div class="aspect-item">🏛️秩序 <span class="aspect-val" id="aspOrder">0</span></div>
+            <div class="aspect-item">💡创新 <span class="aspect-val" id="aspInnov">0</span></div>
+            <div class="aspect-item">🔍质疑 <span class="aspect-val" id="aspDoubt">0</span></div>
+            <div class="aspect-item">💰经济 <span class="aspect-val" id="aspEcon">0</span></div>
+        </div>
+    </div>
+    <div class="main-body">
+        <div class="sidebar-left">
+            <div class="section-title">🔮 当前谜题</div>
+            <div class="card-list" id="truthList"></div>
+            <div class="section-title" style="margin-top:8px;">📎 证据集</div>
+            <div class="card-list" id="evidenceList"></div>
+        </div>
+        <div class="canvas-area" id="canvasArea">
+            <svg class="svg-layer" id="svgLayer"></svg>
+            <div class="toast" id="toast" style="opacity:0;">消息</div>
+        </div>
+        <div class="sidebar-right">
+            <div class="section-title">⚙️ 操作</div>
+            <button class="btn primary" id="btnReveal" disabled>🔒 公开真相</button>
+            <div style="margin-top:12px;" class="section-title">🔗 合成台</div>
+            <div style="display:flex; gap:6px; margin-bottom:8px;" id="comboSlots">
+                <div class="combo-mini-slot" data-combo="0" style="width:60px;height:60px;border-radius:10px;border:2px dashed var(--border);background:rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:var(--text-dim);">+</div>
+                <div class="combo-mini-slot" data-combo="1" style="width:60px;height:60px;border-radius:10px;border:2px dashed var(--border);background:rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:var(--text-dim);">+</div>
+            </div>
+            <button class="btn" id="btnCombine">合成</button>
+            <button class="btn" style="margin-top:8px;" id="btnClearBoard">清空画布</button>
+        </div>
+    </div>
+</div>
+<div class="modal-shroud" id="modalShroud">
+    <div class="modal-content">
+        <div class="modal-title" id="modalTitle">真相大白</div>
+        <div class="modal-subtitle" id="modalSubtitle"></div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-scores" id="modalScores"></div>
+        <button class="btn primary btn-close" id="btnCloseModal">✓ 收下真相</button>
+    </div>
+</div>
+<script>
+    (function() {
+        // -------------------- 游戏数据（槽位改为多选）--------------------
+        const CHAPTERS = [{
+            id: 0, title: '午夜图书馆', badge: '第一章',
+            mystery: '一位古籍学者在午夜图书馆的地下室失踪。他的研究笔记散落各处，字里行间透露出他触碰了不该知晓的秘密。',
+            truthDesc: '学者触碰了禁忌知识导致失踪',
+            slots: [
+                { id:'s0_0', label:'最后行踪', acceptable:['evi_0_0','evi_0_2'] },
+                { id:'s0_1', label:'禁忌内容', acceptable:['evi_0_1','evi_0_2','evi_0_3'] },
+                { id:'s0_2', label:'失踪原因', acceptable:['evi_0_3','evi_0_4'] },
+                { id:'s0_3', label:'隐藏真相', acceptable:['evi_0_5','evi_0_6'] }
+            ],
+            evidences: [
+                { id:'evi_0_0', name:'借阅记录', emoji:'📇', desc:'限制阅览古籍，借阅时间均在午夜。', factions:{order:2,innovation:1,doubt:0,economy:1}, acquired:true },
+                { id:'evi_0_1', name:'地下室钥匙', emoji:'🗝️', desc:'生锈钥匙刻有奇怪符号。', factions:{order:1,innovation:0,doubt:1,economy:1}, acquired:true },
+                { id:'evi_0_2', name:'学者日记', emoji:'📓', desc:'记录了学者对隐藏楼层的执念。', factions:{order:0,innovation:2,doubt:2,economy:0}, acquired:true },
+                { id:'evi_0_3', name:'神秘手稿', emoji:'📜', desc:'古拉丁文手稿描述守护者与契约。', factions:{order:1,innovation:3,doubt:2,economy:1}, acquired:true },
+                { id:'evi_0_4', name:'目击证词', emoji:'👁️', desc:'清洁工听到低沉吟诵声。', factions:{order:1,innovation:1,doubt:0,economy:0}, acquired:true },
+                { id:'evi_0_5', name:'研究时间线', emoji:'⏳', desc:'借阅记录与日记对照的完整时间线。', factions:{order:3,innovation:1,doubt:1,economy:0}, acquired:false, comboOf:['evi_0_0','evi_0_2'] },
+                { id:'evi_0_6', name:'通道地图', emoji:'🗺️', desc:'手稿符号与钥匙刻痕绘制的隐藏通道地图。', factions:{order:1,innovation:1,doubt:1,economy:1}, acquired:false, comboOf:['evi_0_1','evi_0_3'] }
+            ],
+            combos: [ { ingredients:['evi_0_0','evi_0_2'], result:'evi_0_5' }, { ingredients:['evi_0_1','evi_0_3'], result:'evi_0_6' } ],
+            endings: [
+                { id:'end_order', label:'🏛️ 封印结局', cond:{order:7}, title:'守护者之约', sub:'秩序将秘密重新封印。', body:'证据指向古老契约，图书馆地下封印着某种存在。你将证据提交给守护者，封印加固，真相被永远埋藏。' },
+                { id:'end_innov', label:'💡 揭示结局', cond:{innovation:7}, title:'知识之光', sub:'创新揭开尘封历史。', body:'你将发现公之于众，学术界震动，开创了神秘文献学新学科。' },
+                { id:'end_doubt', label:'🔍 追问结局', cond:{doubt:7}, title:'无尽深渊', sub:'质疑引向更深谜团。', body:'每一条证据都引向新问题，你决定亲自在午夜进入图书馆。' },
+                { id:'end_econ', label:'💰 发掘结局', cond:{economy:4}, title:'秘境之利', sub:'经济视角发现隐藏价值。', body:'你将秘密转化为商业机会，通过展览和拍卖获得丰厚回报。' },
+                { id:'end_default', label:'✦ 安息', cond:{}, title:'尘埃落定', sub:'真相已找到。', body:'你拼凑出学者失踪的全貌，将证据归档，给了家人一个交代。' }
+            ]
+        }, {
+            id: 1, title: '港口走私案', badge: '第二章',
+            mystery: '港口截获一批无主文物，与近期神秘失踪案有着诡异关联。每一件文物都散发着不祥的气息。',
+            truthDesc: '走私文物与失踪案关联',
+            slots: [
+                { id:'s1_0', label:'文物来源', acceptable:['evi_1_0','evi_1_5'] },
+                { id:'s1_1', label:'走私网络', acceptable:['evi_1_3','evi_1_6'] },
+                { id:'s1_2', label:'幕后买家', acceptable:['evi_1_4','evi_1_6'] },
+                { id:'s1_3', label:'失踪关联', acceptable:['evi_1_1','evi_1_2'] }
+            ],
+            evidences: [
+                { id:'evi_1_0', name:'货轮清单', emoji:'📋', desc:'货物来自禁运区，申报不符。', factions:{order:2,innovation:0,doubt:0,economy:2}, acquired:true },
+                { id:'evi_1_1', name:'海关记录', emoji:'📊', desc:'过去半年七起类似截获与失踪案同期。', factions:{order:3,innovation:0,doubt:1,economy:0}, acquired:true },
+                { id:'evi_1_2', name:'文物照片', emoji:'📷', desc:'奇异纹路在闪光灯下发光。', factions:{order:0,innovation:2,doubt:1,economy:1}, acquired:true },
+                { id:'evi_1_3', name:'船员日记', emoji:'📔', desc:'记录噩梦和文物自行移动。', factions:{order:0,innovation:1,doubt:3,economy:0}, acquired:true },
+                { id:'evi_1_4', name:'神秘信件', emoji:'✉️', desc:'加密信件提及唤醒仪式。', factions:{order:1,innovation:1,doubt:1,economy:1}, acquired:true },
+                { id:'evi_1_5', name:'走私路线图', emoji:'🗺️', desc:'货轮清单与文物照片对照的路线。', factions:{order:2,innovation:1,doubt:0,economy:3}, acquired:false, comboOf:['evi_1_0','evi_1_2'] },
+                { id:'evi_1_6', name:'买家档案', emoji:'🪪', desc:'日记与信件锁定富豪秘教徒身份。', factions:{order:2,innovation:0,doubt:3,economy:1}, acquired:false, comboOf:['evi_1_3','evi_1_4'] }
+            ],
+            combos: [ { ingredients:['evi_1_0','evi_1_2'], result:'evi_1_5' }, { ingredients:['evi_1_3','evi_1_4'], result:'evi_1_6' } ],
+            endings: [
+                { id:'end_order', label:'🏛️ 收网结局', cond:{order:8}, title:'跨国联合行动', sub:'秩序之网笼罩走私网络。', body:'国际刑警联合行动，七个国家走私网络被一网打尽。' },
+                { id:'end_innov', label:'💡 溯源结局', cond:{innovation:6}, title:'文物溯源计划', sub:'创新技术揭开文物来源。', body:'AI比对系统追溯出被遗忘的古代文明。' },
+                { id:'end_doubt', label:'🔍 深潜结局', cond:{doubt:7}, title:'深渊之眼', sub:'质疑揭开更黑暗帷幕。', body:'走私网络只是冰山一角，更大组织浮现。' },
+                { id:'end_econ', label:'💰 交易结局', cond:{economy:6}, title:'灰色之利', sub:'经济之手在暗处运作。', body:'你将情报出售给私人基金会，获得天价财富。' },
+                { id:'end_default', label:'✦ 结案', cond:{}, title:'港口平静', sub:'走私被制止。', body:'证据确凿，走私者被绳之以法，港口恢复平静。' }
+            ]
+        }, {
+            id: 2, title: '禁忌实验', badge: '第三章',
+            mystery: '生物研究所发生泄漏事故，官方报告与实际情况存在巨大出入。目击者称看到了非自然的生物形态。',
+            truthDesc: '实验失控导致生物变异',
+            slots: [
+                { id:'s2_0', label:'实验内容', acceptable:['evi_2_0','evi_2_5'] },
+                { id:'s2_1', label:'泄漏原因', acceptable:['evi_2_3','evi_2_6'] },
+                { id:'s2_2', label:'隐瞒真相', acceptable:['evi_2_4','evi_2_2'] },
+                { id:'s2_3', label:'异常后果', acceptable:['evi_2_1','evi_2_6'] }
+            ],
+            evidences: [
+                { id:'evi_2_0', name:'实验报告', emoji:'📄', desc:'涉及基因重组和跨物种融合。', factions:{order:1,innovation:3,doubt:1,economy:0}, acquired:true },
+                { id:'evi_2_1', name:'生物样本', emoji:'🧪', desc:'细胞结构异常，DNA含未知片段。', factions:{order:0,innovation:2,doubt:2,economy:0}, acquired:true },
+                { id:'evi_2_2', name:'官方声明', emoji:'📰', desc:'闪烁其词，回避关键问题。', factions:{order:2,innovation:0,doubt:0,economy:2}, acquired:true },
+                { id:'evi_2_3', name:'监控录像', emoji:'📹', desc:'拍下发光物体移动后画面中断。', factions:{order:1,innovation:1,doubt:2,economy:0}, acquired:true },
+                { id:'evi_2_4', name:'研究员证词', emoji:'🎙️', desc:'团队早发现异常但被要求保密。', factions:{order:0,innovation:1,doubt:3,economy:0}, acquired:true },
+                { id:'evi_2_5', name:'伪造记录对比', emoji:'🔬', desc:'实验报告与官方声明矛盾。', factions:{order:3,innovation:1,doubt:2,economy:0}, acquired:false, comboOf:['evi_2_0','evi_2_2'] },
+                { id:'evi_2_6', name:'变异证据链', emoji:'🧬', desc:'监控与样本形成完整变异链。', factions:{order:0,innovation:3,doubt:3,economy:0}, acquired:false, comboOf:['evi_2_1','evi_2_3'] }
+            ],
+            combos: [ { ingredients:['evi_2_0','evi_2_2'], result:'evi_2_5' }, { ingredients:['evi_2_1','evi_2_3'], result:'evi_2_6' } ],
+            endings: [
+                { id:'end_order', label:'🏛️ 封存结局', cond:{order:6}, title:'铁幕落下', sub:'秩序将一切封存。', body:'研究所被军方接管，泄漏区域永久封闭。' },
+                { id:'end_innov', label:'💡 突破结局', cond:{innovation:8}, title:'新纪元之钥', sub:'创新从禁忌中诞生。', body:'与科学家合作继续研究，发现全新生物能量转换方式。' },
+                { id:'end_doubt', label:'🔍 揭露结局', cond:{doubt:8}, title:'真相风暴', sub:'质疑引爆丑闻。', body:'全部证据公之于众，研究所黑暗秘密被曝光。' },
+                { id:'end_econ', label:'💰 专利结局', cond:{economy:4}, title:'禁忌之财', sub:'经济之手将变异转化为资产。', body:'与生物科技公司合作，利用发现开发新药。' },
+                { id:'end_default', label:'✦ 掩盖', cond:{}, title:'沉默的代价', sub:'真相被悄然掩埋。', body:'证据被悄悄处理，相关人员低调调离。' }
+            ]
+        }];
+
+        // -------------------- 状态 --------------------
+        const state = {
+            chapterIdx: 0,
+            canvasNodes: [],
+            connections: [],
+            selectedNodeId: null,
+            comboSelections: [],
+            linkDrag: null,
+            revealed: false,
+            toastTimer: null,
+        };
+        const canvas = document.getElementById('canvasArea');
+        const svgLayer = document.getElementById('svgLayer');
+        const toast = document.getElementById('toast');
+        let nodeIdCounter = 0;
+
+        function getChapter() { return CHAPTERS[state.chapterIdx]; }
+        function getEvidence(id) { for (const ch of CHAPTERS) for (const e of ch.evidences) if (e.id===id) return e; return null; }
+        function showToast(text, type='info') {
+            toast.textContent = text; toast.className = 'toast '+type; toast.style.opacity='1';
+            if (state.toastTimer) clearTimeout(state.toastTimer);
+            state.toastTimer = setTimeout(()=>{ toast.style.opacity='0'; }, 2500);
+        }
+        function getCanvasNodeById(nodeId) { return state.canvasNodes.find(n=>n.id===nodeId); }
+        function getCanvasNodeByEvidenceId(evId) { return state.canvasNodes.find(n=>n.type==='evidence' && n.evidenceId===evId); }
+        function getTruthNode() { return state.canvasNodes.find(n=>n.type==='truth'); }
+        function calcScores() {
+            const scores = { order:0, innovation:0, doubt:0, economy:0 };
+            const truthNode = getTruthNode();
+            if (!truthNode) return scores;
+            for (const slotId in truthNode.slotConnections) {
+                const evId = truthNode.slotConnections[slotId];
+                const ev = getEvidence(evId);
+                if (ev) { scores.order += ev.factions.order||0; scores.innovation += ev.factions.innovation||0; scores.doubt += ev.factions.doubt||0; scores.economy += ev.factions.economy||0; }
+            }
+            return scores;
+        }
+        function updateScoresUI() {
+            const sc = calcScores();
+            document.getElementById('aspOrder').textContent = sc.order;
+            document.getElementById('aspInnov').textContent = sc.innovation;
+            document.getElementById('aspDoubt').textContent = sc.doubt;
+            document.getElementById('aspEcon').textContent = sc.economy;
+        }
+        function isAllSlotsConnected() {
+            const truthNode = getTruthNode();
+            if (!truthNode) return false;
+            return getChapter().slots.every(s => truthNode.slotConnections[s.id]);
+        }
+        function updateRevealButton() {
+            const btn = document.getElementById('btnReveal');
+            const ready = isAllSlotsConnected() && !state.revealed;
+            btn.disabled = !ready;
+            btn.textContent = ready ? '🔓 公开真相' : '🔒 公开真相';
+        }
+
+        // 渲染
+        function renderCanvas() {
+            const existing = canvas.querySelectorAll('.canvas-card');
+            existing.forEach(c=>c.remove());
+            state.canvasNodes.forEach(node=>{
+                const card = document.createElement('div');
+                card.className = 'canvas-card';
+                if (node.type==='truth') card.classList.add('truth-node');
+                if (state.selectedNodeId===node.id) card.classList.add('selected');
+                card.dataset.nodeId = node.id;
+                card.style.left = node.x+'px'; card.style.top = node.y+'px';
+                if (node.type==='truth') {
+                    const ch = getChapter();
+                    card.innerHTML = `<div class="card-name">🔮 ${ch.title}真相</div><div class="card-desc">${ch.truthDesc}</div><div class="slot-points" id="slotPoints-${node.id}"></div>`;
+                    setTimeout(()=>{
+                        const cont = document.getElementById('slotPoints-'+node.id);
+                        if (!cont) return;
+                        cont.innerHTML = '';
+                        ch.slots.forEach(slot=>{
+                            const point = document.createElement('div');
+                            point.className = 'slot-point';
+                            if (node.slotConnections[slot.id]) point.classList.add('filled');
+                            point.title = slot.label;
+                            point.dataset.slotId = slot.id;
+                            point.addEventListener('click', (e)=>{
+                                e.stopPropagation();
+                                if (node.slotConnections[slot.id]) removeConnection(node.id, slot.id);
+                            });
+                            cont.appendChild(point);
+                        });
+                    },0);
+                } else {
+                    const ev = getEvidence(node.evidenceId);
+                    if (ev) {
+                        const aspStr = Object.entries(ev.factions).filter(([_,v])=>v>0).map(([k,v])=>`<span class="asp-tag">${k}+${v}</span>`).join('');
+                        card.innerHTML = `<div class="card-name"><span class="card-emoji">${ev.emoji}</span>${ev.name}</div><div class="card-desc">${ev.desc}</div><div class="card-aspects">${aspStr}</div>`;
+                        const anchor = document.createElement('div');
+                        anchor.className = 'anchor-point';
+                        anchor.addEventListener('mousedown', (e)=>startLinkDrag(e, node.id));
+                        card.appendChild(anchor);
+                    }
+                }
+                card.addEventListener('mousedown', (e)=>{
+                    if (e.target.classList.contains('anchor-point') || e.target.classList.contains('slot-point')) return;
+                    startDragNode(e, node.id);
+                });
+                canvas.appendChild(card);
+            });
+            renderLines();
+            updateScoresUI();
+            updateRevealButton();
+            updateComboUI();
+        }
+
+        function renderLines() {
+            svgLayer.innerHTML = '';
+            const canvasRect = canvas.getBoundingClientRect();
+            state.connections.forEach(conn=>{
+                const fromNode = getCanvasNodeById(conn.fromNodeId), toNode = getCanvasNodeById(conn.toNodeId);
+                if (!fromNode||!toNode) return;
+                const fromCard = canvas.querySelector(`.canvas-card[data-node-id="${conn.fromNodeId}"]`);
+                const toCard = canvas.querySelector(`.canvas-card[data-node-id="${conn.toNodeId}"]`);
+                if (!fromCard||!toCard) return;
+                const fromRect = fromCard.getBoundingClientRect(), toRect = toCard.getBoundingClientRect();
+                const x1 = fromRect.right - canvasRect.left -4, y1 = fromRect.top+fromRect.height/2-canvasRect.top;
+                const x2 = toRect.left - canvasRect.left +4, y2 = toRect.top+toRect.height/2-canvasRect.top;
+                const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+                line.setAttribute('x1',x1); line.setAttribute('y1',y1); line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+                line.classList.add('active-line'); svgLayer.appendChild(line);
+            });
+            if (state.linkDrag) {
+                const fromNode = getCanvasNodeById(state.linkDrag.fromNodeId);
+                if (fromNode) {
+                    const fromCard = canvas.querySelector(`.canvas-card[data-node-id="${state.linkDrag.fromNodeId}"]`);
+                    if (fromCard) {
+                        const fromRect = fromCard.getBoundingClientRect();
+                        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+                        line.setAttribute('x1', fromRect.right-canvasRect.left-4);
+                        line.setAttribute('y1', fromRect.top+fromRect.height/2-canvasRect.top);
+                        line.setAttribute('x2', state.linkDrag.currentX-canvasRect.left);
+                        line.setAttribute('y2', state.linkDrag.currentY-canvasRect.top);
+                        line.style.stroke = 'rgba(200,160,100,0.5)'; line.style.strokeDasharray = '6 3';
+                        svgLayer.appendChild(line);
+                    }
+                }
+            }
+        }
+
+        function addTruthNode(x,y) {
+            state.canvasNodes = state.canvasNodes.filter(n=>n.type!=='truth');
+            const node = { id:'node_'+ (++nodeIdCounter), type:'truth', x, y, slotConnections:{} };
+            state.canvasNodes.push(node); renderCanvas();
+            showToast('真相谜题已放置到画布上。','info');
+        }
+        function addEvidenceNode(evidenceId, x, y) {
+            if (getCanvasNodeByEvidenceId(evidenceId)) { showToast('该证据已在画布上。','info'); return; }
+            const node = { id:'node_'+ (++nodeIdCounter), type:'evidence', evidenceId, x, y };
+            state.canvasNodes.push(node); renderCanvas();
+        }
+        function removeConnection(truthNodeId, slotId) {
+            state.connections = state.connections.filter(c=>!(c.toNodeId===truthNodeId && c.slotIndex===slotId));
+            const truthNode = getCanvasNodeById(truthNodeId);
+            if (truthNode) delete truthNode.slotConnections[slotId];
+            renderCanvas(); showToast('连线已移除。','info');
+        }
+
+        let dragInfo = null;
+        function startDragNode(e, nodeId) {
+            e.preventDefault(); const node = getCanvasNodeById(nodeId); if (!node||state.revealed) return;
+            const card = canvas.querySelector(`.canvas-card[data-node-id="${nodeId}"]`);
+            if (!card) return; const rect = card.getBoundingClientRect();
+            dragInfo = { nodeId, offsetX: e.clientX-rect.left, offsetY: e.clientY-rect.top };
+            document.addEventListener('mousemove', onDragMove); document.addEventListener('mouseup', onDragEnd);
+        }
+        function onDragMove(e) {
+            if (!dragInfo) return; const node = getCanvasNodeById(dragInfo.nodeId); if (!node) return;
+            const canvasRect = canvas.getBoundingClientRect();
+            const newX = e.clientX - canvasRect.left - dragInfo.offsetX;
+            const newY = e.clientY - canvasRect.top - dragInfo.offsetY;
+            node.x = Math.max(0, Math.min(canvas.clientWidth-150, newX));
+            node.y = Math.max(0, Math.min(canvas.clientHeight-100, newY));
+            const card = canvas.querySelector(`.canvas-card[data-node-id="${dragInfo.nodeId}"]`);
+            if (card) { card.style.left = node.x+'px'; card.style.top = node.y+'px'; }
+            renderLines();
+        }
+        function onDragEnd() { document.removeEventListener('mousemove',onDragMove); document.removeEventListener('mouseup',onDragEnd); dragInfo=null; }
+
+        function startLinkDrag(e, fromNodeId) {
+            e.stopPropagation(); e.preventDefault(); if (state.revealed) return;
+            state.linkDrag = { fromNodeId, startX:e.clientX, startY:e.clientY, currentX:e.clientX, currentY:e.clientY };
+            document.addEventListener('mousemove', onLinkDragMove); document.addEventListener('mouseup', onLinkDragEnd);
+            renderLines();
+        }
+        function onLinkDragMove(e) { if (!state.linkDrag) return; state.linkDrag.currentX=e.clientX; state.linkDrag.currentY=e.clientY; renderLines(); }
+        function onLinkDragEnd(e) {
+            document.removeEventListener('mousemove',onLinkDragMove); document.removeEventListener('mouseup',onLinkDragEnd);
+            if (!state.linkDrag) return;
+            const fromNodeId = state.linkDrag.fromNodeId;
+            const mouseX = e.clientX, mouseY = e.clientY;
+            state.linkDrag = null;
+            const truthNode = getTruthNode();
+            if (!truthNode) { showToast('请先将真相谜题放置到画布上。','err'); renderLines(); return; }
+            const truthCard = canvas.querySelector(`.canvas-card[data-node-id="${truthNode.id}"]`);
+            if (!truthCard) { renderLines(); return; }
+            const slotPoints = truthCard.querySelectorAll('.slot-point');
+            let targetSlotId = null;
+            slotPoints.forEach(point=>{ const rect=point.getBoundingClientRect(); if(mouseX>=rect.left&&mouseX<=rect.right&&mouseY>=rect.top&&mouseY<=rect.bottom) targetSlotId=point.dataset.slotId; });
+            if (!targetSlotId) { showToast('请将连线拖到真相卡上的连接点。','err'); renderLines(); return; }
+            const fromNode = getCanvasNodeById(fromNodeId);
+            if (!fromNode) { renderLines(); return; }
+            const evId = fromNode.evidenceId;
+            const slot = getChapter().slots.find(s=>s.id===targetSlotId);
+            if (!slot) { renderLines(); return; }
+            if (truthNode.slotConnections[targetSlotId]) { showToast('该连接点已被占用。','err'); renderLines(); return; }
+            // 核心改动：检查证据是否在可接受列表中
+            if (slot.acceptable.includes(evId)) {
+                truthNode.slotConnections[targetSlotId] = evId;
+                state.connections.push({ fromNodeId, toNodeId:truthNode.id, slotIndex:targetSlotId });
+                state.selectedNodeId = null;
+                showToast(`✓ 正确关联！证据已连接至「${slot.label}」。`,'ok');
+                renderCanvas();
+                if (isAllSlotsConnected()) showToast('🎉 所有连接点已关联！点击「公开真相」揭开谜底。','ok');
+            } else {
+                showToast(`✗ 关联错误：此证据与「${slot.label}」不匹配。`,'err');
+                renderLines();
+                // 短暂错误线
+                const fromCard = canvas.querySelector(`.canvas-card[data-node-id="${fromNodeId}"]`);
+                const toCard = truthCard;
+                if (fromCard && toCard) {
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const fromRect = fromCard.getBoundingClientRect(), toRect = toCard.getBoundingClientRect();
+                    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+                    line.setAttribute('x1', fromRect.right-canvasRect.left-4);
+                    line.setAttribute('y1', fromRect.top+fromRect.height/2-canvasRect.top);
+                    line.setAttribute('x2', toRect.left-canvasRect.left+4);
+                    line.setAttribute('y2', toRect.top+toRect.height/2-canvasRect.top);
+                    line.classList.add('error-line'); svgLayer.appendChild(line);
+                    setTimeout(()=>{ if(line.parentNode) line.remove(); },600);
+                }
+            }
+            renderLines();
+        }
+
+        function updateComboUI() {
+            const slots = document.querySelectorAll('.combo-mini-slot');
+            state.comboSelections.forEach((nodeId,idx)=>{ if(slots[idx]){ const node=getCanvasNodeById(nodeId); const ev=node?getEvidence(node.evidenceId):null; slots[idx].textContent=ev?ev.emoji:'+'; slots[idx].style.borderColor='rgba(200,160,100,0.5)'; } });
+            for(let i=state.comboSelections.length;i<2;i++){ if(slots[i]){ slots[i].textContent='+'; slots[i].style.borderColor=''; } }
+            document.getElementById('btnCombine').disabled = state.comboSelections.length!==2 || state.revealed;
+        }
+        function clearComboSelections(){ state.comboSelections=[]; updateComboUI(); }
+        function handleCombine(){
+            if(state.comboSelections.length!==2||state.revealed) return;
+            const nodeA=getCanvasNodeById(state.comboSelections[0]), nodeB=getCanvasNodeById(state.comboSelections[1]);
+            if(!nodeA||!nodeB) return;
+            const evA=getEvidence(nodeA.evidenceId), evB=getEvidence(nodeB.evidenceId);
+            const ch=getChapter();
+            const combo=ch.combos.find(c=>{ const ing=[...c.ingredients].sort().join(','); const sel=[evA.id,evB.id].sort().join(','); return ing===sel; });
+            if(!combo){ showToast('✗ 无法合成。','err'); clearComboSelections(); return; }
+            const resultEv=getEvidence(combo.result);
+            if(resultEv.acquired){ showToast('该组合已完成。','info'); clearComboSelections(); return; }
+            resultEv.acquired=true;
+            state.canvasNodes=state.canvasNodes.filter(n=>n.id!==nodeA.id && n.id!==nodeB.id);
+            state.connections=state.connections.filter(c=>c.fromNodeId!==nodeA.id && c.fromNodeId!==nodeB.id);
+            const truthNode=getTruthNode();
+            if(truthNode){ for(const slotId in truthNode.slotConnections){ if(truthNode.slotConnections[slotId]===evA.id||truthNode.slotConnections[slotId]===evB.id) delete truthNode.slotConnections[slotId]; } }
+            clearComboSelections();
+            const nx = (canvas.clientWidth/2)-75+Math.random()*60, ny = (canvas.clientHeight/2)-45+Math.random()*60;
+            addEvidenceNode(resultEv.id, nx, ny);
+            showToast(`🔗 合成成功！获得「${resultEv.emoji} ${resultEv.name}」。`,'combo');
+            renderCanvas(); updateEvidenceList();
+        }
+
+        function handleReveal(){
+            if(!isAllSlotsConnected()||state.revealed) return;
+            state.revealed=true;
+            const scores=calcScores(); const ch=getChapter();
+            let ending=null;
+            for(const p of ['order','innovation','doubt','economy']){
+                const cand=ch.endings.find(e=>e.cond&&e.cond[p]&&scores[p]>=e.cond[p]);
+                if(cand){ ending=cand; break; }
+            }
+            if(!ending) ending=ch.endings.find(e=>!e.cond||Object.keys(e.cond).length===0)||ch.endings[ch.endings.length-1];
+            document.getElementById('modalTitle').textContent=ending.title;
+            document.getElementById('modalSubtitle').textContent=ending.sub;
+            document.getElementById('modalBody').textContent=ending.body;
+            document.getElementById('modalScores').innerHTML=`<span>🏛️秩序 <strong>${scores.order}</strong></span><span>💡创新 <strong>${scores.innovation}</strong></span><span>🔍质疑 <strong>${scores.doubt}</strong></span><span>💰经济 <strong>${scores.economy}</strong></span>`;
+            document.getElementById('modalShroud').classList.add('open');
+            updateRevealButton(); renderCanvas();
+        }
+
+        function updateEvidenceList(){
+            const list=document.getElementById('evidenceList'); if(!list) return;
+            const acquired=getChapter().evidences.filter(e=>e.acquired);
+            list.innerHTML='';
+            acquired.forEach(ev=>{
+                const card=document.createElement('div'); card.className='resource-card';
+                card.innerHTML=`<div class="card-name"><span class="card-emoji">${ev.emoji}</span>${ev.name}</div><div class="card-desc">${ev.desc}</div><div class="card-aspects">${Object.entries(ev.factions).filter(([_,v])=>v>0).map(([k,v])=>`<span class="asp-tag">${k}+${v}</span>`).join('')}</div>`;
+                card.addEventListener('click',()=>{ if(state.revealed) return; const x=80+Math.random()*(canvas.clientWidth-250); const y=80+Math.random()*(canvas.clientHeight-200); addEvidenceNode(ev.id,x,y); });
+                list.appendChild(card);
+            });
+        }
+        function updateTruthList(){
+            const list=document.getElementById('truthList'); if(!list) return;
+            const ch=getChapter();
+            list.innerHTML='';
+            const card=document.createElement('div'); card.className='resource-card truth-card';
+            card.innerHTML=`<div class="card-name">🔮 ${ch.title}真相</div><div class="card-desc">${ch.truthDesc}</div>`;
+            card.addEventListener('click',()=>{ if(state.revealed) return; const x=(canvas.clientWidth/2)-100; const y=(canvas.clientHeight/2)-60; addTruthNode(x,y); });
+            list.appendChild(card);
+        }
+        function switchChapter(idx){
+            if(idx===state.chapterIdx) return;
+            if(state.revealed && !confirm('切换章节将重置进度，是否继续？')) return;
+            state.chapterIdx=idx; state.canvasNodes=[]; state.connections=[]; state.selectedNodeId=null; state.comboSelections=[]; state.linkDrag=null; state.revealed=false;
+            CHAPTERS.forEach(c=>{ c.evidences.forEach(e=>{ if(e.comboOf) e.acquired=false; else e.acquired=true; }); });
+            updateTruthList(); updateEvidenceList(); renderCanvas();
+            showToast(`📜 进入案件：${getChapter().title}`,'info');
+        }
+
+        document.querySelectorAll('.chapter-tab').forEach(tab=>tab.addEventListener('click',()=>switchChapter(parseInt(tab.dataset.ch))));
+        document.getElementById('btnReveal').addEventListener('click',handleReveal);
+        document.getElementById('btnCombine').addEventListener('click',handleCombine);
+        document.getElementById('btnClearBoard').addEventListener('click',()=>{ if(state.revealed) return; state.canvasNodes=[]; state.connections=[]; state.selectedNodeId=null; state.comboSelections=[]; renderCanvas(); showToast('画布已清空。','info'); });
+        document.querySelectorAll('.combo-mini-slot').forEach((slot,idx)=>{ slot.addEventListener('click',()=>{ if(state.revealed) return; if(state.comboSelections[idx]!==undefined){ state.comboSelections.splice(idx,1); updateComboUI(); return; } if(state.selectedNodeId){ const node=getCanvasNodeById(state.selectedNodeId); if(node&&node.type==='evidence'&&!state.comboSelections.includes(node.id)&&state.comboSelections.length<2){ state.comboSelections.push(node.id); state.selectedNodeId=null; updateComboUI(); renderCanvas(); } } else showToast('请先在画布上点击选中一张证据卡片。','info'); }); });
+        canvas.addEventListener('click',(e)=>{ if(state.revealed) return; const card=e.target.closest('.canvas-card'); if(!card){ state.selectedNodeId=null; renderCanvas(); return; } const nodeId=card.dataset.nodeId; state.selectedNodeId = (state.selectedNodeId===nodeId) ? null : nodeId; renderCanvas(); });
+        document.getElementById('btnCloseModal').addEventListener('click',()=>document.getElementById('modalShroud').classList.remove('open'));
+        document.getElementById('modalShroud').addEventListener('click',e=>{ if(e.target===document.getElementById('modalShroud')) document.getElementById('modalShroud').classList.remove('open'); });
+        window.addEventListener('resize',()=>{ clearTimeout(window._resizeTimer); window._resizeTimer=setTimeout(renderLines,200); });
+        function init(){ CHAPTERS.forEach(c=>{ c.evidences.forEach(e=>{ if(e.comboOf) e.acquired=false; else e.acquired=true; }); }); updateTruthList(); updateEvidenceList(); renderCanvas(); }
+        init();
+    })();
+</script>
+</body>
+</html>
