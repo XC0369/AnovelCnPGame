@@ -1,0 +1,2976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真相面板 - 调查游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+            --order: #3498db;
+            --innovation: #9b59b6;
+            --question: #e67e22;
+            --economy: #1abc9c;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 顶部信息栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chapter-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chapter-tab {
+            padding: 10px 20px;
+            background: var(--secondary);
+            border: none;
+            color: var(--light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .chapter-tab:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .chapter-tab.active {
+            background: var(--accent);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .chapter-tab.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .faction-scores {
+            display: flex;
+            gap: 20px;
+        }
+
+        .faction-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .faction-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .faction-dot.order { background: var(--order); }
+        .faction-dot.innovation { background: var(--innovation); }
+        .faction-dot.question { background: var(--question); }
+        .faction-dot.economy { background: var(--economy); }
+
+        /* 主内容区 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        /* 真相选择区 */
+        .truth-selection {
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .truth-selection h2 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .truth-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .truth-card {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .truth-card:hover:not(.locked):not(.completed) {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2);
+        }
+
+        .truth-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .truth-card.completed {
+            border-color: var(--success);
+            background: linear-gradient(145deg, #1e4d3a, #2c5e47);
+        }
+
+        .truth-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .truth-card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--light);
+        }
+
+        .truth-card-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .truth-card-status.completed {
+            background: var(--success);
+        }
+
+        .truth-card-desc {
+            font-size: 13px;
+            color: #bdc3c7;
+            line-height: 1.5;
+        }
+
+        .truth-card-requirements {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 真相调查面板 */
+        .truth-investigation {
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+
+        .truth-investigation.active {
+            display: block;
+        }
+
+        .investigation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .investigation-title {
+            font-size: 22px;
+            color: var(--accent);
+        }
+
+        .investigation-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: var(--warning);
+        }
+
+        .investigation-status.revealed {
+            background: var(--success);
+        }
+
+        .close-investigation {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-investigation:hover {
+            background: #c0392b;
+        }
+
+        /* 核心问题区域 */
+        .core-question-area {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .core-question-label {
+            font-size: 12px;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .core-question-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--light);
+            margin-bottom: 20px;
+        }
+
+        /* 问题连线区域 */
+        .questions-network {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
+
+        .key-question {
+            background: var(--secondary);
+            border-radius: 10px;
+            padding: 15px 20px;
+            min-width: 200px;
+            max-width: 250px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .key-question:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .key-question.selected-yes {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.2);
+        }
+
+        .key-question.selected-no {
+            border-color: var(--accent);
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        .key-question.selected-doubt {
+            border-color: var(--warning);
+            background: rgba(243, 156, 18, 0.2);
+        }
+
+        .key-question.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .key-question-header {
+            font-size: 13px;
+            color: #bdc3c7;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .key-question-text {
+            font-size: 14px;
+            color: var(--light);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .chain-progress, .followup-progress {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            margin-left: 5px;
+        }
+
+        .key-question.answered .chain-progress,
+        .key-question.answered .followup-progress {
+            background: rgba(39, 174, 96, 0.3);
+        }
+
+        .key-question-choices {
+            display: flex;
+            gap: 8px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .choice-btn.yes {
+            background: var(--success);
+        }
+
+        .choice-btn.no {
+            background: var(--accent);
+        }
+
+        .choice-btn.doubt {
+            background: var(--warning);
+        }
+
+        .choice-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .choice-btn.active {
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* 证据提示 */
+        .evidence-hint {
+            font-size: 11px;
+            color: var(--warning);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .evidence-hint.answered {
+            color: var(--success);
+        }
+
+        /* 问题详情面板 */
+        .question-detail {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .question-detail.active {
+            display: block;
+        }
+
+        .question-detail h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+
+        .evidence-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .evidence-chain-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+
+        .evidence-item {
+            background: var(--secondary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: grab;
+            transition: all 0.3s;
+            border: 2px dashed transparent;
+            user-select: none;
+        }
+
+        .evidence-item:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .evidence-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .evidence-item.used {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .evidence-drop-zone {
+            min-height: 60px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .evidence-drop-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .evidence-drop-zone.correct {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .evidence-drop-zone.incorrect {
+            border-color: var(--accent);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .result-message {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .result-message.success {
+            display: block;
+            background: rgba(39, 174, 96, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .result-message.failure {
+            display: block;
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        /* 临时记忆空间栏 */
+        .memory-panel {
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .memory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .memory-title {
+            font-size: 16px;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .memory-capacity {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .memory-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .memory-follow-up-tag {
+            margin-right: 5px;
+        }
+
+        .memory-parent {
+            font-size: 10px;
+            color: #95a5a6;
+            margin-top: 3px;
+        }
+
+        .memory-slot {
+            background: rgba(0,0,0,0.3);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .memory-slot.filled {
+            border-style: solid;
+            border-color: var(--warning);
+            background: rgba(243, 156, 18, 0.1);
+            justify-content: space-between;
+        }
+
+        .memory-slot.locked {
+            opacity: 0.3;
+        }
+
+        .memory-content {
+            font-size: 13px;
+            color: var(--light);
+            flex: 1;
+        }
+
+        .memory-remove {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .memory-empty {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        /* 证据库 */
+        .evidence-panel {
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .evidence-panel h3 {
+            color: var(--light);
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .evidence-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* 结局弹窗 */
+        .ending-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .ending-modal.active {
+            display: flex;
+        }
+
+        .ending-content {
+            background: linear-gradient(145deg, #2c3e50, #1a252f);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .ending-title {
+            font-size: 28px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .ending-desc {
+            font-size: 16px;
+            color: var(--light);
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .ending-bonus {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .bonus-item {
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .bonus-item span {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .ending-close {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .ending-close:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        /* 拖拽视觉反馈 */
+        .drag-preview {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            background: var(--secondary);
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 2px solid var(--accent);
+            font-size: 13px;
+            color: var(--light);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* SVG连线 */
+        .connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            stroke: rgba(255,255,255,0.2);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5,5;
+            animation: dash 20s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        /* 结局选择区 */
+        .ending-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ending-section h4 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .ending-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .ending-option {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .ending-option:hover {
+            border-color: var(--accent);
+        }
+
+        .ending-option.recommended {
+            border-color: var(--success);
+        }
+
+        .ending-option.selected {
+            border-color: var(--accent);
+            background: rgba(155, 89, 182, 0.2);
+            box-shadow: 0 0 15px rgba(155, 89, 182, 0.3);
+        }
+
+        .ending-req {
+            font-size: 10px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .ending-option-title {
+            font-size: 14px;
+            color: var(--light);
+            margin-bottom: 5px;
+        }
+
+        .ending-option-desc {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .reveal-truth-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .reveal-truth-btn:hover:not(:disabled) {
+            background: #c0392b;
+            transform: scale(1.02);
+        }
+
+        .reveal-truth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .faction-scores {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* 联想问题区域样式 */
+        .follow-up-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+        }
+
+        .follow-up-section h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .follow-up-item {
+            background: rgba(243, 156, 18, 0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--warning);
+        }
+
+        .follow-up-item .question-text {
+            font-size: 13px;
+            color: var(--light);
+            margin-bottom: 8px;
+        }
+
+        .follow-up-item .evidence-hint {
+            font-size: 11px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .save-memory-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .save-memory-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        /* 证据链条样式 */
+        .evidence-chain-step {
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #666;
+            transition: all 0.3s;
+        }
+
+        .evidence-chain-step.current {
+            border-left-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .evidence-chain-step.completed {
+            border-left-color: var(--success);
+            opacity: 0.7;
+        }
+
+        .evidence-chain-step.locked {
+            opacity: 0.5;
+            border-left-color: #666;
+        }
+
+        .chain-step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .chain-step-number {
+            font-size: 11px;
+            color: #bdc3c7;
+        }
+
+        .chain-step-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .chain-step-status.completed {
+            background: var(--success);
+        }
+
+        .chain-evidence-name {
+            font-size: 13px;
+            color: var(--light);
+        }
+
+        .chain-hint {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        /* 临时记忆项目样式 */
+        .memory-follow-up {
+            background: rgba(243, 156, 18, 0.1);
+            border: 1px dashed var(--warning);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .memory-follow-up .question-text {
+            font-size: 12px;
+            color: var(--light);
+            margin-bottom: 5px;
+        }
+
+        .memory-follow-up button {
+            padding: 4px 10px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .memory-follow-up button:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 顶部信息栏 -->
+        <div class="top-bar">
+            <div class="chapter-tabs" id="chapterTabs">
+                <!-- 动态生成 -->
+            </div>
+            <div class="faction-scores" id="factionScores">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="left-panel">
+                <!-- 真相选择区 -->
+                <div class="truth-selection" id="truthSelection">
+                    <h2>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        真相档案
+                    </h2>
+                    <div class="truth-cards" id="truthCards">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 真相调查面板 -->
+                <div class="truth-investigation" id="truthInvestigation">
+                    <div class="investigation-header">
+                        <div>
+                            <h3 class="investigation-title" id="investigationTitle">真相标题</h3>
+                            <div class="investigation-status" id="investigationStatus">调查中</div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="close-investigation" onclick="closeInvestigation()">返回</button>
+                        </div>
+                    </div>
+
+                    <!-- 核心问题区域 -->
+                    <div class="core-question-area">
+                        <div class="core-question-label">核心问题</div>
+                        <div class="core-question-text" id="coreQuestionText">谁是内鬼？</div>
+                        
+                        <!-- 问题连线 -->
+                        <div class="questions-network" id="questionsNetwork">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 结局选择 -->
+                    <div class="ending-section">
+                        <h4>选择结局走向</h4>
+                        <div class="ending-options" id="endingOptions">
+                            <!-- 动态生成 -->
+                        </div>
+                        <button class="reveal-truth-btn" id="revealTruthBtn" onclick="revealTruth()">
+                            公开真相
+                        </button>
+                    </div>
+
+                    <!-- 问题详情 -->
+                    <div class="question-detail" id="questionDetail">
+                        <h4 id="detailQuestionText">问题详情</h4>
+                        <p id="detailEvidenceHint" style="font-size: 13px; color: #bdc3c7; margin-bottom: 15px;"></p>
+                        
+                        <!-- 证据链条区域 -->
+                        <div class="evidence-chain-container" id="evidenceChainContainer">
+                            <!-- 动态生成 -->
+                        </div>
+
+                        <!-- 可用证据列表 -->
+                        <div class="evidence-list" id="availableEvidence">
+                            <!-- 可用证据 -->
+                        </div>
+
+                        <div class="evidence-drop-zone" id="evidenceDropZone">
+                            <span class="memory-empty">拖拽证据到此处</span>
+                        </div>
+
+                        <div class="result-message" id="resultMessage"></div>
+                        
+                        <!-- 联想问题区域 -->
+                        <div class="follow-up-section" id="followUpSection" style="display: none;">
+                            <h4>联想问题</h4>
+                            <div id="followUpQuestions"></div>
+                            <button class="save-memory-btn" id="saveToMemoryBtn" onclick="saveToMemory()">
+                                存入临时记忆
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 证据库 -->
+                    <div class="evidence-panel">
+                        <h3>证据库</h3>
+                        <div class="evidence-grid" id="evidenceGrid">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 临时记忆空间栏 -->
+            <div class="memory-panel">
+                <div class="memory-header">
+                    <div class="memory-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        临时记忆
+                    </div>
+                    <span class="memory-capacity" id="memoryCapacity">1/1</span>
+                </div>
+                <div class="memory-slots" id="memorySlots">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结局弹窗 -->
+    <div class="ending-modal" id="endingModal">
+        <div class="ending-content">
+            <h2 class="ending-title" id="endingTitle">真相公开</h2>
+            <p class="ending-desc" id="endingDesc"></p>
+            <div class="ending-bonus" id="endingBonus"></div>
+            <button class="ending-close" onclick="closeEndingModal()">确认</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 游戏数据 ====================
+        const gameData = {
+            chapters: [
+                {
+                    id: 1,
+                    title: "第一章：神秘邀请",
+                    truths: [
+                        {
+                            id: "truth1-1",
+                            title: "内鬼身份",
+                            description: "在五位嫌疑人中，究竟谁才是真正的内鬼？",
+                            coreQuestion: "谁是混入调查组的内鬼？",
+                            keyQuestions: [
+                                {
+                                    id: "q1-1",
+                                    text: "嫌疑人是职业占星师吗？",
+                                    answer: "no",
+                                    factionPoints: { order: 1, innovation: -1, question: 2, economy: 0 },
+                                    // 证据链条：按顺序验证，每步验证后可解锁联想问题
+                                    evidenceChain: [
+                                        {
+                                            id: "ec1-1-1",
+                                            evidence: "神秘符号书籍",
+                                            hint: "这是一本关于占星术的古籍，记录了古老星座知识...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-1-1",
+                                                text: "占星师经常出入哪些神秘场合？",
+                                                answer: "yes",
+                                                factionPoints: { order: 0, innovation: 1, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-1-2",
+                                            evidence: "占星工具箱",
+                                            hint: "专业占星师的必备工具，包含星盘和水晶球...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-1-2",
+                                                text: "占星师与本案有何关联？",
+                                                answer: "no",
+                                                factionPoints: { order: 1, innovation: 0, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-1-3",
+                                            evidence: "占星会议记录",
+                                            hint: "近期占星师协会的会议纪要...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q1-2",
+                                    text: "嫌疑人是候补法官吗？",
+                                    answer: "yes",
+                                    factionPoints: { order: 2, innovation: 0, question: 1, economy: 0 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec1-2-1",
+                                            evidence: "法律证书",
+                                            hint: "司法考试通过证书，注明了专业领域...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-2-1",
+                                                text: "候补法官的晋升通道是什么？",
+                                                answer: "yes",
+                                                factionPoints: { order: 1, innovation: 0, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-2-2",
+                                            evidence: "庭审记录本",
+                                            hint: "记录了近期的庭审要点和判决...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-2-2",
+                                                text: "庭审中有什么可疑之处？",
+                                                answer: "yes",
+                                                factionPoints: { order: 2, innovation: 0, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-2-3",
+                                            evidence: "司法考试通过名单",
+                                            hint: "官方公示的合格名单...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q1-3",
+                                    text: "嫌疑人是游戏主播吗？",
+                                    answer: "no",
+                                    factionPoints: { order: 0, innovation: 2, question: 1, economy: 1 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec1-3-1",
+                                            evidence: "直播设备",
+                                            hint: "专业级的直播摄像和录音设备...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-3-1",
+                                                text: "这些设备是什么时候购买的？",
+                                                answer: "no",
+                                                factionPoints: { order: 0, innovation: 1, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-3-2",
+                                            evidence: "粉丝名单",
+                                            hint: "社交媒体上的粉丝统计数据...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-3-2",
+                                                text: "粉丝群体有什么特征？",
+                                                answer: "no",
+                                                factionPoints: { order: 0, innovation: 1, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-3-3",
+                                            evidence: "直播回放",
+                                            hint: "最近一个月的直播存档...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q1-4",
+                                    text: "嫌疑人是退休军人吗？",
+                                    answer: "no",
+                                    factionPoints: { order: -1, innovation: 0, question: 1, economy: 1 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec1-4-1",
+                                            evidence: "军事勋章",
+                                            hint: "一枚特等功勋章和若干嘉奖...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-4-1",
+                                                text: "这些勋章是什么时候获得的？",
+                                                answer: "no",
+                                                factionPoints: { order: 1, innovation: 0, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-4-2",
+                                            evidence: "退役证明",
+                                            hint: "部队出具的特殊退役证明...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-4-2",
+                                                text: "退役原因是什么？",
+                                                answer: "yes",
+                                                factionPoints: { order: 1, innovation: 1, question: 0, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-4-3",
+                                            evidence: "部队调动记录",
+                                            hint: "近十年的部队调动档案...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q1-5",
+                                    text: "嫌疑人是会计师吗？",
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 0, question: 0, economy: 3 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec1-5-1",
+                                            evidence: "财务报表",
+                                            hint: "专业编制的财务报表...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-5-1",
+                                                text: "财务报表有什么异常？",
+                                                answer: "yes",
+                                                factionPoints: { order: 0, innovation: 0, question: 1, economy: 2 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-5-2",
+                                            evidence: "计算器",
+                                            hint: "带有复杂公式功能的计算器...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q1-5-2",
+                                                text: "计算器里有什么线索？",
+                                                answer: "yes",
+                                                factionPoints: { order: 0, innovation: 1, question: 1, economy: 1 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec1-5-3",
+                                            evidence: "审计报告",
+                                            hint: "第三方出具的详细审计报告...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end1-1",
+                                    title: "正义审判",
+                                    description: "你成功揭露了内鬼的真实身份，将其绳之以法。正义得到伸张，秩序得以恢复。",
+                                    requirement: { order: 5, innovation: 0, question: 0, economy: 0 },
+                                    bonus: { order: 2, innovation: 0, question: 0, economy: 0 },
+                                    recommended: true
+                                },
+                                {
+                                    id: "end1-2",
+                                    title: "创新突破",
+                                    description: "你运用非常规手段揭穿了内鬼的真面目。虽然过程有些出格，但结果令人信服。",
+                                    requirement: { order: 0, innovation: 5, question: 0, economy: 0 },
+                                    bonus: { order: 0, innovation: 2, question: 0, economy: 0 }
+                                },
+                                {
+                                    id: "end1-3",
+                                    title: "经济制裁",
+                                    description: "你通过追踪资金流向锁定了内鬼。以经济手段终结了这场阴谋。",
+                                    requirement: { order: 0, innovation: 0, question: 0, economy: 5 },
+                                    bonus: { order: 0, innovation: 0, question: 0, economy: 2 }
+                                }
+                            ],
+                            completed: false
+                        },
+                        {
+                            id: "truth1-2",
+                            title: "秘密资金",
+                            description: "调查组内部出现资金异常，这些钱流向了何处？",
+                            coreQuestion: "秘密资金的真正去向是什么？",
+                            keyQuestions: [
+                                {
+                                    id: "q2-1",
+                                    text: "资金流向了境外账户吗？",
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 0, question: 2, economy: 1 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec2-1-1",
+                                            evidence: "银行转账记录",
+                                            hint: "详细的跨国转账记录...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-1-1",
+                                                text: "转账的目的是什么？",
+                                                answer: "yes",
+                                                factionPoints: { order: 1, innovation: 0, question: 1, economy: 1 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-1-2",
+                                            evidence: "外汇兑换单",
+                                            hint: "大额外币兑换凭证...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-1-2",
+                                                text: "兑换的金额有多大？",
+                                                answer: "yes",
+                                                factionPoints: { order: 0, innovation: 0, question: 1, economy: 2 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-1-3",
+                                            evidence: "境外账户开户文件",
+                                            hint: "在境外银行的开户资料...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q2-2",
+                                    text: "资金被用于慈善捐款洗白吗？",
+                                    answer: "no",
+                                    factionPoints: { order: 2, innovation: 0, question: 1, economy: 0 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec2-2-1",
+                                            evidence: "捐款收据",
+                                            hint: "慈善机构的正式收据...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-2-1",
+                                                text: "捐款对象是谁？",
+                                                answer: "no",
+                                                factionPoints: { order: 1, innovation: 0, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-2-2",
+                                            evidence: "慈善机构名单",
+                                            hint: "受捐赠的慈善组织列表...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-2-2",
+                                                text: "这些机构有什么背景？",
+                                                answer: "no",
+                                                factionPoints: { order: 0, innovation: 1, question: 1, economy: 1 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-2-3",
+                                            evidence: "资金流向追踪",
+                                            hint: "专业的资金流向分析报告...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q2-3",
+                                    text: "资金被贪污私吞了吗？",
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 1, question: 2, economy: 1 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec2-3-1",
+                                            evidence: "私人账户明细",
+                                            hint: "高消费的银行流水...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-3-1",
+                                                text: "消费记录有什么规律？",
+                                                answer: "yes",
+                                                factionPoints: { order: 0, innovation: 0, question: 1, economy: 1 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-3-2",
+                                            evidence: "奢侈品收据",
+                                            hint: "名牌包包和手表...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-3-2",
+                                                text: "这些奢侈品属于谁？",
+                                                answer: "yes",
+                                                factionPoints: { order: 0, innovation: 1, question: 1, economy: 1 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-3-3",
+                                            evidence: "奢侈品店铺监控",
+                                            hint: "购物时的监控截图...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q2-4",
+                                    text: "资金涉及机密项目吗？",
+                                    answer: "no",
+                                    factionPoints: { order: 2, innovation: 1, question: 1, economy: 0 },
+                                    evidenceChain: [
+                                        {
+                                            id: "ec2-4-1",
+                                            evidence: "机密文件",
+                                            hint: "标注为机密的政府文件...",
+                                            unlocked: true,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-4-1",
+                                                text: "这些文件与资金有关吗？",
+                                                answer: "no",
+                                                factionPoints: { order: 1, innovation: 0, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-4-2",
+                                            evidence: "通讯记录",
+                                            hint: "加密的通讯往来...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: {
+                                                id: "q2-4-2",
+                                                text: "通讯对象是谁？",
+                                                answer: "no",
+                                                factionPoints: { order: 1, innovation: 1, question: 1, economy: 0 },
+                                                unlocked: false,
+                                                answered: false,
+                                                userChoice: null
+                                            }
+                                        },
+                                        {
+                                            id: "ec2-4-3",
+                                            evidence: "项目预算表",
+                                            hint: "政府项目的详细预算...",
+                                            unlocked: false,
+                                            verified: false,
+                                            followUpQuestion: null
+                                        }
+                                    ],
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end2-1",
+                                    title: "资金追回",
+                                    description: "你成功追踪并冻结了异常资金，为受害者挽回了损失。",
+                                    requirement: { order: 3, innovation: 0, question: 0, economy: 3 },
+                                    bonus: { order: 1, innovation: 0, question: 0, economy: 1 },
+                                    recommended: true
+                                }
+                            ],
+                            completed: false
+                        },
+                        {
+                            id: "truth1-3",
+                            title: "幕后黑手",
+                            description: "内鬼背后是否还有更大的势力在操控一切？",
+                            coreQuestion: "真正的幕后黑手是谁？",
+                            keyQuestions: [
+                                {
+                                    id: "q3-1",
+                                    text: "幕后黑手是政府高官吗？",
+                                    evidenceRequired: ["机密文件", "通讯记录"],
+                                    answer: "no",
+                                    factionPoints: { order: 2, innovation: 0, question: 2, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q3-2",
+                                    text: "幕后黑手是商业巨头吗？",
+                                    evidenceRequired: ["商业合同", "股权结构图"],
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 1, question: 1, economy: 3 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q3-3",
+                                    text: "幕后黑手是跨国组织吗？",
+                                    evidenceRequired: ["境外联络记录", "多国语言文件"],
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 2, question: 1, economy: 1 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q3-4",
+                                    text: "幕后黑手是神秘教派吗？",
+                                    evidenceRequired: ["仪式道具", "教义手册"],
+                                    answer: "no",
+                                    factionPoints: { order: 0, innovation: 1, question: 3, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q3-5",
+                                    text: "幕后黑手是调查组内部人员吗？",
+                                    evidenceRequired: ["内部晋升记录", "私人日记"],
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 0, question: 2, economy: 1 },
+                                    unlocked: false, // 需要先完成truth1-1
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end3-1",
+                                    title: "连根拔起",
+                                    description: "你不仅抓住了内鬼，还顺藤摸瓜揪出了幕后主使，彻底瓦解了这个犯罪网络。",
+                                    requirement: { order: 4, innovation: 0, question: 4, economy: 0 },
+                                    bonus: { order: 3, innovation: 1, question: 2, economy: 0 },
+                                    recommended: true
+                                }
+                            ],
+                            completed: false,
+                            requirement: { truthId: "truth1-1", ended: true }
+                        }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "第二章：暗流涌动",
+                    locked: true,
+                    truths: [
+                        {
+                            id: "truth2-1",
+                            title: "失踪证人",
+                            description: "关键证人在关键时刻神秘失踪，他究竟去了哪里？",
+                            coreQuestion: "失踪证人的下落是什么？",
+                            keyQuestions: [
+                                {
+                                    id: "q4-1",
+                                    text: "证人被绑架囚禁了吗？",
+                                    evidenceRequired: ["监控截图", "赎金信息"],
+                                    answer: "no",
+                                    factionPoints: { order: 2, innovation: 0, question: 2, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q4-2",
+                                    text: "证人主动隐藏了吗？",
+                                    evidenceRequired: ["隐藏住所租金单", "匿名通讯记录"],
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 1, question: 3, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q4-3",
+                                    text: "证人已经遇害了吗？",
+                                    evidenceRequired: ["尸检报告", "死亡证明"],
+                                    answer: "no",
+                                    factionPoints: { order: 1, innovation: 0, question: 2, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q4-4",
+                                    text: "证人被转移出境了吗？",
+                                    evidenceRequired: ["护照记录", "机场监控"],
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 1, question: 1, economy: 2 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end4-1",
+                                    title: "真相大白",
+                                    description: "你找到了证人，并成功说服他出面作证。案件取得了重大突破。",
+                                    requirement: { order: 2, innovation: 0, question: 3, economy: 0 },
+                                    bonus: { order: 1, innovation: 0, question: 1, economy: 0 },
+                                    recommended: true
+                                }
+                            ],
+                            completed: false
+                        },
+                        {
+                            id: "truth2-2",
+                            title: "真假遗书",
+                            description: "一封遗书揭开了尘封的秘密，但这封遗书是真的吗？",
+                            coreQuestion: "这封遗书的真伪如何？",
+                            keyQuestions: [
+                                {
+                                    id: "q5-1",
+                                    text: "遗书上的笔迹是真实的吗？",
+                                    evidenceRequired: ["笔迹鉴定报告", "历史书写样本"],
+                                    answer: "no",
+                                    factionPoints: { order: 2, innovation: 0, question: 2, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q5-2",
+                                    text: "遗书的内容被篡改过吗？",
+                                    evidenceRequired: ["纸张年代检测", "墨水成分分析"],
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 2, question: 2, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q5-3",
+                                    text: "遗书是由他人代写的吗？",
+                                    evidenceRequired: ["写作习惯分析", "打字机型号鉴定"],
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 1, question: 3, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q5-4",
+                                    text: "遗书是伪造的完全骗局吗？",
+                                    evidenceRequired: ["完整鉴定报告", "原始文件"],
+                                    answer: "no",
+                                    factionPoints: { order: 1, innovation: 1, question: 2, economy: 1 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end5-1",
+                                    title: "拨云见日",
+                                    description: "你揭穿了伪造的遗书，还原了被掩盖的真相。",
+                                    requirement: { order: 0, innovation: 3, question: 4, economy: 0 },
+                                    bonus: { order: 0, innovation: 1, question: 2, economy: 0 },
+                                    recommended: true
+                                }
+                            ],
+                            completed: false
+                        },
+                        {
+                            id: "truth2-3",
+                            title: "致命毒药",
+                            description: "死者中的毒药来源成谜，谁才是下毒的凶手？",
+                            coreQuestion: "致命毒药的来源是什么？",
+                            keyQuestions: [
+                                {
+                                    id: "q6-1",
+                                    text: "毒药是从黑市购买的吗？",
+                                    evidenceRequired: ["暗网交易记录", "黑市证人证词"],
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 1, question: 2, economy: 2 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q6-2",
+                                    text: "毒药是实验室偷出的吗？",
+                                    evidenceRequired: ["实验室出入记录", "库存缺失报告"],
+                                    answer: "no",
+                                    factionPoints: { order: 2, innovation: 1, question: 1, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q6-3",
+                                    text: "毒药是自然存在的吗？",
+                                    evidenceRequired: ["植物样本", "毒素检测报告"],
+                                    answer: "no",
+                                    factionPoints: { order: 1, innovation: 2, question: 1, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q6-4",
+                                    text: "毒药是特制的罕见配方吗？",
+                                    evidenceRequired: ["配方手稿", "专家分析意见"],
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 3, question: 2, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end6-1",
+                                    title: "追根溯源",
+                                    description: "你追踪到了毒药的源头，为案件侦破提供了关键线索。",
+                                    requirement: { order: 0, innovation: 4, question: 2, economy: 0 },
+                                    bonus: { order: 0, innovation: 2, question: 1, economy: 0 },
+                                    recommended: true
+                                }
+                            ],
+                            completed: false
+                        }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "第三章：终局抉择",
+                    locked: true,
+                    truths: [
+                        {
+                            id: "truth3-1",
+                            title: "最终boss",
+                            description: "所有线索都指向一个隐藏在暗处的最终boss...",
+                            coreQuestion: "谁是这场阴谋的最终boss？",
+                            keyQuestions: [
+                                {
+                                    id: "q7-1",
+                                    text: "boss是前任局长吗？",
+                                    evidenceRequired: ["任免文件", "退休记录"],
+                                    answer: "yes",
+                                    factionPoints: { order: 2, innovation: 0, question: 2, economy: 1 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q7-2",
+                                    text: "boss是神秘赞助人吗？",
+                                    evidenceRequired: ["资金流向图", "匿名捐赠协议"],
+                                    answer: "yes",
+                                    factionPoints: { order: 0, innovation: 2, question: 1, economy: 2 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q7-3",
+                                    text: "boss是一个组织而非个人吗？",
+                                    evidenceRequired: ["组织架构图", "成员名单"],
+                                    answer: "yes",
+                                    factionPoints: { order: 1, innovation: 1, question: 3, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q7-4",
+                                    text: "boss是玩家自己吗？",
+                                    evidenceRequired: ["自我证词", "时间线矛盾分析"],
+                                    answer: "no",
+                                    factionPoints: { order: 0, innovation: 0, question: 4, economy: 0 },
+                                    unlocked: true,
+                                    answered: false,
+                                    userChoice: null
+                                },
+                                {
+                                    id: "q7-5",
+                                    text: "boss至今仍然逍遥法外吗？",
+                                    evidenceRequired: ["近期活动痕迹", "目击者证词"],
+                                    answer: "no",
+                                    factionPoints: { order: 3, innovation: 0, question: 2, economy: 0 },
+                                    unlocked: false, // 需要先完成多个真相
+                                    answered: false,
+                                    userChoice: null
+                                }
+                            ],
+                            endings: [
+                                {
+                                    id: "end7-1",
+                                    title: "正义终章",
+                                    description: "你将最终boss绳之以法，为这场漫长的调查画上了圆满的句号。秩序重归，罪恶伏法。",
+                                    requirement: { order: 6, innovation: 0, question: 0, economy: 0 },
+                                    bonus: { order: 4, innovation: 0, question: 0, economy: 0 },
+                                    recommended: true
+                                },
+                                {
+                                    id: "end7-2",
+                                    title: "创新胜利",
+                                    description: "你用非常规手段击败了boss，虽然争议重重，但成功不可质疑。",
+                                    requirement: { order: 0, innovation: 6, question: 0, economy: 0 },
+                                    bonus: { order: 0, innovation: 4, question: 0, economy: 0 }
+                                }
+                            ],
+                            completed: false,
+                            requirement: { truthsCompleted: 2 }
+                        }
+                    ]
+                }
+            ],
+            evidence: [
+                // 第一章证据
+                { id: "e1", name: "神秘符号书籍", chapter: 1, used: false },
+                { id: "e2", name: "占星工具箱", chapter: 1, used: false },
+                { id: "e3", name: "占星会议记录", chapter: 1, used: false },
+                { id: "e4", name: "法律证书", chapter: 1, used: false },
+                { id: "e5", name: "庭审记录本", chapter: 1, used: false },
+                { id: "e6", name: "司法考试通过名单", chapter: 1, used: false },
+                { id: "e7", name: "直播设备", chapter: 1, used: false },
+                { id: "e8", name: "粉丝名单", chapter: 1, used: false },
+                { id: "e9", name: "直播回放", chapter: 1, used: false },
+                { id: "e10", name: "军事勋章", chapter: 1, used: false },
+                { id: "e11", name: "退役证明", chapter: 1, used: false },
+                { id: "e12", name: "部队调动记录", chapter: 1, used: false },
+                { id: "e13", name: "财务报表", chapter: 1, used: false },
+                { id: "e14", name: "计算器", chapter: 1, used: false },
+                { id: "e15", name: "审计报告", chapter: 1, used: false },
+                { id: "e16", name: "银行转账记录", chapter: 1, used: false },
+                { id: "e17", name: "外汇兑换单", chapter: 1, used: false },
+                { id: "e18", name: "境外账户开户文件", chapter: 1, used: false },
+                { id: "e19", name: "捐款收据", chapter: 1, used: false },
+                { id: "e20", name: "慈善机构名单", chapter: 1, used: false },
+                { id: "e21", name: "资金流向追踪", chapter: 1, used: false },
+                { id: "e22", name: "私人账户明细", chapter: 1, used: false },
+                { id: "e23", name: "奢侈品收据", chapter: 1, used: false },
+                { id: "e24", name: "奢侈品店铺监控", chapter: 1, used: false },
+                { id: "e25", name: "机密文件", chapter: 1, used: false },
+                { id: "e26", name: "通讯记录", chapter: 1, used: false },
+                { id: "e27", name: "项目预算表", chapter: 1, used: false },
+                { id: "e28", name: "商业合同", chapter: 1, used: false },
+                { id: "e29", name: "股权结构图", chapter: 1, used: false },
+                { id: "e30", name: "商业谈判录音", chapter: 1, used: false },
+                { id: "e31", name: "境外联络记录", chapter: 1, used: false },
+                { id: "e32", name: "多国语言文件", chapter: 1, used: false },
+                { id: "e33", name: "国际转账记录", chapter: 1, used: false },
+                { id: "e34", name: "仪式道具", chapter: 1, used: false },
+                { id: "e35", name: "教义手册", chapter: 1, used: false },
+                { id: "e36", name: "心理学分析报告", chapter: 1, used: false },
+                { id: "e37", name: "内部晋升记录", chapter: 1, used: false },
+                { id: "e38", name: "私人日记", chapter: 1, used: false },
+                { id: "e39", name: "内部通讯截获", chapter: 1, used: false },
+                { id: "e40", name: "近期活动痕迹", chapter: 1, used: false },
+                { id: "e41", name: "目击者证词", chapter: 1, used: false },
+                { id: "e42", name: "监控录像", chapter: 1, used: false },
+                // 第二章证据
+                { id: "e43", name: "地下室租赁合同", chapter: 2, used: false },
+                { id: "e44", name: "证人日记", chapter: 2, used: false },
+                { id: "e45", name: "紧急求助信息", chapter: 2, used: false },
+                { id: "e46", name: "逃跑路线图", chapter: 2, used: false },
+                { id: "e47", name: "死亡威胁信", chapter: 2, used: false },
+                { id: "e48", name: "急救记录", chapter: 2, used: false },
+                { id: "e49", name: "尸检报告", chapter: 2, used: false },
+                { id: "e50", name: "机票预订记录", chapter: 2, used: false },
+                { id: "e51", name: "护照使用记录", chapter: 2, used: false },
+                { id: "e52", name: "机场监控", chapter: 2, used: false },
+                { id: "e53", name: "笔迹鉴定报告", chapter: 2, used: false },
+                { id: "e54", name: "书写时间分析", chapter: 2, used: false },
+                { id: "e55", name: "纸张来源追溯", chapter: 2, used: false },
+                { id: "e56", name: "红外线扫描", chapter: 2, used: false },
+                { id: "e57", name: "字迹重叠分析", chapter: 2, used: false },
+                { id: "e58", name: "篡改工具", chapter: 2, used: false },
+                { id: "e59", name: "相关人员访谈", chapter: 2, used: false },
+                { id: "e60", name: "财务记录对照", chapter: 2, used: false },
+                { id: "e61", name: "事件时间线", chapter: 2, used: false },
+                { id: "e62", name: "首字母拼写", chapter: 2, used: false },
+                { id: "e63", name: "数字编码", chapter: 2, used: false },
+                { id: "e64", name: "水印解读", chapter: 2, used: false },
+                { id: "e65", name: "政治捐款记录", chapter: 2, used: false },
+                { id: "e66", name: "政治关系网络图", chapter: 2, used: false },
+                { id: "e67", name: "机密会议记录", chapter: 2, used: false },
+                { id: "e68", name: "公司财务报表", chapter: 2, used: false },
+                { id: "e69", name: "商业对手证词", chapter: 2, used: false },
+                { id: "e70", name: "市场垄断证据", chapter: 2, used: false },
+                { id: "e71", name: "加密通讯网络", chapter: 2, used: false },
+                { id: "e72", name: "间谍活动记录", chapter: 2, used: false },
+                { id: "e73", name: "卧底名单", chapter: 2, used: false },
+                { id: "e74", name: "学术论文撤稿记录", chapter: 2, used: false },
+                { id: "e75", name: "学术不端证据", chapter: 2, used: false },
+                { id: "e76", name: "学术圈人脉图", chapter: 2, used: false },
+                { id: "e77", name: "入会仪式记录", chapter: 2, used: false },
+                { id: "e78", name: "组织架构图", chapter: 2, used: false },
+                { id: "e79", name: "信徒证词", chapter: 2, used: false },
+                // 第三章证据
+                { id: "e80", name: "海关查获记录", chapter: 3, used: false },
+                { id: "e81", name: "化学成分分析", chapter: 3, used: false },
+                { id: "e82", name: "境外来源地情报", chapter: 3, used: false },
+                { id: "e83", name: "实验室日志", chapter: 3, used: false },
+                { id: "e84", name: "化学品购买记录", chapter: 3, used: false },
+                { id: "e85", name: "实验设备使用记录", chapter: 3, used: false },
+                { id: "e86", name: "受害者尸检", chapter: 3, used: false },
+                { id: "e87", name: "案发现场照片", chapter: 3, used: false },
+                { id: "e88", name: "嫌疑人行动轨迹", chapter: 3, used: false },
+                { id: "e89", name: "疾病监控数据", chapter: 3, used: false },
+                { id: "e90", name: "医院就诊记录", chapter: 3, used: false },
+                { id: "e91", name: "环境检测报告", chapter: 3, used: false },
+                { id: "e92", name: "研发日志", chapter: 3, used: false },
+                { id: "e93", name: "临床试验数据", chapter: 3, used: false },
+                { id: "e94", name: "药品分发记录", chapter: 3, used: false }
+            ]
+        };
+
+        // ==================== 游戏状态 ====================
+        let gameState = {
+            currentChapter: 1,
+            factionScores: { order: 0, innovation: 0, question: 0, economy: 0 },
+            memorySlots: [],
+            maxMemorySlots: 1,
+            currentTruth: null,
+            currentQuestion: null,
+            completedTruths: [],
+            revealedTruths: [],
+            draggedEvidence: null,
+            selectedEnding: null  // debug功能：手动选择的结局
+        };
+
+        // ==================== 初始化 ====================
+        function init() {
+            renderChapterTabs();
+            renderFactionScores();
+            renderTruthCards();
+            renderMemorySlots();
+            renderEvidenceGrid();
+            updateMemoryCapacity();
+            unlockNextChapter();
+        }
+
+        // ==================== 渲染函数 ====================
+        function renderChapterTabs() {
+            const container = document.getElementById('chapterTabs');
+            container.innerHTML = gameData.chapters.map(chapter => `
+                <button class="chapter-tab ${chapter.id === gameState.currentChapter ? 'active' : ''} ${chapter.locked ? 'locked' : ''}"
+                        onclick="switchChapter(${chapter.id})"
+                        ${chapter.locked ? 'disabled' : ''}>
+                    ${chapter.title}
+                </button>
+            `).join('');
+        }
+
+        function renderFactionScores() {
+            const container = document.getElementById('factionScores');
+            const factions = [
+                { key: 'order', name: '秩序', color: 'var(--order)' },
+                { key: 'innovation', name: '创新', color: 'var(--innovation)' },
+                { key: 'question', name: '质疑', color: 'var(--question)' },
+                { key: 'economy', name: '经济', color: 'var(--economy)' }
+            ];
+            container.innerHTML = factions.map(f => `
+                <div class="faction-item">
+                    <span class="faction-dot ${f.key}" style="background: ${f.color}"></span>
+                    <span>${f.name}: ${gameState.factionScores[f.key]}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTruthCards() {
+            const container = document.getElementById('truthCards');
+            const chapter = gameData.chapters.find(c => c.id === gameState.currentChapter);
+            if (!chapter) return;
+
+            container.innerHTML = chapter.truths.map(truth => {
+                const isRevealed = gameState.revealedTruths.includes(truth.id);
+                const isLocked = checkTruthLocked(truth);
+                const status = isRevealed ? 'completed' : (isLocked ? 'locked' : '');
+
+                return `
+                    <div class="truth-card ${status}" onclick="${!isLocked && !isRevealed ? `openTruth('${truth.id}')` : ''}">
+                        <div class="truth-card-header">
+                            <span class="truth-card-title">${truth.title}</span>
+                            <span class="truth-card-status ${isRevealed ? 'completed' : ''}">
+                                ${isRevealed ? '已公开' : (isLocked ? '未解锁' : '待调查')}
+                            </span>
+                        </div>
+                        <p class="truth-card-desc">${truth.description}</p>
+                        ${truth.requirement ? `
+                            <div class="truth-card-requirements">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                需要先完成前置真相
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkTruthLocked(truth) {
+            if (!truth.requirement) return false;
+            
+            if (truth.requirement.truthId) {
+                return !gameState.revealedTruths.includes(truth.requirement.truthId);
+            }
+            if (truth.requirement.truthsCompleted !== undefined) {
+                return gameState.revealedTruths.length < truth.requirement.truthsCompleted;
+            }
+            return false;
+        }
+
+        function renderMemorySlots() {
+            const container = document.getElementById('memorySlots');
+            let html = '';
+            for (let i = 0; i < 5; i++) {
+                const isLocked = i >= gameState.maxMemorySlots;
+                const slot = gameState.memorySlots[i];
+                const isFilled = slot !== undefined;
+
+                html += `
+                    <div class="memory-slot ${isFilled ? 'filled' : ''} ${isLocked ? 'locked' : ''}">
+                        ${isFilled ? `
+                            ${slot.type === 'followUp' ? `<span class="memory-follow-up-tag">💭</span>` : ''}
+                            <span class="memory-content">${slot.text}</span>
+                            ${slot.parentQuestion ? `<div class="memory-parent">来自: ${slot.parentQuestion}</div>` : ''}
+                            <button class="memory-remove" onclick="removeFromMemory(${i})">移除</button>
+                        ` : `
+                            <span class="memory-empty">${isLocked ? '未解锁' : '空槽位'}</span>
+                        `}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function updateMemoryCapacity() {
+            const total = gameState.factionScores.order + gameState.factionScores.innovation + 
+                         gameState.factionScores.question + gameState.factionScores.economy;
+            gameState.maxMemorySlots = Math.min(5, 1 + Math.floor(total / 5));
+            document.getElementById('memoryCapacity').textContent = 
+                `${gameState.memorySlots.filter(s => s !== undefined).length}/${gameState.maxMemorySlots}`;
+            renderMemorySlots();
+        }
+
+        function renderEvidenceGrid() {
+            const container = document.getElementById('evidenceGrid');
+            const chapterEvidence = gameData.evidence.filter(e => e.chapter === gameState.currentChapter);
+            
+            container.innerHTML = chapterEvidence.map(e => `
+                <div class="evidence-item ${e.used ? 'used' : ''}" 
+                     draggable="${!e.used}"
+                     ondragstart="onDragStart(event, '${e.id}')"
+                     ondragend="onDragEnd(event)">
+                    ${e.name}
+                </div>
+            `).join('');
+        }
+
+        // ==================== 章节切换 ====================
+        function switchChapter(chapterId) {
+            const chapter = gameData.chapters.find(c => c.id === chapterId);
+            if (chapter && !chapter.locked) {
+                gameState.currentChapter = chapterId;
+                gameState.currentTruth = null;
+                closeInvestigation();
+                renderChapterTabs();
+                renderTruthCards();
+                renderEvidenceGrid();
+            }
+        }
+
+        // ==================== 真相面板操作 ====================
+        function openTruth(truthId) {
+            const chapter = gameData.chapters.find(c => c.id === gameState.currentChapter);
+            const truth = chapter.truths.find(t => t.id === truthId);
+            
+            if (!truth || checkTruthLocked(truth) || gameState.revealedTruths.includes(truthId)) return;
+
+            gameState.currentTruth = truth;
+            gameState.currentQuestion = null;
+
+            document.getElementById('truthSelection').style.display = 'none';
+            document.getElementById('truthInvestigation').classList.add('active');
+            
+            document.getElementById('investigationTitle').textContent = truth.title;
+            document.getElementById('coreQuestionText').textContent = truth.coreQuestion;
+            document.getElementById('investigationStatus').textContent = '调查中';
+            document.getElementById('investigationStatus').classList.remove('revealed');
+
+            renderKeyQuestions();
+            renderEndings();
+        }
+
+        function renderKeyQuestions() {
+            const container = document.getElementById('questionsNetwork');
+            const truth = gameState.currentTruth;
+            if (!truth) return;
+
+            container.innerHTML = truth.keyQuestions.map(q => {
+                let choiceClass = '';
+                if (q.userChoice === 'yes') choiceClass = 'selected-yes';
+                else if (q.userChoice === 'no') choiceClass = 'selected-no';
+                else if (q.userChoice === 'doubt') choiceClass = 'selected-doubt';
+
+                // 计算证据链条进度
+                const chainProgress = q.evidenceChain ?
+                    `${q.evidenceChain.filter(e => e.verified).length}/${q.evidenceChain.length}` : '0/0';
+
+                // 只有当前调查的问题才显示证据链状态
+                const isCurrentQuestion = gameState.currentQuestion && gameState.currentQuestion.id === q.id;
+
+                // 计算联想问题进度
+                let followUpCount = 0;
+                if (q.evidenceChain) {
+                    q.evidenceChain.forEach(e => {
+                        if (e.followUpQuestion && e.followUpQuestion.unlocked) {
+                            followUpCount++;
+                        }
+                    });
+                }
+                const followUpProgress = followUpCount > 0 ? `${followUpCount}个联想问题` : '';
+
+                // 问题已选择时禁用按钮
+                const hasChoice = q.userChoice !== null;
+
+                return `
+                    <div class="key-question ${choiceClass} ${!q.unlocked ? 'locked' : ''} ${isCurrentQuestion ? 'current' : ''}"
+                         data-question-id="${q.id}">
+                        <div class="key-question-header">
+                            关键问题
+                            ${isCurrentQuestion && q.userChoice === 'doubt' ? `<span class="chain-progress" title="证据链条">🔗 ${chainProgress}</span>` : ''}
+                            ${followUpProgress ? `<span class="followup-progress" title="联想问题">💭 ${followUpProgress}</span>` : ''}
+                        </div>
+                        <div class="key-question-text">${q.text}</div>
+                        <div class="key-question-choices">
+                            <button class="choice-btn yes ${q.userChoice === 'yes' ? 'active' : ''}"
+                                    onclick="selectChoice('${q.id}', 'yes')"
+                                    ${hasChoice || !q.unlocked ? 'disabled' : ''}>是</button>
+                            <button class="choice-btn no ${q.userChoice === 'no' ? 'active' : ''}"
+                                    onclick="selectChoice('${q.id}', 'no')"
+                                    ${hasChoice || !q.unlocked ? 'disabled' : ''}>否</button>
+                            <button class="choice-btn doubt ${q.userChoice === 'doubt' ? 'active' : ''}"
+                                    onclick="selectChoice('${q.id}', 'doubt')"
+                                    ${hasChoice || !q.unlocked ? 'disabled' : ''}>存疑</button>
+                        </div>
+                        <div class="evidence-hint ${q.answered ? 'answered' : ''}">
+                            ${q.answered ? '✓ 已完成' : (q.userChoice ? '✓ 已选择' : '')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function closeInvestigation() {
+            gameState.currentTruth = null;
+            gameState.currentQuestion = null;
+            document.getElementById('truthSelection').style.display = 'block';
+            document.getElementById('truthInvestigation').classList.remove('active');
+            document.getElementById('questionDetail').classList.remove('active');
+            renderTruthCards();
+        }
+
+        // ==================== 问题选择 ====================
+        function selectChoice(questionId, choice) {
+            const truth = gameState.currentTruth;
+            if (!truth) return;
+            
+            const question = truth.keyQuestions.find(q => q.id === questionId);
+            if (!question || !question.unlocked) return;
+
+            // 如果问题已有选择，不再允许修改
+            if (question.userChoice !== null) return;
+
+            question.userChoice = choice;
+            renderKeyQuestions();
+
+            // 如果选择"是"或"否"，直接完成问题，不再触发后续
+            if (choice === 'yes' || choice === 'no') {
+                question.answered = true;
+                
+                // 如果当前打开的是这个问题的详情面板，关闭它
+                if (gameState.currentQuestion && gameState.currentQuestion.id === questionId) {
+                    closeQuestionDetail();
+                }
+                
+                // 显示简短提示
+                const resultMsg = document.getElementById('resultMessage');
+                resultMsg.className = 'result-message success';
+                resultMsg.textContent = choice === question.answer ? '✓ 选择正确！' : '✗ 选择错误';
+                
+                // 3秒后隐藏提示
+                setTimeout(() => {
+                    resultMsg.textContent = '';
+                }, 3000);
+                return;
+            }
+
+            // 只有选择"存疑"才继续后续流程
+            // 显示问题详情面板
+            gameState.currentQuestion = question;
+            showQuestionDetail(question);
+        }
+
+        // 关闭问题详情面板
+        function closeQuestionDetail() {
+            const detailPanel = document.getElementById('questionDetail');
+            detailPanel.classList.remove('active');
+            gameState.currentQuestion = null;
+            
+            // 显示证据库
+            const evidencePanel = document.querySelector('.evidence-panel');
+            if (evidencePanel) {
+                evidencePanel.style.display = 'block';
+            }
+        }
+
+        function showQuestionDetail(question) {
+            const detailPanel = document.getElementById('questionDetail');
+            detailPanel.classList.add('active');
+
+            document.getElementById('detailQuestionText').textContent = question.text;
+            
+            // 只有存疑选择才显示证据链提示
+            if (question.userChoice === 'doubt') {
+                const chainComplete = question.evidenceChain ? 
+                    question.evidenceChain.every(e => e.verified) : true;
+                const hintText = chainComplete 
+                    ? '✓ 证据链条已完全验证' 
+                    : '请按顺序拖拽证据验证证据链条';
+                document.getElementById('detailEvidenceHint').textContent = hintText;
+            } else {
+                document.getElementById('detailEvidenceHint').textContent = '';
+            }
+
+            // 渲染证据链条（只有存疑才显示）
+            renderEvidenceChain(question);
+
+            // 渲染联想问题（只有存疑才显示）
+            renderFollowUpQuestions(question);
+
+            // 更新保存到记忆按钮状态
+            updateSaveMemoryButton(question);
+
+            // 渲染可用证据（只有存疑才显示）
+            renderAvailableEvidence(question);
+
+            // 重置结果消息
+            const resultMsg = document.getElementById('resultMessage');
+            resultMsg.className = 'result-message';
+            resultMsg.textContent = '';
+
+            // 重置拖拽区域
+            const dropZone = document.getElementById('evidenceDropZone');
+            dropZone.className = 'evidence-drop-zone';
+            dropZone.innerHTML = '<span class="memory-empty">拖拽证据到此处</span>';
+        }
+
+        // 渲染证据链条
+        function renderEvidenceChain(question) {
+            const container = document.getElementById('evidenceChainContainer');
+            
+            if (!question.evidenceChain) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '<div style="margin-bottom: 15px;"><strong style="color: var(--warning);">🔗 证据链条（按顺序验证）</strong></div>';
+            
+            question.evidenceChain.forEach((step, index) => {
+                const isCurrent = !step.verified && step.unlocked;
+                const statusClass = step.verified ? 'completed' : (step.unlocked ? 'current' : 'locked');
+                const statusText = step.verified ? '✓ 已验证' : (step.unlocked ? '待验证' : '🔒 未解锁');
+                
+                html += `
+                    <div class="evidence-chain-step ${statusClass}">
+                        <div class="chain-step-header">
+                            <span class="chain-step-number">步骤 ${index + 1}</span>
+                            <span class="chain-step-status ${step.verified ? 'completed' : ''}">${statusText}</span>
+                        </div>
+                        <div class="chain-evidence-name">📎 ${step.evidence}</div>
+                        <div class="chain-hint">${isCurrent ? step.hint : (step.verified ? '已验证线索' : (step.unlocked ? step.hint : '请先完成上一步'))}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 渲染联想问题（只有存疑才显示，且不需要选择答案）
+        function renderFollowUpQuestions(question) {
+            const section = document.getElementById('followUpSection');
+            const container = document.getElementById('followUpQuestions');
+
+            // 只有存疑选择才显示联想问题
+            if (!question.evidenceChain || question.userChoice !== 'doubt') {
+                section.style.display = 'none';
+                return;
+            }
+
+            const unlockedFollowUps = question.evidenceChain
+                .filter(e => e.followUpQuestion && e.followUpQuestion.unlocked)
+                .map(e => e.followUpQuestion);
+
+            if (unlockedFollowUps.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            
+            let html = '';
+            unlockedFollowUps.forEach(fq => {
+                html += `
+                    <div class="follow-up-item">
+                        <div class="question-text">💭 ${fq.text}</div>
+                        <div class="evidence-hint">可直接拖拽证据验证，或存入临时记忆</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            
+            // 总是显示保存到记忆按钮（如果有待处理的联想问题）
+            const btn = document.getElementById('saveToMemoryBtn');
+            btn.style.display = 'block';
+        }
+
+        // 更新保存到记忆按钮状态
+        function updateSaveMemoryButton(question) {
+            const btn = document.getElementById('saveToMemoryBtn');
+            
+            // 只有存疑选择且有联想问题时才显示按钮
+            if (!question.evidenceChain || question.userChoice !== 'doubt') {
+                btn.style.display = 'none';
+                return;
+            }
+
+            const hasFollowUps = question.evidenceChain.some(e => 
+                e.followUpQuestion && e.followUpQuestion.unlocked
+            );
+
+            btn.style.display = hasFollowUps ? 'block' : 'none';
+        }
+
+        // 保存到临时记忆
+        function saveToMemory() {
+            const question = gameState.currentQuestion;
+            if (!question || !question.evidenceChain) return;
+
+            // 收集所有已解锁的联想问题（不再需要选择答案）
+            const followUpsToSave = [];
+            question.evidenceChain.forEach(e => {
+                if (e.followUpQuestion && e.followUpQuestion.unlocked) {
+                    followUpsToSave.push({
+                        text: e.followUpQuestion.text,
+                        questionId: e.followUpQuestion.id,
+                        parentQuestion: question.text,
+                        chainEvidence: e.evidence // 记录是哪个证据链解锁的
+                    });
+                }
+            });
+
+            if (followUpsToSave.length === 0) return;
+
+            let savedCount = 0;
+            // 检查记忆空间，逐个保存
+            followUpsToSave.forEach(fu => {
+                if (gameState.memorySlots.length >= gameState.maxMemorySlots) {
+                    // 空间不足时停止
+                    if (savedCount === 0) {
+                        alert('记忆空间不足！');
+                    } else {
+                        alert(`记忆空间不足，已保存 ${savedCount} 条`);
+                    }
+                    return;
+                }
+
+                gameState.memorySlots.push({
+                    text: fu.text,
+                    questionId: fu.questionId,
+                    parentQuestion: fu.parentQuestion,
+                    chainEvidence: fu.chainEvidence,
+                    type: 'followUp'
+                });
+                savedCount++;
+            });
+
+            if (savedCount > 0) {
+                renderMemorySlots();
+                updateMemoryCapacity();
+                // 隐藏联想问题区域（已全部保存）
+                document.getElementById('followUpSection').style.display = 'none';
+                document.getElementById('saveToMemoryBtn').style.display = 'none';
+                
+                // 显示提示
+                const resultMsg = document.getElementById('resultMessage');
+                resultMsg.className = 'result-message success';
+                resultMsg.textContent = `已存入 ${savedCount} 条联想问题到临时记忆`;
+                setTimeout(() => {
+                    resultMsg.textContent = '';
+                }, 3000);
+            }
+        }
+
+        function renderAvailableEvidence(question) {
+            const container = document.getElementById('availableEvidence');
+            const chapterEvidence = gameData.evidence.filter(e => e.chapter === gameState.currentChapter && !e.used);
+            
+            // 如果有证据链条，找到当前步骤需要的证据
+            let headerText = '可拖拽证据：';
+            if (question.evidenceChain) {
+                const currentStep = question.evidenceChain.find(s => !s.verified && s.unlocked);
+                if (currentStep) {
+                    headerText = `📋 当前需要验证：<strong>${currentStep.evidence}</strong>`;
+                } else if (question.evidenceChain.every(s => s.verified)) {
+                    headerText = '✓ 所有证据已验证完毕';
+                }
+            }
+            
+            container.innerHTML = `
+                <div style="margin-bottom: 10px; color: var(--light); font-size: 13px;">
+                    ${headerText}
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    ${chapterEvidence.map(e => `
+                        <div class="evidence-item" 
+                             draggable="true"
+                             ondragstart="onDragStart(event, '${e.id}')"
+                             ondragend="onDragEnd(event)">
+                            ${e.name}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // 隐藏证据库
+            document.querySelector('.evidence-panel').style.display = 'none';
+        }
+
+        // ==================== 拖拽系统 ====================
+        function onDragStart(event, evidenceId) {
+            gameState.draggedEvidence = evidenceId;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function onDragEnd(event) {
+            event.target.classList.remove('dragging');
+            gameState.draggedEvidence = null;
+        }
+
+        function setupDropZone() {
+            const dropZone = document.getElementById('evidenceDropZone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                if (gameState.draggedEvidence && gameState.currentQuestion) {
+                    verifyEvidence(gameState.draggedEvidence, gameState.currentQuestion);
+                }
+            });
+        }
+
+        function verifyEvidence(evidenceId, question) {
+            const evidence = gameData.evidence.find(e => e.id === evidenceId);
+            const dropZone = document.getElementById('evidenceDropZone');
+            const resultMsg = document.getElementById('resultMessage');
+
+            // 如果有证据链条，按链条验证
+            if (question.evidenceChain) {
+                // 找到当前需要验证的步骤
+                const currentStep = question.evidenceChain.find(s => !s.verified && s.unlocked);
+                
+                if (!currentStep) {
+                    // 所有步骤已完成，不显示任何提示
+                    resultMsg.className = 'result-message';
+                    resultMsg.textContent = '';
+                    return;
+                }
+
+                // 检查证据是否匹配当前步骤
+                const isCorrect = currentStep.evidence === evidence.name;
+
+                if (isCorrect) {
+                    // 正确证据
+                    evidence.used = true;
+                    currentStep.verified = true;
+                    
+                    dropZone.classList.add('correct');
+                    // 不覆盖拖拽区域内容，只添加视觉反馈
+                    // dropZone.innerHTML = `<span style="color: var(--success);">✓ 证据有效！步骤 ${question.evidenceChain.indexOf(currentStep) + 1} 完成</span>`;
+                    
+                    resultMsg.className = 'result-message success';
+                    resultMsg.textContent = currentStep.followUpQuestion ? 
+                        `发现联想问题"${currentStep.followUpQuestion.text}"` :
+                        '验证成功！';
+
+                    // 如果有联想问题，解锁它
+                    if (currentStep.followUpQuestion) {
+                        currentStep.followUpQuestion.unlocked = true;
+                        resultMsg.textContent += ' 已解锁联想问题！';
+                    }
+
+                    // 检查是否所有链条都完成了
+                    const allVerified = question.evidenceChain.every(s => s.verified);
+                    if (allVerified) {
+                        question.answered = true;
+                        // 添加阵营分数
+                        Object.keys(question.factionPoints).forEach(key => {
+                            if (question.userChoice === question.answer) {
+                                gameState.factionScores[key] += question.factionPoints[key];
+                            }
+                        });
+                        resultMsg.textContent += ' 证据链条完成！';
+                    } else {
+                        // 解锁下一步
+                        const nextIndex = question.evidenceChain.indexOf(currentStep) + 1;
+                        if (nextIndex < question.evidenceChain.length) {
+                            question.evidenceChain[nextIndex].unlocked = true;
+                        }
+                    }
+
+                    renderFactionScores();
+                    updateMemoryCapacity();
+                    renderEvidenceGrid();
+                    renderKeyQuestions();
+                    renderEvidenceChain(question);
+                    renderAvailableEvidence(question);
+                    renderFollowUpQuestions(question);
+                    updateSaveMemoryButton(question);
+
+                    // 验证成功后重置拖拽区域
+                    setTimeout(() => {
+                        dropZone.classList.remove('correct');
+                    }, 300);
+
+                    // 检查是否解锁新问题
+                    checkUnlockNewQuestions();
+                } else {
+                    // 错误证据
+                    dropZone.classList.add('incorrect');
+                    // 不覆盖拖拽区域内容
+                    
+                    resultMsg.className = 'result-message failure';
+                    resultMsg.textContent = `这个证据不能验证当前步骤。当前需要验证：${currentStep.evidence}`;
+                }
+                return;
+            }
+
+            // 旧版逻辑：直接验证
+            const isCorrect = question.evidenceRequired && question.evidenceRequired.includes(evidence.name);
+
+            if (isCorrect) {
+                evidence.used = true;
+                question.answered = true;
+                
+                dropZone.classList.add('correct');
+                // 不覆盖拖拽区域内容
+                
+                resultMsg.className = 'result-message success';
+                resultMsg.textContent = '验证通过！';
+
+                Object.keys(question.factionPoints).forEach(key => {
+                    if (question.userChoice === question.answer) {
+                        gameState.factionScores[key] += question.factionPoints[key];
+                    }
+                });
+
+                renderFactionScores();
+                updateMemoryCapacity();
+                renderEvidenceGrid();
+                renderKeyQuestions();
+                checkUnlockNewQuestions();
+
+                // 验证成功后重置拖拽区域
+                setTimeout(() => {
+                    dropZone.classList.remove('correct');
+                }, 300);
+            } else {
+                dropZone.classList.add('incorrect');
+                // 不覆盖拖拽区域内容
+                
+                resultMsg.className = 'result-message failure';
+                resultMsg.textContent = '尽管我做出了这种判断，但似乎没有相关信息可以佐证。请尝试其他证据。';
+            }
+        }
+
+        function checkUnlockNewQuestions() {
+            const truth = gameState.currentTruth;
+            if (!truth) return;
+
+            // 检查是否有问题需要解锁
+            truth.keyQuestions.forEach(q => {
+                if (!q.unlocked && q.requirement) {
+                    if (q.requirement.fromTruth && gameState.revealedTruths.includes(q.requirement.fromTruth)) {
+                        q.unlocked = true;
+                    }
+                }
+            });
+        }
+
+        // ==================== 临时记忆 ====================
+        function addToMemory(question) {
+            if (gameState.memorySlots.length >= gameState.maxMemorySlots) {
+                alert('记忆空间已满！需要提升阵营分数来解锁更多空间。');
+                return;
+            }
+
+            gameState.memorySlots.push({
+                text: question.text,
+                questionId: question.id
+            });
+
+            renderMemorySlots();
+            updateMemoryCapacity();
+        }
+
+        function removeFromMemory(index) {
+            gameState.memorySlots.splice(index, 1);
+            renderMemorySlots();
+            updateMemoryCapacity();
+        }
+
+        // ==================== 结局系统 ====================
+        function checkEndingRequirement(ending) {
+            return Object.keys(ending.requirement).every(key => 
+                gameState.factionScores[key] >= ending.requirement[key]
+            );
+        }
+
+        function formatRequirements(req) {
+            const names = { order: '秩序', innovation: '创新', question: '质疑', economy: '经济' };
+            return Object.entries(req).map(([k, v]) => `${names[k]}>${v}`).join(', ');
+        }
+
+        function renderEndings() {
+            const container = document.getElementById('endingOptions');
+            const truth = gameState.currentTruth;
+            if (!truth) return;
+
+            container.innerHTML = truth.endings.map(ending => {
+                const isSelected = gameState.selectedEnding === ending.id;
+                return `
+                    <div class="ending-option ${ending.recommended ? 'recommended' : ''} ${isSelected ? 'selected' : ''}"
+                         onclick="selectEnding('${ending.id}')"
+                         title="点击预览/选择此结局（Debug功能）">
+                        <div class="ending-option-title">${ending.title} ${ending.recommended ? '★' : ''} ${isSelected ? '✓' : ''}</div>
+                        <div class="ending-option-desc">${ending.description}</div>
+                        <div class="ending-req">所需: ${formatRequirements(ending.requirement)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectEnding(endingId) {
+            const truth = gameState.currentTruth;
+            if (!truth) return;
+            
+            const ending = truth.endings.find(e => e.id === endingId);
+            if (!ending) return;
+
+            // 直接公开此真相
+            gameState.selectedEnding = endingId;
+            
+            // 添加结局加成
+            Object.keys(ending.bonus).forEach(key => {
+                gameState.factionScores[key] += ending.bonus[key];
+            });
+
+            // 标记真相为已公开
+            gameState.revealedTruths.push(truth.id);
+            truth.completed = true;
+
+            // 显示结局弹窗
+            showEndingModal(ending);
+
+            // 更新UI
+            renderFactionScores();
+            renderTruthCards();
+            renderEndings();
+            unlockNextChapter();
+            document.getElementById('investigationStatus').textContent = '已公开';
+            document.getElementById('investigationStatus').classList.add('revealed');
+            document.getElementById('revealTruthBtn').disabled = true;
+            
+            // 关闭真相调查面板
+            setTimeout(() => {
+                closeInvestigation();
+            }, 500);
+        }
+
+        function revealTruth() {
+            const truth = gameState.currentTruth;
+            if (!truth) return;
+
+            // 检查是否所有关键问题都已选择
+            const allAnswered = truth.keyQuestions.every(q => q.userChoice !== null);
+            if (!allAnswered) {
+                alert('请先回答所有关键问题！');
+                return;
+            }
+
+            // 计算关键问题答对后的阵营分数（只在真相公开时添加）
+            truth.keyQuestions.forEach(q => {
+                if (q.userChoice === q.answer) {
+                    Object.keys(q.factionPoints).forEach(key => {
+                        gameState.factionScores[key] += q.factionPoints[key];
+                    });
+                }
+            });
+
+            // 找出最适合的结局（debug模式优先使用手动选择的结局）
+            let bestEnding;
+            if (gameState.selectedEnding) {
+                // 使用debug手动选择的结局
+                bestEnding = truth.endings.find(e => e.id === gameState.selectedEnding);
+                if (!bestEnding) {
+                    bestEnding = truth.endings[0];
+                }
+            } else {
+                // 自动匹配结局
+                bestEnding = truth.endings.find(e => e.recommended) || truth.endings[0];
+                let maxScore = -1;
+                truth.endings.forEach(ending => {
+                    const score = Object.keys(ending.requirement).reduce((sum, key) => {
+                        return sum + Math.max(0, gameState.factionScores[key] - ending.requirement[key]);
+                    }, 0);
+                    if (score > maxScore) {
+                        maxScore = score;
+                        bestEnding = ending;
+                    }
+                });
+            }
+
+            // 添加结局加成
+            Object.keys(bestEnding.bonus).forEach(key => {
+                gameState.factionScores[key] += bestEnding.bonus[key];
+            });
+
+            // 标记真相为已公开
+            gameState.revealedTruths.push(truth.id);
+            truth.completed = true;
+
+            // 显示结局弹窗
+            showEndingModal(bestEnding);
+
+            // 更新UI
+            renderFactionScores();
+            document.getElementById('investigationStatus').textContent = '已公开';
+            document.getElementById('investigationStatus').classList.add('revealed');
+            document.getElementById('revealTruthBtn').disabled = true;
+
+            // 解锁新章节
+            unlockNextChapter();
+        }
+
+        function showEndingModal(ending) {
+            const modal = document.getElementById('endingModal');
+            document.getElementById('endingTitle').textContent = ending.title;
+            document.getElementById('endingDesc').textContent = ending.description;
+            
+            const bonusContainer = document.getElementById('endingBonus');
+            bonusContainer.innerHTML = Object.keys(ending.bonus).map(key => {
+                const names = { order: '秩序', innovation: '创新', question: '质疑', economy: '经济' };
+                return `<div class="bonus-item">${names[key]} <span>+${ending.bonus[key]}</span></div>`;
+            }).join('');
+
+            modal.classList.add('active');
+        }
+
+        function closeEndingModal() {
+            document.getElementById('endingModal').classList.remove('active');
+            closeInvestigation();
+        }
+
+        function unlockNextChapter() {
+            // 根据完成的真相数量解锁下一章节
+            const revealedCount = gameState.revealedTruths.length;
+            
+            gameData.chapters.forEach((chapter, index) => {
+                if (index > 0 && revealedCount >= index * 2) {
+                    chapter.locked = false;
+                }
+            });
+
+            renderChapterTabs();
+        }
+
+        // ==================== 启动 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            setupDropZone();
+        });
+    </script>
+</body>
+</html>
