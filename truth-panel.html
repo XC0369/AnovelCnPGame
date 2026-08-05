@@ -621,6 +621,166 @@
             gap: 8px;
         }
 
+        /* NPC 对话区域 */
+        .npc-dialogue-area {
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .npc-dialogue-area h3 {
+            color: var(--light);
+            margin-bottom: 15px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .npc-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .npc-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .npc-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .npc-button.locked {
+            background: linear-gradient(135deg, #7f8c8d 0%, #6c7a7d 100%);
+            cursor: not-allowed;
+        }
+
+        .npc-button.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .npc-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .npc-chat {
+            margin-top: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .npc-chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .npc-name {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .close-chat {
+            background: transparent;
+            border: none;
+            color: #bdc3c7;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-chat:hover {
+            color: white;
+        }
+
+        .npc-chat-messages {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .chat-message {
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .chat-message.npc {
+            background: rgba(52, 152, 219, 0.3);
+            margin-right: 20px;
+        }
+
+        .chat-message.player {
+            background: rgba(46, 204, 113, 0.3);
+            margin-left: 20px;
+            text-align: right;
+        }
+
+        .npc-chat-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-option {
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .chat-option:hover:not(.locked) {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .chat-option.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chat-option.locked::after {
+            content: ' [阵营要求不足]';
+            color: #e74c3c;
+            font-size: 12px;
+        }
+
+        .faction-req {
+            font-size: 11px;
+            color: #bdc3c7;
+            margin-top: 4px;
+        }
+
         /* 结局弹窗 */
         .ending-modal {
             position: fixed;
@@ -981,6 +1141,123 @@
         .memory-follow-up button:hover {
             background: #c0392b;
         }
+
+        /* Debug面板样式 */
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .debug-btn {
+            padding: 6px 12px;
+            background: rgba(100, 100, 100, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .debug-btn:hover {
+            background: rgba(100, 100, 100, 0.7);
+            color: #fff;
+        }
+
+        .debug-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .debug-modal-content {
+            background: #2c3e50;
+            border-radius: 12px;
+            padding: 25px;
+            min-width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .debug-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .debug-modal-header h3 {
+            color: #ecf0f1;
+            margin: 0;
+        }
+
+        .debug-close-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .debug-close-btn:hover {
+            color: #fff;
+        }
+
+        .debug-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .debug-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .debug-row label {
+            color: #ecf0f1;
+            font-size: 14px;
+        }
+
+        .debug-row input {
+            width: 100px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .debug-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .debug-apply {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .debug-apply:hover {
+            background: #3498db;
+        }
     </style>
 </head>
 <body>
@@ -990,8 +1267,40 @@
             <div class="chapter-tabs" id="chapterTabs">
                 <!-- 动态生成 -->
             </div>
-            <div class="faction-scores" id="factionScores">
-                <!-- 动态生成 -->
+        <div class="top-bar-right">
+                <div class="faction-scores" id="factionScores">
+                    <!-- 动态生成 -->
+                </div>
+                <button class="debug-btn" onclick="openDebugPanel()">⚙️ Debug</button>
+            </div>
+        </div>
+        
+        <!-- Debug弹窗 -->
+        <div id="debugPanel" class="debug-modal" style="display: none;">
+            <div class="debug-modal-content">
+                <div class="debug-modal-header">
+                    <h3>⚙️ 阵营分数设置</h3>
+                    <button class="debug-close-btn" onclick="closeDebugPanel()">×</button>
+                </div>
+                <div class="debug-content">
+                    <div class="debug-row">
+                        <label>🛡️ 秩序</label>
+                        <input type="number" id="debugOrder" value="0" min="0">
+                    </div>
+                    <div class="debug-row">
+                        <label>💡 创新</label>
+                        <input type="number" id="debugInnovation" value="0" min="0">
+                    </div>
+                    <div class="debug-row">
+                        <label>❓ 质疑</label>
+                        <input type="number" id="debugQuestion" value="0" min="0">
+                    </div>
+                    <div class="debug-row">
+                        <label>💰 经济</label>
+                        <input type="number" id="debugEconomy" value="0" min="0">
+                    </div>
+                    <button class="debug-apply" onclick="applyDebugScores()">应用设置</button>
+                </div>
             </div>
         </div>
 
@@ -1085,6 +1394,34 @@
                         <h3>证据库</h3>
                         <div class="evidence-grid" id="evidenceGrid">
                             <!-- 动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- NPC 对话区域 -->
+                    <div class="npc-dialogue-area" id="npcDialogueArea">
+                        <h3>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            区域 NPC
+                        </h3>
+                        <div class="npc-list" id="npcList">
+                            <!-- 动态生成 -->
+                        </div>
+                        <div class="npc-chat" id="npcChat" style="display: none;">
+                            <div class="npc-chat-header">
+                                <span class="npc-name" id="currentNpcName">NPC名称</span>
+                                <button class="close-chat" onclick="closeNpcChat()">×</button>
+                            </div>
+                            <div class="npc-chat-messages" id="npcChatMessages">
+                                <!-- 对话内容 -->
+                            </div>
+                            <div class="npc-chat-options" id="npcChatOptions">
+                                <!-- 对话选项 -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1707,7 +2044,7 @@
                                 }
                             ],
                             completed: false,
-                            requirement: { truthId: "truth1-1", ended: true }
+                            requirement: { factionReq: { order: 5, question: 3 } }
                         }
                     ]
                 },
@@ -1986,23 +2323,23 @@
                 { id: "e2", name: "占星工具箱", chapter: 1, used: false },
                 { id: "e3", name: "占星会议记录", chapter: 1, used: false },
                 { id: "e4", name: "法律证书", chapter: 1, used: false },
-                { id: "e5", name: "庭审记录本", chapter: 1, used: false },
+                { id: "e5", name: "庭审记录本", chapter: 0, used: false },
                 { id: "e6", name: "司法考试通过名单", chapter: 1, used: false },
                 { id: "e7", name: "直播设备", chapter: 1, used: false },
                 { id: "e8", name: "粉丝名单", chapter: 1, used: false },
                 { id: "e9", name: "直播回放", chapter: 1, used: false },
-                { id: "e10", name: "军事勋章", chapter: 1, used: false },
+                { id: "e10", name: "军事勋章", chapter: 0, used: false },
                 { id: "e11", name: "退役证明", chapter: 1, used: false },
                 { id: "e12", name: "部队调动记录", chapter: 1, used: false },
                 { id: "e13", name: "财务报表", chapter: 1, used: false },
                 { id: "e14", name: "计算器", chapter: 1, used: false },
-                { id: "e15", name: "审计报告", chapter: 1, used: false },
-                { id: "e16", name: "银行转账记录", chapter: 1, used: false },
+                { id: "e15", name: "审计报告", chapter: 0, used: false },
+                { id: "e16", name: "银行转账记录", chapter: 0, used: false },
                 { id: "e17", name: "外汇兑换单", chapter: 1, used: false },
                 { id: "e18", name: "境外账户开户文件", chapter: 1, used: false },
                 { id: "e19", name: "捐款收据", chapter: 1, used: false },
-                { id: "e20", name: "慈善机构名单", chapter: 1, used: false },
-                { id: "e21", name: "资金流向追踪", chapter: 1, used: false },
+                { id: "e20", name: "慈善机构名单", chapter: 0, used: false },
+                { id: "e21", name: "资金流向追踪", chapter: 0, used: false },
                 { id: "e22", name: "私人账户明细", chapter: 1, used: false },
                 { id: "e23", name: "奢侈品收据", chapter: 1, used: false },
                 { id: "e24", name: "奢侈品店铺监控", chapter: 1, used: false },
@@ -2078,6 +2415,673 @@
                 { id: "e92", name: "研发日志", chapter: 3, used: false },
                 { id: "e93", name: "临床试验数据", chapter: 3, used: false },
                 { id: "e94", name: "药品分发记录", chapter: 3, used: false }
+            ],
+            // NPC 数据
+            npcs: [
+                {
+                    id: "npc1",
+                    name: "情报员阿杰",
+                    avatar: "🔍",
+                    location: "档案室",
+                    minChapter: 1,
+                    dialogues: [
+                        {
+                            id: "d1",
+                            text: "（正在整理文件）你好，需要我帮你查些资料吗？",
+                            options: [
+                                {
+                                    id: "o1",
+                                    text: "最近有什么可疑的人出入吗？",
+                                    nextId: "d2",
+                                    factionReq: null
+                                },
+                                {
+                                    id: "o2",
+                                    text: "我想看看上个月的访客记录",
+                                    nextId: "d3",
+                                    factionReq: { question: 5 }
+                                },
+                                {
+                                    id: "o3",
+                                    text: "给我看看机密文件",
+                                    nextId: "d4",
+                                    factionReq: { order: 10, innovation: 5 },
+                                    reward: { evidence: "e5", points: { question: 2 } }
+                                },
+                                {
+                                    id: "o9",
+                                    text: "（出示经济调查局证件）这是官方调阅",
+                                    nextId: "d6",
+                                    factionReq: { economy: 8 }
+                                },
+                                {
+                                    id: "o10",
+                                    text: "我需要调取所有与王局长的相关档案",
+                                    nextId: "d7",
+                                    factionReq: { order: 12 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d2",
+                            text: "嗯...确实有几个人行迹可疑，但我不方便多说。",
+                            options: [
+                                {
+                                    id: "o4",
+                                    text: "给我一个名字就好",
+                                    nextId: "d5",
+                                    factionReq: { economy: 3 }
+                                },
+                                {
+                                    id: "o5",
+                                    text: "好的，谢谢",
+                                    nextId: null,
+                                    factionReq: null
+                                },
+                                {
+                                    id: "o11",
+                                    text: "我有权知道这些信息",
+                                    nextId: "d8",
+                                    factionReq: { order: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d3",
+                            text: "（警惕地看了看四周）这个需要更高的权限，不过...既然你问了...（小声）第三排柜子里有一份备份。",
+                            options: [
+                                {
+                                    id: "o6",
+                                    text: "明白了，我会去看看",
+                                    nextId: null,
+                                    factionReq: null,
+                                    reward: { evidence: "e10" }
+                                },
+                                {
+                                    id: "o12",
+                                    text: "这些记录里有王局长的活动轨迹吗？",
+                                    nextId: "d9",
+                                    factionReq: { question: 6 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d4",
+                            text: "！（慌张）你怎么会知道那些...算了，既然你有权限，这是你需要的。",
+                            options: [
+                                {
+                                    id: "o7",
+                                    text: "我会谨慎处理的",
+                                    nextId: null,
+                                    factionReq: null
+                                }
+                            ]
+                        },
+                        {
+                            id: "d5",
+                            text: "（压低声音）王局长最近和外面的人联系频繁...我说什么都没发生。",
+                            options: [
+                                {
+                                    id: "o8",
+                                    text: "收到，我会调查的",
+                                    nextId: null,
+                                    factionReq: null,
+                                    reward: { points: { question: 3 } }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d6",
+                            text: "（立正敬礼）长官！请跟我来，这些是上个月的异常资金流动记录。",
+                            options: [
+                                {
+                                    id: "o13",
+                                    text: "很好，继续监视",
+                                    nextId: null,
+                                    factionReq: null
+                                },
+                                {
+                                    id: "o14",
+                                    text: "这些资金流向哪里？",
+                                    nextId: "d10",
+                                    factionReq: { economy: 10 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d7",
+                            text: "（查阅索引）王局长的档案...在最高保密区。不过我可以告诉你，他在三年前有过一次秘密出行记录。",
+                            options: [
+                                {
+                                    id: "o15",
+                                    text: "出行的目的地是哪里？",
+                                    nextId: "d11",
+                                    factionReq: { question: 8 }
+                                },
+                                {
+                                    id: "o16",
+                                    text: "记录显示他见了什么人？",
+                                    nextId: "d12",
+                                    factionReq: { innovation: 6 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d8",
+                            text: "（叹气）好吧，看在你这么坚持的份上...那个人叫'影子'，是地下组织的重要成员。",
+                            options: [
+                                {
+                                    id: "o17",
+                                    text: "'影子'现在在哪里？",
+                                    nextId: null,
+                                    factionReq: { question: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d9",
+                            text: "（翻阅档案）有...10月12日他深夜离开了大楼，第二天凌晨才回来。另外，他的通讯记录里有一串神秘号码。",
+                            options: [
+                                {
+                                    id: "o18",
+                                    text: "神秘号码能追踪到吗？",
+                                    nextId: null,
+                                    factionReq: { innovation: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d10",
+                            text: "大部分流向了一个离岸账户，账户持有人信息被加密了。但我查到了其中一笔钱去了一个叫'新秩序基金会'的组织。",
+                            options: [
+                                {
+                                    id: "o19",
+                                    text: "这个基金会的背景是什么？",
+                                    nextId: null,
+                                    factionReq: null
+                                }
+                            ]
+                        },
+                        {
+                            id: "d11",
+                            text: "官方记录显示是'学术交流'，但实际上...他去了边境的一个秘密基地。那里似乎是地下组织的训练营。",
+                            options: [
+                                {
+                                    id: "o20",
+                                    text: "有训练营的具体位置吗？",
+                                    nextId: null,
+                                    factionReq: { economy: 6 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "d12",
+                            text: "（调出通讯记录）根据通讯时间分析，他见了至少三个不同的人。其中一个的代号是'北极星'，似乎是组织的核心人物。",
+                            options: [
+                                {
+                                    id: "o21",
+                                    text: "'北极星'的真实身份是什么？",
+                                    nextId: null,
+                                    factionReq: { order: 10 }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "npc2",
+                    name: "技术主管林博士",
+                    avatar: "💻",
+                    location: "实验室",
+                    minChapter: 1,
+                    dialogues: [
+                        {
+                            id: "ld1",
+                            text: "（盯着屏幕）我在分析一些数据，你有什么事？",
+                            options: [
+                                {
+                                    id: "lo1",
+                                    text: "你的分析有什么发现？",
+                                    nextId: "ld2",
+                                    factionReq: null
+                                },
+                                {
+                                    id: "lo2",
+                                    text: "能给我权限看核心数据吗？",
+                                    nextId: "ld3",
+                                    factionReq: { innovation: 8 }
+                                },
+                                {
+                                    id: "lo7",
+                                    text: "我需要所有服务器的访问日志",
+                                    nextId: "ld5",
+                                    factionReq: { order: 7 }
+                                },
+                                {
+                                    id: "lo8",
+                                    text: "最近系统有没有被入侵的痕迹？",
+                                    nextId: "ld6",
+                                    factionReq: { innovation: 5 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld2",
+                            text: "有些异常...数据显示有内部人员篡改了部分记录。",
+                            options: [
+                                {
+                                    id: "lo3",
+                                    text: "能导出这份数据吗？",
+                                    nextId: "ld4",
+                                    factionReq: { economy: 5 }
+                                },
+                                {
+                                    id: "lo4",
+                                    text: "知道了，继续分析吧",
+                                    nextId: null,
+                                    factionReq: null
+                                },
+                                {
+                                    id: "lo9",
+                                    text: "篡改的时间点是什么时候？",
+                                    nextId: "ld7",
+                                    factionReq: { question: 6 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld3",
+                            text: "（推了推眼镜）可以，但你要保证不外泄。这是完整的数据分析报告。",
+                            options: [
+                                {
+                                    id: "lo5",
+                                    text: "放心，我有分寸",
+                                    nextId: null,
+                                    factionReq: null,
+                                    reward: { evidence: "e15", points: { innovation: 2 } }
+                                },
+                                {
+                                    id: "lo10",
+                                    text: "这些数据指向谁？",
+                                    nextId: "ld8",
+                                    factionReq: { question: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld4",
+                            text: "（操作打印机）给，数据报告。顺便说一句，篡改记录的人很专业，不是普通员工。",
+                            options: [
+                                {
+                                    id: "lo6",
+                                    text: "谢谢提示",
+                                    nextId: null,
+                                    factionReq: null,
+                                    reward: { evidence: "e16", points: { order: 1 } }
+                                },
+                                {
+                                    id: "lo11",
+                                    text: "是行政人员还是技术人员？",
+                                    nextId: "ld9",
+                                    factionReq: { innovation: 6 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld5",
+                            text: "（调出日志）访问日志...最近一周有37次异常访问，其中16次来自外部IP。最关键的是，有人从王局长的工位远程下载了加密文件。",
+                            options: [
+                                {
+                                    id: "lo12",
+                                    text: "能追踪到下载的内容吗？",
+                                    nextId: "ld10",
+                                    factionReq: { economy: 7 }
+                                },
+                                {
+                                    id: "lo13",
+                                    text: "外部IP的源头在哪里？",
+                                    nextId: "ld11",
+                                    factionReq: { innovation: 9 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld6",
+                            text: "确实有。我们检测到三个后门程序，已经被清理了。但入侵者的手法很高明，应该是专业黑客。",
+                            options: [
+                                {
+                                    id: "lo14",
+                                    text: "黑客有没有留下什么线索？",
+                                    nextId: "ld12",
+                                    factionReq: null
+                                },
+                                {
+                                    id: "lo15",
+                                    text: "系统还能继续使用吗？",
+                                    nextId: null,
+                                    factionReq: { order: 5 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld7",
+                            text: "（指向屏幕）10月14日凌晨3点17分，正好是王局长加班的那个晚上。你看这个时间戳...前后只用了不到两分钟就完成了篡改。",
+                            options: [
+                                {
+                                    id: "lo16",
+                                    text: "两分钟内能篡改多少数据？",
+                                    nextId: null,
+                                    factionReq: { innovation: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld8",
+                            text: "从数据模式来看...篡改的时间点和王局长的登录时间高度吻合。而且，只有他才有权限访问那个数据库。",
+                            options: [
+                                {
+                                    id: "lo17",
+                                    text: "有没有可能是账号被盗用？",
+                                    nextId: "ld13",
+                                    factionReq: { question: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld9",
+                            text: "（摇头）不是普通技术人员。篡改的方式需要同时具备行政权限和技术知识。我查过，这个权限组合只有三个人有。",
+                            options: [
+                                {
+                                    id: "lo18",
+                                    text: "另外两个人是谁？",
+                                    nextId: null,
+                                    factionReq: { order: 9 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld10",
+                            text: "文件名被加密了，但我破解了一部分。是关于...一个叫'黎明计划'的项目。内容涉及大量资金转移和人员调度。",
+                            options: [
+                                {
+                                    id: "lo19",
+                                    text: "这个计划的目标是什么？",
+                                    nextId: null,
+                                    factionReq: { economy: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld11",
+                            text: "（指向地图）大部分来自东南亚地区，但有一个IP很特殊...来自国内，而且是政府内网。看这里，这个IP段是专门用于...特殊任务的。",
+                            options: [
+                                {
+                                    id: "lo20",
+                                    text: "能定位到具体部门吗？",
+                                    nextId: null,
+                                    factionReq: { order: 11 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld12",
+                            text: "有一点很奇怪...黑客使用的代码风格，和我们内部的开发规范非常相似。像是...有人把源代码泄露了。",
+                            options: [
+                                {
+                                    id: "lo21",
+                                    text: "源代码什么时候泄露的？",
+                                    nextId: null,
+                                    factionReq: { innovation: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "ld13",
+                            text: "我也考虑过这个可能。但登录时使用了生物识别，只有本人才能通过。所以...要么是他本人，要么有人能在王局长眼皮底下完成这一切。",
+                            options: [
+                                {
+                                    id: "lo22",
+                                    text: "有没有可能是内部配合？",
+                                    nextId: null,
+                                    factionReq: { order: 10, innovation: 5 }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "npc3",
+                    name: "保安队长老张",
+                    avatar: "🛡️",
+                    location: "监控室",
+                    minChapter: 2,
+                    dialogues: [
+                        {
+                            id: "oz1",
+                            text: "（查看监控画面）这里24小时都有人值班，有什么事？",
+                            options: [
+                                {
+                                    id: "oo1",
+                                    text: "最近监控有没有发现异常？",
+                                    nextId: "oz2",
+                                    factionReq: null
+                                },
+                                {
+                                    id: "oo2",
+                                    text: "我要调取昨晚的监控录像",
+                                    nextId: "oz3",
+                                    factionReq: { order: 6 }
+                                },
+                                {
+                                    id: "oo7",
+                                    text: "王局长最近有什么异常举动吗？",
+                                    nextId: "oz5",
+                                    factionReq: { question: 6 }
+                                },
+                                {
+                                    id: "oo8",
+                                    text: "有人报告说看到可疑人员",
+                                    nextId: "oz6",
+                                    factionReq: { economy: 5 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz2",
+                            text: "（挠头）说实话，有几个时间段的录像好像是空的...但这是机密，不能多说了。",
+                            options: [
+                                {
+                                    id: "oo3",
+                                    text: "我需要你告诉我具体时间",
+                                    nextId: "oz4",
+                                    factionReq: { question: 7 }
+                                },
+                                {
+                                    id: "oo4",
+                                    text: "我理解了",
+                                    nextId: null,
+                                    factionReq: null
+                                },
+                                {
+                                    id: "oo9",
+                                    text: "录像丢失是人为的吗？",
+                                    nextId: "oz7",
+                                    factionReq: { order: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz3",
+                            text: "（查看登记表）昨晚10点到12点的监控我已经备份好了，给你。",
+                            options: [
+                                {
+                                    id: "oo5",
+                                    text: "非常好",
+                                    nextId: null,
+                                    factionReq: null,
+                                    reward: { evidence: "e20", points: { order: 2 } }
+                                },
+                                {
+                                    id: "oo10",
+                                    text: "有没有拍到什么可疑的人？",
+                                    nextId: "oz8",
+                                    factionReq: { question: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz4",
+                            text: "（压低声音）10月15日晚上11点23分，有人从后门进入。这个人的脸被挡住了，但身形...有点像王局长。",
+                            options: [
+                                {
+                                    id: "oo6",
+                                    text: "这很重要，还有其他线索吗？",
+                                    nextId: null,
+                                    factionReq: null,
+                                    reward: { evidence: "e21", points: { question: 4 } }
+                                },
+                                {
+                                    id: "oo11",
+                                    text: "他进去了多久？",
+                                    nextId: "oz9",
+                                    factionReq: { order: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz5",
+                            text: "（犹豫了一下）王局长啊...他最近加班特别多，有时候半夜还在办公室。我有几次看到他和一些陌生人从后门进出...",
+                            options: [
+                                {
+                                    id: "oo12",
+                                    text: "那些陌生人长什么样？",
+                                    nextId: "oz10",
+                                    factionReq: { question: 8 }
+                                },
+                                {
+                                    id: "oo13",
+                                    text: "他和那些人谈了什么？",
+                                    nextId: "oz11",
+                                    factionReq: { innovation: 6 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz6",
+                            text: "（警觉起来）什么样的可疑人员？说说特征。如果是真的，我得加强巡逻。",
+                            options: [
+                                {
+                                    id: "oo14",
+                                    text: "穿黑色风衣，戴墨镜，行动很隐蔽",
+                                    nextId: "oz12",
+                                    factionReq: null
+                                },
+                                {
+                                    id: "oo15",
+                                    text: "他们有车辆接应",
+                                    nextId: "oz13",
+                                    factionReq: { economy: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz7",
+                            text: "（沉默了一会儿）你懂的...不是所有事情都能查清楚的。但我可以告诉你，有人有权进入监控室删除录像。权限级别很高。",
+                            options: [
+                                {
+                                    id: "oo16",
+                                    text: "那个人的身份你知道吗？",
+                                    nextId: null,
+                                    factionReq: { order: 10 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz8",
+                            text: "（回放录像）看这里，有个人一直在走廊徘徊，手里拿着文件夹。他走路的姿势我认识...是王局长。但他为什么半夜来？还走偏僻的走廊？",
+                            options: [
+                                {
+                                    id: "oo17",
+                                    text: "他去的是哪个房间？",
+                                    nextId: "oz14",
+                                    factionReq: { order: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz9",
+                            text: "大约一个半小时。从后门进，从侧门出。第二天早上，他的车在地下车库停了一整夜，但人不见了。",
+                            options: [
+                                {
+                                    id: "oo18",
+                                    text: "地下车库有监控吗？",
+                                    nextId: null,
+                                    factionReq: { innovation: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz10",
+                            text: "都是生面孔，穿着讲究，说话很有派头。其中一个我看着眼熟...好像在新闻里见过，是个商界大佬。",
+                            options: [
+                                {
+                                    id: "oo19",
+                                    text: "能认出具体是谁吗？",
+                                    nextId: null,
+                                    factionReq: { economy: 8 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz11",
+                            text: "听不太清，但好像提到了'项目'和'资金'。有时候语气很激动，有几次我听到王局长说'不能再拖了'。",
+                            options: [
+                                {
+                                    id: "oo20",
+                                    text: "他们多久来一次？",
+                                    nextId: null,
+                                    factionReq: { question: 7 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz12",
+                            text: "这种打扮的人最近一个月出现过三次，都是深夜。我有记录，但...你最好别问我怎么知道的。",
+                            options: [
+                                {
+                                    id: "oo21",
+                                    text: "把记录给我看看",
+                                    nextId: null,
+                                    factionReq: { order: 9 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz13",
+                            text: "（调出停车场记录）是一辆黑色奔驰，车牌是外地的。每次来都停在同一个位置——就在后门旁边，像是特意安排好的。",
+                            options: [
+                                {
+                                    id: "oo22",
+                                    text: "能查到车主信息吗？",
+                                    nextId: null,
+                                    factionReq: { economy: 9 }
+                                }
+                            ]
+                        },
+                        {
+                            id: "oz14",
+                            text: "（放大画面）档案室旁边的那个房间...那不是普通办公室，是特殊档案区。只有局长级别才能进入。",
+                            options: [
+                                {
+                                    id: "oo23",
+                                    text: "那里存放着什么？",
+                                    nextId: null,
+                                    factionReq: { order: 11 }
+                                }
+                            ]
+                        }
+                    ]
+                }
             ]
         };
 
@@ -2092,7 +3096,14 @@
             completedTruths: [],
             revealedTruths: [],
             draggedEvidence: null,
-            selectedEnding: null  // debug功能：手动选择的结局
+            selectedEnding: null,  // debug功能：手动选择的结局
+            // NPC 相关状态
+            currentNpc: null,
+            currentDialogueId: null,
+            completedDialogues: [],  // 已完成的对话ID
+            completedNpcs: [],  // 已完成的NPC
+            unlockedEvidence: [],  // 已解锁的对话奖励证据
+            claimedDialogueRewards: []  // 已领取的对话奖励
         };
 
         // ==================== 初始化 ====================
@@ -2102,8 +3113,248 @@
             renderTruthCards();
             renderMemorySlots();
             renderEvidenceGrid();
+            renderNpcList();
             updateMemoryCapacity();
             unlockNextChapter();
+        }
+
+        // ==================== NPC 对话系统 ====================
+
+        // 检查阵营分数是否满足要求
+        function checkFactionRequirement(factionReq) {
+            if (!factionReq) return true;
+            for (const [faction, value] of Object.entries(factionReq)) {
+                if (gameState.factionScores[faction] < value) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 渲染 NPC 列表
+        function renderNpcList() {
+            const container = document.getElementById('npcList');
+            const currentChapter = gameState.currentChapter;
+            const availableNpcs = gameData.npcs.filter(npc => npc.minChapter <= currentChapter);
+
+            container.innerHTML = availableNpcs.map(npc => {
+                const isInChat = gameState.currentNpc?.id === npc.id;
+                const isCompleted = gameState.completedNpcs?.includes(npc.id);
+                return `
+                    <button class="npc-button ${isInChat ? 'active' : ''} ${isCompleted ? 'locked' : ''}"
+                            onclick="${isCompleted ? '' : `openNpcChat('${npc.id}')`}"
+                            ${isCompleted ? 'disabled' : ''}>
+                        <span class="npc-avatar">${npc.avatar}</span>
+                        <span>${npc.name}</span>
+                        ${isCompleted ? '<span style="margin-left:5px;font-size:11px;">✓</span>' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // 打开 NPC 对话
+        function openNpcChat(npcId) {
+            const npc = gameData.npcs.find(n => n.id === npcId);
+            if (!npc) return;
+
+            // 检查是否已完成
+            if (gameState.completedNpcs?.includes(npc.id)) return;
+
+            gameState.currentNpc = npc;
+            gameState.currentDialogueId = null;  // 从第一个对话开始
+
+            document.getElementById('npcChat').style.display = 'block';
+            document.getElementById('currentNpcName').textContent = `${npc.name} - ${npc.location}`;
+
+            renderNpcDialogue();
+            renderNpcList();
+        }
+
+        // 关闭 NPC 对话
+        function closeNpcChat() {
+            document.getElementById('npcChat').style.display = 'none';
+            gameState.currentNpc = null;
+            gameState.currentDialogueId = null;
+            renderNpcList();
+        }
+
+        // 渲染当前对话内容
+        function renderNpcDialogue() {
+            const npc = gameState.currentNpc;
+            if (!npc) return;
+
+            const messagesContainer = document.getElementById('npcChatMessages');
+            const optionsContainer = document.getElementById('npcChatOptions');
+
+            // 获取当前对话
+            let currentDialogue = null;
+            if (gameState.currentDialogueId) {
+                currentDialogue = npc.dialogues.find(d => d.id === gameState.currentDialogueId);
+            }
+
+            // 如果没有当前对话，显示第一条
+            if (!currentDialogue && npc.dialogues.length > 0) {
+                currentDialogue = npc.dialogues[0];
+                gameState.currentDialogueId = currentDialogue.id;
+            }
+
+            if (!currentDialogue) {
+                messagesContainer.innerHTML = '<div class="chat-message npc">对话结束</div>';
+                optionsContainer.innerHTML = '';
+                return;
+            }
+
+            // 显示对话消息
+            messagesContainer.innerHTML = `
+                <div class="chat-message npc">${currentDialogue.text}</div>
+            `;
+
+            // 显示对话选项
+            const factionNames = { order: '秩序', innovation: '创新', question: '质疑', economy: '经济' };
+
+            optionsContainer.innerHTML = currentDialogue.options.map(option => {
+                const canSelect = checkFactionRequirement(option.factionReq);
+                const reqText = option.factionReq ?
+                    Object.entries(option.factionReq).map(([k, v]) => `${factionNames[k]} ${v}`).join(', ') :
+                    null;
+
+                return `
+                    <button class="chat-option ${canSelect ? '' : 'locked'}"
+                            onclick="${canSelect ? `selectDialogueOption('${option.id}')` : ''}"
+                            ${canSelect ? '' : 'disabled'}>
+                        <div>${option.text}</div>
+                        ${reqText ? `<div class="faction-req">需要: ${reqText}</div>` : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // 选择对话选项
+        function selectDialogueOption(optionId) {
+            const npc = gameState.currentNpc;
+            if (!npc) return;
+
+            const dialogue = npc.dialogues.find(d => d.id === gameState.currentDialogueId);
+            if (!dialogue) return;
+
+            const option = dialogue.options.find(o => o.id === optionId);
+            if (!option) return;
+
+            // 添加玩家回复
+            const messagesContainer = document.getElementById('npcChatMessages');
+            const playerMsg = document.createElement('div');
+            playerMsg.className = 'chat-message player';
+            playerMsg.textContent = option.text;
+            messagesContainer.appendChild(playerMsg);
+
+            // 即时发放奖励（仅首次）
+            if (option.reward) {
+                const claimKey = `${npc.id}:${option.id}`;
+                if (!gameState.claimedDialogueRewards?.includes(claimKey)) {
+                    // 发放阵营分数
+                    if (option.reward.points) {
+                        Object.entries(option.reward.points).forEach(([faction, points]) => {
+                            gameState.factionScores[faction] += points;
+                        });
+                    }
+                    // 发放证据
+                    if (option.reward.evidence) {
+                        const evidence = gameData.evidence.find(e => e.id === option.reward.evidence);
+                        if (evidence) {
+                            if (!gameState.unlockedEvidence) gameState.unlockedEvidence = [];
+                            if (!gameState.unlockedEvidence.includes(evidence.id)) {
+                                gameState.unlockedEvidence.push(evidence.id);
+                            }
+                        }
+                    }
+                    // 标记为已领取
+                    if (!gameState.claimedDialogueRewards) gameState.claimedDialogueRewards = [];
+                    gameState.claimedDialogueRewards.push(claimKey);
+                    
+                    // 显示获得提示
+                    setTimeout(() => {
+                        let rewardText = '';
+                        if (option.reward.points) {
+                            const names = { order: '秩序', innovation: '创新', question: '质疑', economy: '经济' };
+                            Object.entries(option.reward.points).forEach(([f, p]) => {
+                                rewardText += `${names[f]} +${p} `;
+                            });
+                        }
+                        if (option.reward.evidence) {
+                            const ev = gameData.evidence.find(e => e.id === option.reward.evidence);
+                            if (ev) rewardText += `获得: ${ev.name}`;
+                        }
+                        if (rewardText) alert(`🎁 ${rewardText}`);
+                    }, 100);
+                }
+            }
+
+            // 滚动到底部
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // 延迟显示下一个对话
+            setTimeout(() => {
+                if (option.nextId) {
+                    gameState.currentDialogueId = option.nextId;
+                    renderNpcDialogue();
+                } else {
+                    // 对话结束
+                    finishNpcDialogue();
+                }
+            }, 500);
+        }
+
+        // 完成对话
+        function finishNpcDialogue() {
+            const npc = gameState.currentNpc;
+            
+            // 检查该NPC是否所有对话都已完成
+            const allDone = npc.dialogues.every(d => 
+                d.options.some(opt => opt.nextId === null && gameState.claimedDialogueRewards?.includes(`${npc.id}:${opt.id}`))
+            );
+            
+            if (allDone) {
+                if (!gameState.completedNpcs) gameState.completedNpcs = [];
+                if (!gameState.completedNpcs.includes(npc.id)) {
+                    gameState.completedNpcs.push(npc.id);
+                }
+            }
+
+            // 更新UI
+            renderFactionScores();
+            renderEvidenceGrid();
+            renderNpcList();
+
+            // 关闭对话框
+            document.getElementById('npcChat').style.display = 'none';
+            gameState.currentNpc = null;
+            gameState.currentDialogueId = null;
+        }
+
+        // 处理对话奖励（保留兼容）
+        function processDialogueReward(reward) { }
+
+        // ==================== Debug面板 ====================
+        function openDebugPanel() {
+            const panel = document.getElementById('debugPanel');
+            document.getElementById('debugOrder').value = gameState.factionScores.order;
+            document.getElementById('debugInnovation').value = gameState.factionScores.innovation;
+            document.getElementById('debugQuestion').value = gameState.factionScores.question;
+            document.getElementById('debugEconomy').value = gameState.factionScores.economy;
+            panel.style.display = 'flex';
+        }
+
+        function closeDebugPanel() {
+            document.getElementById('debugPanel').style.display = 'none';
+        }
+
+        function applyDebugScores() {
+            gameState.factionScores.order = parseInt(document.getElementById('debugOrder').value) || 0;
+            gameState.factionScores.innovation = parseInt(document.getElementById('debugInnovation').value) || 0;
+            gameState.factionScores.question = parseInt(document.getElementById('debugQuestion').value) || 0;
+            gameState.factionScores.economy = parseInt(document.getElementById('debugEconomy').value) || 0;
+            renderFactionScores();
+            closeDebugPanel();
         }
 
         // ==================== 渲染函数 ====================
@@ -2159,7 +3410,7 @@
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                 </svg>
-                                需要先完成前置真相
+                                ${truth.requirement.factionReq ? `需要: ${formatRequirements(truth.requirement)}` : '需要先完成前置真相'}
                             </div>
                         ` : ''}
                     </div>
@@ -2170,12 +3421,16 @@
         function checkTruthLocked(truth) {
             if (!truth.requirement) return false;
             
-            if (truth.requirement.truthId) {
-                return !gameState.revealedTruths.includes(truth.requirement.truthId);
+            // 阵营分数要求检查
+            if (truth.requirement.factionReq) {
+                return !checkFactionRequirement(truth.requirement.factionReq);
             }
+            
+            // 真相完成数要求检查
             if (truth.requirement.truthsCompleted !== undefined) {
                 return gameState.revealedTruths.length < truth.requirement.truthsCompleted;
             }
+            
             return false;
         }
 
@@ -2214,14 +3469,23 @@
 
         function renderEvidenceGrid() {
             const container = document.getElementById('evidenceGrid');
-            const chapterEvidence = gameData.evidence.filter(e => e.chapter === gameState.currentChapter);
+            const unlockedDialogueEvidence = gameState.unlockedEvidence || [];
+            
+            // 本章初始证据 + 已解锁的对话奖励证据(chapter=0)
+            const chapterEvidence = gameData.evidence.filter(e => {
+                // 本章初始证据
+                if (e.chapter === gameState.currentChapter) return true;
+                // 已解锁的对话奖励证据
+                if (e.chapter === 0 && unlockedDialogueEvidence.includes(e.id)) return true;
+                return false;
+            });
             
             container.innerHTML = chapterEvidence.map(e => `
-                <div class="evidence-item ${e.used ? 'used' : ''}" 
+                <div class="evidence-item ${e.used ? 'used' : ''} ${e.chapter === 0 ? 'dialogue-reward' : ''}" 
                      draggable="${!e.used}"
                      ondragstart="onDragStart(event, '${e.id}')"
                      ondragend="onDragEnd(event)">
-                    ${e.name}
+                    ${e.name}${e.chapter === 0 ? ' ⭐' : ''}
                 </div>
             `).join('');
         }
@@ -2810,6 +4074,9 @@
 
         function formatRequirements(req) {
             const names = { order: '秩序', innovation: '创新', question: '质疑', economy: '经济' };
+            if (req.factionReq) {
+                return Object.entries(req.factionReq).map(([k, v]) => `${names[k]}>${v}`).join(', ');
+            }
             return Object.entries(req).map(([k, v]) => `${names[k]}>${v}`).join(', ');
         }
 
