@@ -157,8 +157,20 @@
         }
 
         .truth-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
+            opacity: 0.6;
+            cursor: grab;
+        }
+        
+        .truth-card.locked:active {
+            cursor: grabbing;
+        }
+        
+        .truth-card:hover {
+            cursor: grab;
+        }
+        
+        .truth-card:active {
+            cursor: grabbing;
         }
 
         .truth-card.completed {
@@ -464,6 +476,16 @@
         .evidence-item.used {
             opacity: 0.4;
             cursor: not-allowed;
+        }
+
+        .evidence-item.dialogue-reward {
+            border-left: 3px solid #9b59b6;
+            background: rgba(155, 89, 182, 0.1);
+        }
+
+        .evidence-item.shop-unlocked {
+            border-left: 3px solid #f39c12;
+            background: rgba(243, 156, 18, 0.1);
         }
 
         .evidence-drop-zone {
@@ -1258,6 +1280,351 @@
         .debug-apply:hover {
             background: #3498db;
         }
+
+        /* ==================== 画布区域样式 ==================== */
+        .canvas-section {
+            margin-top: 20px;
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .canvas-section h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            overflow: hidden;
+        }
+
+        .canvas-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .canvas-svg line.connection-link {
+            stroke: #3498db;
+            stroke-width: 3;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 4px rgba(52, 152, 219, 0.6));
+        }
+
+        .canvas-svg line.connection-link.active {
+            stroke: #27ae60;
+            filter: drop-shadow(0 0 6px rgba(39, 174, 96, 0.8));
+            stroke-width: 4;
+        }
+
+        /* 真相方块 */
+        .canvas-truth-node {
+            position: absolute;
+            min-width: 120px;
+            max-width: 160px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 10px;
+            padding: 12px 15px;
+            cursor: grab;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.2s;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .canvas-truth-node:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
+            transform: scale(1.02);
+        }
+
+        .canvas-truth-node.dragging {
+            cursor: grabbing;
+            z-index: 100;
+            opacity: 0.9;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+
+        .canvas-truth-node.connected {
+            border-color: var(--success);
+            box-shadow: 0 0 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .canvas-truth-node .node-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--light);
+            margin-bottom: 4px;
+        }
+
+        .canvas-truth-node .node-desc {
+            font-size: 11px;
+            color: #bdc3c7;
+            line-height: 1.3;
+        }
+
+        /* 连接点 */
+        .connection-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.2s;
+        }
+
+        .connection-handle:hover {
+            transform: scale(1.3);
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.8);
+        }
+
+        .connection-handle.active {
+            background: var(--success);
+            animation: pulse 1s infinite;
+        }
+
+        .connection-handle.left { left: -8px; top: 50%; transform: translateY(-50%); }
+        .connection-handle.right { right: -8px; top: 50%; transform: translateY(-50%); }
+        .connection-handle.top { top: -8px; left: 50%; transform: translateX(-50%); }
+        .connection-handle.bottom { bottom: -8px; left: 50%; transform: translateX(-50%); }
+
+        .connection-handle.left:hover,
+        .connection-handle.right:hover {
+            transform: translateY(-50%) scale(1.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(39, 174, 96, 0.6); }
+            50% { box-shadow: 0 0 15px rgba(39, 174, 96, 0.9); }
+        }
+
+        /* 连接线提示 */
+        .connection-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #95a5a6;
+            text-align: center;
+        }
+
+        /* 解锁提示 */
+        .unlock-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1e4d3a, #2c5e47);
+            border: 2px solid var(--success);
+            border-radius: 16px;
+            padding: 30px 40px;
+            text-align: center;
+            z-index: 2000;
+            animation: unlockPop 0.5s ease-out;
+            box-shadow: 0 0 40px rgba(39, 174, 96, 0.4);
+        }
+
+        .unlock-notification h2 {
+            color: var(--success);
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .unlock-notification p {
+            color: var(--light);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .unlock-notification button {
+            background: var(--success);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        @keyframes unlockPop {
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .canvas-empty-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .canvas-empty-hint svg {
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* ==================== 商店区域样式 ==================== */
+        .shop-section {
+            margin-top: 20px;
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .shop-section h3 {
+            color: var(--warning);
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .shop-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .shop-item:hover {
+            border-color: var(--warning);
+        }
+
+        .shop-item.purchased {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .shop-item.locked {
+            opacity: 0.5;
+        }
+
+        .shop-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .shop-item-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--light);
+        }
+
+        .shop-item-price {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .price-tag {
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .price-tag.order { color: var(--order); }
+        .price-tag.innovation { color: var(--innovation); }
+        .price-tag.question { color: var(--question); }
+        .price-tag.economy { color: var(--economy); }
+
+        .shop-item-desc {
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .shop-item-status {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-bottom: 8px;
+        }
+
+        .shop-item-status.purchased {
+            color: var(--success);
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .buy-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .buy-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .buy-btn.purchased {
+            background: var(--success);
+            cursor: default;
+        }
+
+        .shop-empty {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .shop-item-category {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .category-key { color: #3498db; }
+        .category-evidence { color: #e74c3c; }
+        .category-dialogue { color: #9b59b6; }
+        .category-hint { color: #f39c12; }
     </style>
 </head>
 <body>
@@ -1272,6 +1639,49 @@
                     <!-- 动态生成 -->
                 </div>
                 <button class="debug-btn" onclick="openDebugPanel()">⚙️ Debug</button>
+            </div>
+        </div>
+
+        <!-- 画布区域 -->
+        <div class="canvas-section" id="canvasSection">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                真相连接画布
+                <span style="font-size:12px;color:#7f8c8d;font-weight:normal;margin-left:10px;">拖拽真相方块到画布，连接以解锁关联真相</span>
+            </h3>
+            <div class="canvas-container" id="canvasContainer">
+                <svg class="canvas-svg" id="canvasSvg">
+                    <!-- 连接线在这里绘制 -->
+                </svg>
+                <div class="canvas-empty-hint" id="canvasEmptyHint">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>拖拽已公开的真相到此处</p>
+                    <p style="font-size:12px;margin-top:5px;">连接「内鬼身份」和「秘密资金」以解锁「幕后黑手」</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商店区域 -->
+        <div class="shop-section" id="shopSection">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"/>
+                    <circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+                线索商店
+                <span style="font-size:12px;color:#7f8c8d;font-weight:normal;margin-left:10px;">消耗阵营分数购买线索，解锁隐藏证据</span>
+            </h3>
+            <div class="shop-items" id="shopItems">
+                <!-- 动态生成 -->
             </div>
         </div>
         
@@ -1459,6 +1869,120 @@
     <script>
         // ==================== 游戏数据 ====================
         const gameData = {
+            // 商店物品数据
+            shopItems: [
+                // 第一章线索
+                {
+                    id: "shop_1",
+                    name: "神秘符号解读",
+                    description: "关于案件现场发现的奇怪符号含义的解读指南",
+                    category: "hint",
+                    price: { question: 2 },
+                    unlocksEvidence: "神秘符号书籍",
+                    chapter: 1
+                },
+                {
+                    id: "shop_2",
+                    name: "占星师行踪",
+                    description: "职业占星师近期的出行和活动记录",
+                    category: "key",
+                    price: { order: 2, economy: 1 },
+                    unlocksEvidence: "占星工具箱",
+                    chapter: 1
+                },
+                {
+                    id: "shop_3",
+                    name: "财务异常报告",
+                    description: "调查组内部财务异常的详细分析报告",
+                    category: "key",
+                    price: { economy: 3 },
+                    unlocksEvidence: "财务报表",
+                    chapter: 1
+                },
+                {
+                    id: "shop_4",
+                    name: "证人背景调查",
+                    description: "关键证人的详细背景资料和关系网络",
+                    category: "key",
+                    price: { order: 2, innovation: 1 },
+                    unlocksEvidence: "法律证书",
+                    chapter: 1
+                },
+                {
+                    id: "shop_5",
+                    name: "直播数据存档",
+                    description: "游戏主播近期直播的详细数据和观众分析",
+                    category: "evidence",
+                    price: { innovation: 2 },
+                    unlocksEvidence: "直播设备",
+                    chapter: 1
+                },
+                // 第二章线索
+                {
+                    id: "shop_6",
+                    name: "监控盲区地图",
+                    description: "调查组大楼监控摄像头的盲区分布图",
+                    category: "key",
+                    price: { order: 3 },
+                    unlocksEvidence: "监控截图",
+                    chapter: 2
+                },
+                {
+                    id: "shop_7",
+                    name: "遗嘱笔迹样本",
+                    description: "与遗书进行对比的历史笔迹样本库",
+                    category: "evidence",
+                    price: { innovation: 3, question: 1 },
+                    unlocksEvidence: "笔迹鉴定报告",
+                    chapter: 2
+                },
+                {
+                    id: "shop_8",
+                    name: "毒药百科",
+                    description: "稀有毒药的成分和来源参考资料",
+                    category: "hint",
+                    price: { question: 3 },
+                    unlocksEvidence: "毒素检测报告",
+                    chapter: 2
+                },
+                {
+                    id: "shop_9",
+                    name: "地下交易网络",
+                    description: "黑市交易的秘密联络方式和接头地点",
+                    category: "key",
+                    price: { economy: 4 },
+                    unlocksEvidence: "暗网交易记录",
+                    chapter: 2
+                },
+                // 通用线索
+                {
+                    id: "shop_10",
+                    name: "内部晋升记录",
+                    description: "调查组内部人员晋升和调动的详细档案",
+                    category: "key",
+                    price: { order: 4 },
+                    unlocksEvidence: "内部晋升记录",
+                    chapter: 1
+                },
+                {
+                    id: "shop_11",
+                    name: "私人日记残页",
+                    description: "案件相关人员的私人日记碎片",
+                    category: "evidence",
+                    price: { question: 4 },
+                    unlocksEvidence: "私人日记",
+                    chapter: 1
+                },
+                {
+                    id: "shop_12",
+                    name: "股权结构图",
+                    description: "涉案公司的完整股权结构和关联方图谱",
+                    category: "key",
+                    price: { economy: 3, innovation: 2 },
+                    unlocksEvidence: "股权结构图",
+                    chapter: 1
+                }
+            ],
             chapters: [
                 {
                     id: 1,
@@ -2044,7 +2568,9 @@
                                 }
                             ],
                             completed: false,
-                            requirement: { factionReq: { order: 5, question: 3 } }
+                            requirement: { 
+                                canvasConnection: true // 需连接「内鬼身份」与「秘密资金」才能解锁
+                            }
                         }
                     ]
                 },
@@ -2347,7 +2873,7 @@
                 { id: "e26", name: "通讯记录", chapter: 1, used: false },
                 { id: "e27", name: "项目预算表", chapter: 1, used: false },
                 { id: "e28", name: "商业合同", chapter: 1, used: false },
-                { id: "e29", name: "股权结构图", chapter: 1, used: false },
+                { id: "e29", name: "股权结构图", chapter: 0, used: false },  <!-- 商店解锁 -->
                 { id: "e30", name: "商业谈判录音", chapter: 1, used: false },
                 { id: "e31", name: "境外联络记录", chapter: 1, used: false },
                 { id: "e32", name: "多国语言文件", chapter: 1, used: false },
@@ -2355,8 +2881,8 @@
                 { id: "e34", name: "仪式道具", chapter: 1, used: false },
                 { id: "e35", name: "教义手册", chapter: 1, used: false },
                 { id: "e36", name: "心理学分析报告", chapter: 1, used: false },
-                { id: "e37", name: "内部晋升记录", chapter: 1, used: false },
-                { id: "e38", name: "私人日记", chapter: 1, used: false },
+                { id: "e37", name: "内部晋升记录", chapter: 0, used: false },  <!-- 商店解锁 -->
+                { id: "e38", name: "私人日记", chapter: 0, used: false },  <!-- 商店解锁 -->
                 { id: "e39", name: "内部通讯截获", chapter: 1, used: false },
                 { id: "e40", name: "近期活动痕迹", chapter: 1, used: false },
                 { id: "e41", name: "目击者证词", chapter: 1, used: false },
@@ -2372,7 +2898,7 @@
                 { id: "e50", name: "机票预订记录", chapter: 2, used: false },
                 { id: "e51", name: "护照使用记录", chapter: 2, used: false },
                 { id: "e52", name: "机场监控", chapter: 2, used: false },
-                { id: "e53", name: "笔迹鉴定报告", chapter: 2, used: false },
+                { id: "e53", name: "笔迹鉴定报告", chapter: 0, used: false },  <!-- 商店解锁 -->
                 { id: "e54", name: "书写时间分析", chapter: 2, used: false },
                 { id: "e55", name: "纸张来源追溯", chapter: 2, used: false },
                 { id: "e56", name: "红外线扫描", chapter: 2, used: false },
@@ -2399,8 +2925,10 @@
                 { id: "e77", name: "入会仪式记录", chapter: 2, used: false },
                 { id: "e78", name: "组织架构图", chapter: 2, used: false },
                 { id: "e79", name: "信徒证词", chapter: 2, used: false },
-                // 第三章证据
-                { id: "e80", name: "海关查获记录", chapter: 3, used: false },
+                // 商店解锁的证据
+                { id: "e80", name: "监控截图", chapter: 0, used: false },  <!-- 商店解锁 -->
+                { id: "e81", name: "暗网交易记录", chapter: 0, used: false },  <!-- 商店解锁 -->
+                { id: "e82", name: "毒素检测报告", chapter: 0, used: false },  <!-- 商店解锁 -->
                 { id: "e81", name: "化学成分分析", chapter: 3, used: false },
                 { id: "e82", name: "境外来源地情报", chapter: 3, used: false },
                 { id: "e83", name: "实验室日志", chapter: 3, used: false },
@@ -3103,7 +3631,14 @@
             completedDialogues: [],  // 已完成的对话ID
             completedNpcs: [],  // 已完成的NPC
             unlockedEvidence: [],  // 已解锁的对话奖励证据
-            claimedDialogueRewards: []  // 已领取的对话奖励
+            claimedDialogueRewards: [],  // 已领取的对话奖励
+            // 画布相关状态
+            canvasNodes: [],  // 画布上的真相节点 [{truthId, x, y}]
+            canvasConnections: [],  // 真相之间的连接 [{from: truthId, to: truthId}]
+            canvasDraggingNode: null,  // 当前正在拖拽的节点ID
+            canvasSelectedHandle: null,  // 当前选中的连接点 {truthId, side}
+            // 商店相关状态
+            purchasedShopItems: []  // 已购买的商店物品ID
         };
 
         // ==================== 初始化 ====================
@@ -3114,8 +3649,481 @@
             renderMemorySlots();
             renderEvidenceGrid();
             renderNpcList();
+            renderShop();
             updateMemoryCapacity();
             unlockNextChapter();
+            initCanvas();
+        }
+
+        // ==================== 画布系统 ====================
+        function initCanvas() {
+            const container = document.getElementById('canvasContainer');
+            const svg = document.getElementById('canvasSvg');
+            
+            // 画布拖放区域事件
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                container.classList.add('drag-over');
+            });
+            
+            container.addEventListener('dragleave', () => {
+                container.classList.remove('drag-over');
+            });
+            
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                container.classList.remove('drag-over');
+                
+                const truthId = gameState.draggedEvidence;
+                if (truthId && truthId.startsWith('truth_')) {
+                    const realTruthId = truthId.replace('truth_', '');
+                    const rect = container.getBoundingClientRect();
+                    const x = e.clientX - rect.left - 60; // 居中
+                    const y = e.clientY - rect.top - 25;
+                    
+                    addNodeToCanvas(realTruthId, x, y);
+                }
+            });
+            
+            // 点击空白处取消选中
+            container.addEventListener('click', (e) => {
+                if (e.target === container || e.target === svg || e.target.id === 'canvasEmptyHint') {
+                    clearCanvasSelection();
+                }
+            });
+            
+            renderCanvas();
+        }
+
+        // 添加真相节点到画布
+        function addNodeToCanvas(truthId, x, y) {
+            // 检查是否已存在
+            const existing = gameState.canvasNodes.find(n => n.truthId === truthId);
+            if (existing) {
+                // 已存在则更新位置
+                existing.x = x;
+                existing.y = y;
+            } else {
+                // 新增节点
+                gameState.canvasNodes.push({ truthId, x, y });
+            }
+            renderCanvas();
+        }
+
+        // 从画布移除节点
+        function removeNodeFromCanvas(truthId) {
+            gameState.canvasNodes = gameState.canvasNodes.filter(n => n.truthId !== truthId);
+            // 移除相关的连接
+            gameState.canvasConnections = gameState.canvasConnections.filter(
+                c => c.from !== truthId && c.to !== truthId
+            );
+            renderCanvas();
+        }
+
+        // 渲染画布
+        function renderCanvas() {
+            const container = document.getElementById('canvasContainer');
+            const svg = document.getElementById('canvasSvg');
+            const hint = document.getElementById('canvasEmptyHint');
+            
+            // 清除旧的节点（保留 SVG）
+            const oldNodes = container.querySelectorAll('.canvas-truth-node');
+            oldNodes.forEach(n => n.remove());
+            
+            // 更新提示
+            hint.style.display = gameState.canvasNodes.length === 0 ? 'block' : 'none';
+            
+            // 渲染每个节点
+            gameState.canvasNodes.forEach(node => {
+                const truth = findTruthById(node.truthId);
+                if (!truth) return;
+                
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'canvas-truth-node';
+                nodeEl.id = `canvas-node-${node.truthId}`;
+                nodeEl.style.left = `${node.x}px`;
+                nodeEl.style.top = `${node.y}px`;
+                
+                // 检查是否已连接
+                const isConnected = gameState.canvasConnections.some(
+                    c => c.from === node.truthId || c.to === node.truthId
+                );
+                if (isConnected) {
+                    nodeEl.classList.add('connected');
+                }
+                
+                nodeEl.innerHTML = `
+                    <div class="node-title">${truth.title}</div>
+                    <div class="node-desc">${truth.description.substring(0, 30)}...</div>
+                    <div class="connection-handle left" data-side="left" data-truth="${node.truthId}"></div>
+                    <div class="connection-handle right" data-side="right" data-truth="${node.truthId}"></div>
+                `;
+                
+                // 节点拖拽
+                makeNodeDraggable(nodeEl, node.truthId);
+                
+                // 连接点点击事件
+                const handles = nodeEl.querySelectorAll('.connection-handle');
+                handles.forEach(handle => {
+                    handle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        handleConnectionClick(node.truthId, handle.dataset.side);
+                    });
+                });
+                
+                // 节点上右键移除
+                nodeEl.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    if (confirm(`将「${truth.title}」从画布移除？`)) {
+                        removeNodeFromCanvas(node.truthId);
+                    }
+                });
+                
+                container.appendChild(nodeEl);
+            });
+            
+            // 渲染连接线
+            renderCanvasConnections();
+        }
+
+        // 节点拖拽功能
+        function makeNodeDraggable(nodeEl, truthId) {
+            let isDragging = false;
+            let startX, startY, origX, origY;
+            
+            nodeEl.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('connection-handle')) return;
+                
+                isDragging = true;
+                nodeEl.classList.add('dragging');
+                gameState.canvasDraggingNode = truthId;
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const node = gameState.canvasNodes.find(n => n.truthId === truthId);
+                origX = node.x;
+                origY = node.y;
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                const node = gameState.canvasNodes.find(n => n.truthId === truthId);
+                node.x = origX + dx;
+                node.y = origY + dy;
+                
+                nodeEl.style.left = `${node.x}px`;
+                nodeEl.style.top = `${node.y}px`;
+                
+                // 更新连接线
+                renderCanvasConnections();
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    nodeEl.classList.remove('dragging');
+                    gameState.canvasDraggingNode = null;
+                }
+            });
+        }
+
+        // 处理连接点点击
+        function handleConnectionClick(truthId, side) {
+            if (!gameState.canvasSelectedHandle) {
+                // 第一个连接点
+                gameState.canvasSelectedHandle = { truthId, side };
+                highlightHandle(truthId, side, true);
+            } else {
+                // 第二个连接点，尝试建立连接
+                const first = gameState.canvasSelectedHandle;
+                
+                if (first.truthId === truthId) {
+                    // 不能连接自己
+                    alert('不能连接同一个真相！');
+                    clearCanvasSelection();
+                    return;
+                }
+                
+                // 建立连接
+                addCanvasConnection(first.truthId, truthId);
+                clearCanvasSelection();
+            }
+        }
+
+        // 高亮连接点
+        function highlightHandle(truthId, side, active) {
+            const handle = document.querySelector(
+                `.connection-handle[data-truth="${truthId}"][data-side="${side}"]`
+            );
+            if (handle) {
+                handle.classList.toggle('active', active);
+            }
+        }
+
+        // 清除选择
+        function clearCanvasSelection() {
+            if (gameState.canvasSelectedHandle) {
+                highlightHandle(
+                    gameState.canvasSelectedHandle.truthId,
+                    gameState.canvasSelectedHandle.side,
+                    false
+                );
+            }
+            gameState.canvasSelectedHandle = null;
+        }
+
+        // 添加连接
+        function addCanvasConnection(fromTruthId, toTruthId) {
+            // 检查是否已存在
+            const exists = gameState.canvasConnections.some(
+                c => (c.from === fromTruthId && c.to === toTruthId) ||
+                     (c.from === toTruthId && c.to === fromTruthId)
+            );
+            
+            if (exists) {
+                alert('这两个真相已经连接了！');
+                return;
+            }
+            
+            gameState.canvasConnections.push({ from: fromTruthId, to: toTruthId });
+            renderCanvas();
+            
+            // 检查是否满足解锁条件
+            checkCanvasConnectionUnlock();
+        }
+
+        // 渲染连接线
+        function renderCanvasConnections() {
+            const svg = document.getElementById('canvasSvg');
+            const container = document.getElementById('canvasContainer');
+            const rect = container.getBoundingClientRect();
+            
+            // 清除旧的线
+            svg.innerHTML = '';
+            
+            gameState.canvasConnections.forEach(conn => {
+                const fromNode = gameState.canvasNodes.find(n => n.truthId === conn.from);
+                const toNode = gameState.canvasNodes.find(n => n.truthId === conn.to);
+                
+                if (!fromNode || !toNode) return;
+                
+                // 计算连接点位置（使用右侧和左侧）
+                const fromX = fromNode.x + 160; // 节点右侧
+                const fromY = fromNode.y + 25;  // 节点中间
+                const toX = toNode.x;            // 节点左侧
+                const toY = toNode.y + 25;       // 节点中间
+                
+                // 检查是否是特殊连接（内鬼+秘密资金）
+                const isSpecialConnection = 
+                    (conn.from === 'truth1-1' && conn.to === 'truth1-2') ||
+                    (conn.from === 'truth1-2' && conn.to === 'truth1-1');
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', fromX);
+                line.setAttribute('y1', fromY);
+                line.setAttribute('x2', toX);
+                line.setAttribute('y2', toY);
+                line.setAttribute('class', `connection-link ${isSpecialConnection ? 'active' : ''}`);
+                
+                svg.appendChild(line);
+            });
+        }
+
+        // 检查画布连接是否解锁新真相
+        function checkCanvasConnectionUnlock() {
+            const connectedTruths = new Set();
+            gameState.canvasConnections.forEach(c => {
+                connectedTruths.add(c.from);
+                connectedTruths.add(c.to);
+            });
+            
+            // 检查「内鬼身份」和「秘密资金」是否都已连接
+            const hasInnerSpy = connectedTruths.has('truth1-1');
+            const hasSecretFund = connectedTruths.has('truth1-2');
+            
+            // 检查幕后黑手是否需要解锁
+            const truth1_3 = findTruthById('truth1-3');
+            if (truth1_3 && truth1_3.requirement && truth1_3.requirement.canvasConnection) {
+                // 如果满足连接条件
+                if (hasInnerSpy && hasSecretFund) {
+                    // 检查是否已显示过提示
+                    if (!gameState.canvasConnectionUnlocked) {
+                        gameState.canvasConnectionUnlocked = true;
+                        showUnlockNotification('幕后黑手', '通过真相连接已解锁！');
+                        renderTruthCards();
+                    }
+                }
+            }
+        }
+
+        // 显示解锁通知
+        function showUnlockNotification(title, message) {
+            const notification = document.createElement('div');
+            notification.className = 'unlock-notification';
+            notification.innerHTML = `
+                <h2>🔓 ${title}</h2>
+                <p>${message}</p>
+                <button onclick="this.parentElement.remove()">知道了</button>
+            `;
+            document.body.appendChild(notification);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // 查找真相
+        function findTruthById(truthId) {
+            for (const chapter of gameData.chapters) {
+                const truth = chapter.truths.find(t => t.id === truthId);
+                if (truth) return truth;
+            }
+            return null;
+        }
+
+        // ==================== 商店系统 ====================
+        function renderShop() {
+            const container = document.getElementById('shopItems');
+            const currentChapter = gameState.currentChapter;
+            
+            // 获取当前章节及之前的商店物品
+            const availableItems = gameData.shopItems.filter(item => item.chapter <= currentChapter);
+            
+            if (availableItems.length === 0) {
+                container.innerHTML = '<div class="shop-empty">暂无可购买的线索</div>';
+                return;
+            }
+            
+            const factionNames = { order: '秩序', innovation: '创新', question: '质疑', economy: '经济' };
+            const categoryNames = { 
+                key: '关键线索', 
+                evidence: '证据', 
+                dialogue: '对话解锁', 
+                hint: '提示资料' 
+            };
+            const categoryClasses = { 
+                key: 'category-key', 
+                evidence: 'category-evidence', 
+                dialogue: 'category-dialogue', 
+                hint: 'category-hint' 
+            };
+            
+            container.innerHTML = availableItems.map(item => {
+                const isPurchased = gameState.purchasedShopItems.includes(item.id);
+                const canAfford = checkCanAfford(item.price);
+                
+                // 生成价格标签
+                const priceTags = Object.entries(item.price).map(([faction, cost]) => 
+                    `<span class="price-tag ${faction}">${factionNames[faction]} ${cost}</span>`
+                ).join('');
+                
+                // 查找对应的证据
+                const evidence = gameData.evidence.find(e => e.name === item.unlocksEvidence);
+                const evidenceStatus = isPurchased ? 
+                    `<span style="color: var(--success);">✓ 已解锁</span>` : 
+                    (evidence ? `解锁: ${evidence.name}` : '');
+                
+                return `
+                    <div class="shop-item ${isPurchased ? 'purchased' : ''} ${!canAfford && !isPurchased ? 'locked' : ''}">
+                        <span class="shop-item-category ${categoryClasses[item.category]}">${categoryNames[item.category]}</span>
+                        <div class="shop-item-header">
+                            <span class="shop-item-name">${item.name}</span>
+                            <div class="shop-item-price">${priceTags}</div>
+                        </div>
+                        <p class="shop-item-desc">${item.description}</p>
+                        <div class="shop-item-status ${isPurchased ? 'purchased' : ''}">
+                            ${evidenceStatus}
+                        </div>
+                        <button class="buy-btn ${isPurchased ? 'purchased' : ''}" 
+                                onclick="${!isPurchased && canAfford ? `purchaseShopItem('${item.id}')` : ''}"
+                                ${isPurchased || !canAfford ? 'disabled' : ''}>
+                            ${isPurchased ? '已购买' : (canAfford ? '购买线索' : '分数不足')}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 检查是否能负担
+        function checkCanAfford(price) {
+            for (const [faction, cost] of Object.entries(price)) {
+                if (gameState.factionScores[faction] < cost) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 购买商店物品
+        function purchaseShopItem(itemId) {
+            const item = gameData.shopItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            // 检查是否已购买
+            if (gameState.purchasedShopItems.includes(itemId)) {
+                return;
+            }
+            
+            // 检查是否能负担
+            if (!checkCanAfford(item.price)) {
+                alert('阵营分数不足，无法购买！');
+                return;
+            }
+            
+            // 扣除分数
+            for (const [faction, cost] of Object.entries(item.price)) {
+                gameState.factionScores[faction] -= cost;
+            }
+            
+            // 标记为已购买
+            gameState.purchasedShopItems.push(itemId);
+            
+            // 解锁对应的证据
+            if (item.unlocksEvidence) {
+                const evidence = gameData.evidence.find(e => e.name === item.unlocksEvidence);
+                if (evidence) {
+                    // 将证据标记为已解锁（chapter=0 表示商店解锁）
+                    if (!gameState.unlockedEvidence) {
+                        gameState.unlockedEvidence = [];
+                    }
+                    if (!gameState.unlockedEvidence.includes(evidence.id)) {
+                        gameState.unlockedEvidence.push(evidence.id);
+                    }
+                }
+            }
+            
+            // 显示购买成功提示
+            showUnlockNotification('购买成功', `获得: ${item.name}\n已解锁: ${item.unlocksEvidence}`);
+            
+            // 更新界面
+            renderFactionScores();
+            renderEvidenceGrid();
+            renderShop();
+        }
+
+        // 让真相卡片可拖拽到画布
+        function initTruthCardDraggable() {
+            document.querySelectorAll('.truth-card').forEach(card => {
+                card.setAttribute('draggable', 'true');
+                card.addEventListener('dragstart', (e) => {
+                    const truthId = card.getAttribute('data-truth-id');
+                    if (truthId) {
+                        gameState.draggedEvidence = `truth_${truthId}`;
+                        card.classList.add('dragging');
+                    }
+                });
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                });
+            });
         }
 
         // ==================== NPC 对话系统 ====================
@@ -3395,12 +4403,30 @@
                 const isLocked = checkTruthLocked(truth);
                 const status = isRevealed ? 'completed' : (isLocked ? 'locked' : '');
 
+                // 生成解锁条件提示
+                let requirementText = '';
+                if (truth.requirement) {
+                    if (truth.requirement.factionReq) {
+                        requirementText = `需要: ${formatRequirements(truth.requirement.factionReq)}`;
+                    } else if (truth.requirement.truthsCompleted !== undefined) {
+                        requirementText = `需公开 ${truth.requirement.truthsCompleted} 个真相`;
+                    } else if (truth.requirement.canvasConnection) {
+                        requirementText = '需连接「内鬼身份」与「秘密资金」';
+                    }
+                }
+
                 return `
-                    <div class="truth-card ${status}" onclick="${!isLocked && !isRevealed ? `openTruth('${truth.id}')` : ''}">
+                    <div class="truth-card ${status}" 
+                         data-truth-id="${truth.id}"
+                         draggable="true"
+                         onclick="${!isLocked && !isRevealed ? `openTruth('${truth.id}')` : ''}"
+                         ondragstart="onTruthDragStart(event, '${truth.id}')"
+                         ondragend="onTruthDragEnd(event)">
                         <div class="truth-card-header">
                             <span class="truth-card-title">${truth.title}</span>
                             <span class="truth-card-status ${isRevealed ? 'completed' : ''}">
                                 ${isRevealed ? '已公开' : (isLocked ? '未解锁' : '待调查')}
+                                <span style="font-size:10px;opacity:0.7;"> 📌可拖入画布</span>
                             </span>
                         </div>
                         <p class="truth-card-desc">${truth.description}</p>
@@ -3410,7 +4436,7 @@
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                 </svg>
-                                ${truth.requirement.factionReq ? `需要: ${formatRequirements(truth.requirement)}` : '需要先完成前置真相'}
+                                ${requirementText}
                             </div>
                         ` : ''}
                     </div>
@@ -3420,6 +4446,22 @@
 
         function checkTruthLocked(truth) {
             if (!truth.requirement) return false;
+            
+            // 如果有画布连接要求，这是独立的主要解锁条件
+            if (truth.requirement.canvasConnection) {
+                const connectedTruths = new Set();
+                gameState.canvasConnections.forEach(c => {
+                    connectedTruths.add(c.from);
+                    connectedTruths.add(c.to);
+                });
+                const hasInnerSpy = connectedTruths.has('truth1-1');
+                const hasSecretFund = connectedTruths.has('truth1-2');
+                // 满足画布连接条件即可解锁
+                if (hasInnerSpy && hasSecretFund) {
+                    return false;
+                }
+                return true;
+            }
             
             // 阵营分数要求检查
             if (truth.requirement.factionReq) {
@@ -3471,23 +4513,37 @@
             const container = document.getElementById('evidenceGrid');
             const unlockedDialogueEvidence = gameState.unlockedEvidence || [];
             
-            // 本章初始证据 + 已解锁的对话奖励证据(chapter=0)
+            // 获取商店解锁的证据名称
+            const shopUnlockedEvidenceNames = gameData.shopItems
+                .filter(item => gameState.purchasedShopItems.includes(item.id))
+                .map(item => item.unlocksEvidence);
+            
+            // 本章初始证据 + 已解锁的对话奖励证据 + 商店解锁的证据
             const chapterEvidence = gameData.evidence.filter(e => {
                 // 本章初始证据
                 if (e.chapter === gameState.currentChapter) return true;
                 // 已解锁的对话奖励证据
                 if (e.chapter === 0 && unlockedDialogueEvidence.includes(e.id)) return true;
+                // 商店解锁的证据
+                if (shopUnlockedEvidenceNames.includes(e.name)) return true;
                 return false;
             });
             
-            container.innerHTML = chapterEvidence.map(e => `
-                <div class="evidence-item ${e.used ? 'used' : ''} ${e.chapter === 0 ? 'dialogue-reward' : ''}" 
-                     draggable="${!e.used}"
-                     ondragstart="onDragStart(event, '${e.id}')"
-                     ondragend="onDragEnd(event)">
-                    ${e.name}${e.chapter === 0 ? ' ⭐' : ''}
+            container.innerHTML = chapterEvidence.map(e => {
+                const isShopUnlocked = shopUnlockedEvidenceNames.includes(e.name);
+                const isDialogueUnlocked = e.chapter === 0 && unlockedDialogueEvidence.includes(e.id);
+                const specialClass = isShopUnlocked ? 'shop-unlocked' : (isDialogueUnlocked ? 'dialogue-reward' : '');
+                const badge = isShopUnlocked ? ' 🛒' : (isDialogueUnlocked ? ' ⭐' : '');
+                
+                return `
+                    <div class="evidence-item ${e.used ? 'used' : ''} ${specialClass}" 
+                         draggable="${!e.used}"
+                         ondragstart="onDragStart(event, '${e.id}')"
+                         ondragend="onDragEnd(event)">
+                    ${e.name}${badge}
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // ==================== 章节切换 ====================
@@ -3881,6 +4937,17 @@
         function onDragEnd(event) {
             event.target.classList.remove('dragging');
             gameState.draggedEvidence = null;
+        }
+
+        // 真相卡片拖拽到画布
+        function onTruthDragStart(event, truthId) {
+            gameState.draggedEvidence = `truth_${truthId}`;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function onTruthDragEnd(event) {
+            event.target.classList.remove('dragging');
         }
 
         function setupDropZone() {
