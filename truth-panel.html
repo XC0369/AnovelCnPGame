@@ -4331,6 +4331,7 @@
             // 更新UI
             renderFactionScores();
             renderEvidenceGrid();
+            renderShop();
             renderNpcList();
 
             // 关闭对话框
@@ -4362,6 +4363,7 @@
             gameState.factionScores.question = parseInt(document.getElementById('debugQuestion').value) || 0;
             gameState.factionScores.economy = parseInt(document.getElementById('debugEconomy').value) || 0;
             renderFactionScores();
+            renderShop();
             closeDebugPanel();
         }
 
@@ -5032,6 +5034,7 @@
                     }
 
                     renderFactionScores();
+                    renderShop();
                     updateMemoryCapacity();
                     renderEvidenceGrid();
                     renderKeyQuestions();
@@ -5078,6 +5081,7 @@
                 });
 
                 renderFactionScores();
+                renderShop();
                 updateMemoryCapacity();
                 renderEvidenceGrid();
                 renderKeyQuestions();
@@ -5191,6 +5195,7 @@
             // 更新UI
             renderFactionScores();
             renderTruthCards();
+            renderShop();
             renderEndings();
             unlockNextChapter();
             document.getElementById('investigationStatus').textContent = '已公开';
@@ -5260,6 +5265,7 @@
 
             // 更新UI
             renderFactionScores();
+            renderShop();
             document.getElementById('investigationStatus').textContent = '已公开';
             document.getElementById('investigationStatus').classList.add('revealed');
             document.getElementById('revealTruthBtn').disabled = true;
