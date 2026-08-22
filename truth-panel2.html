@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无名者档案 - 卡牌推理游戏（结局标记版）</title>
+    <style>
+        :root {
+            --bg: #1a1410;
+            --panel-bg: #2a2018;
+            --card-bg: #3a2e22;
+            --border: #5a4a3a;
+            --text: #e8dcc0;
+            --text-dim: #a89880;
+            --gold: #c8a870;
+            --gold-dark: #8a7040;
+            --order-color: #4a80c0;
+            --economy-color: #c8a040;
+            --doubt-color: #a060a0;
+            --innov-color: #50a070;
+            --truth-color: #c89030;
+            --hidden-color: #9060c0;
+            --keyq-color: #4070b0;
+            --clue-color: #50a060;
+            --ending-color: #c05050;
+            --danger: #c04040;
+            --success: #6ac07a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Georgia', 'SimSun', 'Noto Serif SC', serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 12px 8px;
+            overflow-x: hidden;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(200, 168, 112, 0.4);
+        }
+        #game-status {
+            font-size: 0.85em;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+        .marked-indicator {
+            color: var(--gold);
+            font-size: 0.7em;
+            letter-spacing: 0.5px;
+            margin-left: 4px;
+        }
+
+        #score-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .score-item {
+            flex: 1;
+            min-width: 110px;
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: default;
+            position: relative;
+        }
+        .score-item.low {
+            border-color: var(--danger);
+            box-shadow: 0 0 8px rgba(192, 64, 64, 0.3);
+        }
+        .score-item .score-name {
+            font-size: 0.85em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        .score-item .score-value {
+            font-size: 1.7em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .score-item.order .score-name { color: var(--order-color); }
+        .score-item.order .score-value { color: var(--order-color); }
+        .score-item.economy .score-name { color: var(--economy-color); }
+        .score-item.economy .score-value { color: var(--economy-color); }
+        .score-item.doubt .score-name { color: var(--doubt-color); }
+        .score-item.doubt .score-value { color: var(--doubt-color); }
+        .score-item.innovation .score-name { color: var(--innov-color); }
+        .score-item.innovation .score-value { color: var(--innov-color); }
+        .score-flash { animation: scoreFlash 0.6s ease; }
+        @keyframes scoreFlash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        #hand-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-height: 200px;
+        }
+        .card-section {
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        .card-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            padding: 2px 4px 6px 4px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .card-section-header .count {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            font-weight: normal;
+        }
+        .cards-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 38px;
+        }
+        .cards-row.empty::after {
+            content: '(空)';
+            color: var(--text-dim);
+            font-size: 0.8em;
+            font-style: italic;
+            align-self: center;
+            padding: 4px 8px;
+        }
+
+        .card {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid;
+            cursor: grab;
+            font-size: 0.8em;
+            text-align: center;
+            min-width: 90px;
+            max-width: 160px;
+            min-height: 48px;
+            word-break: break-word;
+            line-height: 1.25;
+            transition: all 0.2s;
+            position: relative;
+            background: var(--card-bg);
+            gap: 2px;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+        .card:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        .card.dragging { opacity: 0.4; transform: scale(0.9); }
+        .card.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.7);
+        }
+        .card.marked {
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(200, 168, 112, 0.6);
+        }
+        .card.marked::after {
+            content: '⭐';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 1.2em;
+            background: #2a2018;
+            border-radius: 50%;
+            padding: 2px;
+        }
+        .card .card-type-tag {
+            font-size: 0.65em;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        .card .card-name {
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .card.truth {
+            border-color: var(--truth-color);
+            background: linear-gradient(135deg, #3a2a10, #4a3518);
+            box-shadow: 0 0 6px rgba(200, 144, 48, 0.3);
+        }
+        .card.truth .card-type-tag { color: var(--truth-color); }
+        .card.truth .card-name { color: #e8c070; }
+
+        .card.hidden-truth {
+            border-color: var(--hidden-color);
+            background: linear-gradient(135deg, #2a1030, #3a1845);
+            box-shadow: 0 0 10px rgba(144, 96, 192, 0.4);
+        }
+        .card.hidden-truth .card-type-tag { color: var(--hidden-color); }
+        .card.hidden-truth .card-name { color: #c890e0; }
+
+        .card.key-question {
+            border-color: var(--keyq-color);
+            background: linear-gradient(135deg, #101830, #182540);
+            box-shadow: 0 0 6px rgba(64, 112, 176, 0.3);
+        }
+        .card.key-question .card-type-tag { color: var(--keyq-color); }
+        .card.key-question .card-name { color: #80b0e0; }
+
+        .card.clue {
+            border-color: var(--clue-color);
+            background: linear-gradient(135deg, #102820, #183a2a);
+            box-shadow: 0 0 6px rgba(80, 160, 96, 0.3);
+        }
+        .card.clue .card-type-tag { color: var(--clue-color); }
+        .card.clue .card-name { color: #80d090; }
+
+        .card.ending {
+            border-color: var(--ending-color);
+            background: linear-gradient(135deg, #301010, #451818);
+            box-shadow: 0 0 10px rgba(192, 80, 80, 0.5);
+        }
+        .card.ending .card-type-tag { color: var(--ending-color); }
+        .card.ending .card-name { color: #e09090; }
+
+        #clue-shop {
+            background: var(--panel-bg);
+            border: 2px solid var(--economy-color);
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        #clue-shop .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        #clue-shop .shop-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--economy-color);
+            letter-spacing: 1px;
+        }
+        #clue-shop .shop-info {
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+        .shop-cards-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 38px;
+        }
+        .shop-cards-row.empty::after {
+            content: '(所有线索均已获得)';
+            color: var(--text-dim);
+            font-size: 0.8em;
+            font-style: italic;
+            align-self: center;
+            padding: 4px 8px;
+        }
+        .shop-card {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 2px solid var(--clue-color);
+            background: linear-gradient(135deg, #102820, #183a2a);
+            box-shadow: 0 0 6px rgba(80, 160, 96, 0.3);
+            cursor: pointer;
+            font-size: 0.8em;
+            text-align: center;
+            min-width: 110px;
+            max-width: 180px;
+            min-height: 70px;
+            word-break: break-word;
+            line-height: 1.25;
+            transition: all 0.2s;
+            position: relative;
+            gap: 4px;
+        }
+        .shop-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-color: var(--economy-color);
+        }
+        .shop-card .shop-card-price {
+            font-size: 0.75em;
+            color: var(--economy-color);
+            font-weight: bold;
+        }
+        .shop-card .shop-card-name {
+            font-weight: bold;
+            color: #80d090;
+            font-size: 0.85em;
+        }
+        .shop-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.8);
+        }
+
+        #button-area {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 4px 0;
+        }
+        .faction-btn {
+            flex: 1;
+            min-width: 100px;
+            max-width: 180px;
+            padding: 14px 10px;
+            border-radius: 10px;
+            border: 3px solid;
+            font-size: 1.05em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            text-align: center;
+            position: relative;
+            background: var(--panel-bg);
+        }
+        .faction-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+        .faction-btn:active:not(:disabled) { transform: translateY(0); }
+        .faction-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .faction-btn.active {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+            animation: pulseGlow 1.2s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5); }
+            100% { box-shadow: 0 6px 28px rgba(200, 168, 112, 0.5); }
+        }
+        .faction-btn .btn-score {
+            display: block;
+            font-size: 0.7em;
+            font-weight: normal;
+            letter-spacing: 0;
+            margin-top: 3px;
+            opacity: 0.8;
+        }
+        .faction-btn.order { border-color: var(--order-color); color: var(--order-color); }
+        .faction-btn.economy { border-color: var(--economy-color); color: var(--economy-color); }
+        .faction-btn.doubt { border-color: var(--doubt-color); color: var(--doubt-color); }
+        .faction-btn.innovation { border-color: var(--innov-color); color: var(--innov-color); }
+
+        #execute-area {
+            background: var(--panel-bg);
+            border: 2px solid var(--gold-dark);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        #execute-area.inactive { opacity: 0.7; border-color: var(--border); }
+        .execute-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        #execute-faction-label {
+            font-size: 1em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: var(--gold);
+        }
+        #execute-faction-label.inactive { color: var(--text-dim); font-style: italic; }
+        #execute-slot {
+            background: #1a1410;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            min-height: 70px;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+        #execute-slot.drag-over {
+            border-color: var(--gold);
+            background: #2a2018;
+            box-shadow: 0 0 16px rgba(200, 168, 112, 0.3);
+        }
+        #execute-slot .placeholder {
+            color: var(--text-dim);
+            font-size: 0.8em;
+            font-style: italic;
+            pointer-events: none;
+        }
+        #execute-slot .card { cursor: pointer; }
+        #execute-slot .card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 10px rgba(200, 168, 112, 0.5);
+        }
+        .execute-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .panel-btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 2px solid;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            font-family: inherit;
+            transition: all 0.25s;
+        }
+        .panel-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        #btn-execute {
+            border-color: var(--gold);
+            background: #3a2a10;
+            color: var(--gold);
+        }
+        #btn-execute:hover:not(:disabled) {
+            background: #4a3518;
+            box-shadow: 0 0 14px rgba(200, 168, 112, 0.4);
+        }
+        #btn-clear-slot {
+            border-color: var(--danger);
+            background: #2a1510;
+            color: var(--danger);
+            font-size: 0.8em;
+            padding: 6px 12px;
+        }
+        #btn-clear-slot:hover:not(:disabled) { background: #3a1a10; }
+
+        .invest-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1a1410;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+        .invest-control label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+        .invest-control input {
+            width: 60px;
+            padding: 6px 8px;
+            background: #2a2018;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            font-family: inherit;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .invest-control input:focus { border-color: var(--gold); }
+        .invest-control input[type=number] { -moz-appearance: textfield; }
+        .invest-control .max-hint { font-size: 0.8em; color: var(--text-dim); }
+
+        #toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 340px;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85em;
+            color: var(--text);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.3s ease, toastOut 0.4s ease 2.8s forwards;
+            pointer-events: auto;
+            line-height: 1.4;
+        }
+        .toast.success { border-color: var(--success); box-shadow: 0 0 12px rgba(106, 192, 122, 0.4); }
+        .toast.error { border-color: var(--danger); box-shadow: 0 0 12px rgba(192, 64, 64, 0.4); }
+        .toast.locked { border-color: var(--gold); box-shadow: 0 0 20px rgba(200, 168, 112, 0.6); font-weight: bold; }
+        .toast.info { border-color: var(--gold-dark); }
+        @keyframes toastIn {
+            from { transform: translateX(60px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastOut {
+            to { transform: translateX(60px); opacity: 0; }
+        }
+
+        @media (max-width: 700px) {
+            .faction-btn {
+                min-width: 70px;
+                font-size: 0.85em;
+                padding: 10px 6px;
+                letter-spacing: 1px;
+            }
+            .card { min-width: 70px; max-width: 130px; padding: 6px 8px; font-size: 0.7em; }
+            #title { font-size: 1.1em; }
+            .score-item .score-value { font-size: 1.3em; }
+            #execute-area { padding: 10px 8px; }
+            #execute-slot { min-height: 50px; padding: 6px; }
+            .shop-card { min-width: 80px; padding: 6px 8px; font-size: 0.7em; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 头部 -->
+        <div id="header">
+            <span id="title">🔍 无名者档案</span>
+            <span id="game-status">调查进行中...</span>
+        </div>
+
+        <!-- 分数栏 -->
+        <div id="score-bar">
+            <div class="score-item order" id="score-order">
+                <div class="score-name">⚖️ 秩序</div>
+                <div class="score-value" id="score-val-order">3</div>
+            </div>
+            <div class="score-item economy" id="score-economy">
+                <div class="score-name">💰 经济</div>
+                <div class="score-value" id="score-val-economy">3</div>
+            </div>
+            <div class="score-item doubt" id="score-doubt">
+                <div class="score-name">🔍 质疑</div>
+                <div class="score-value" id="score-val-doubt">3</div>
+            </div>
+            <div class="score-item innovation" id="score-innovation">
+                <div class="score-name">💡 创新</div>
+                <div class="score-value" id="score-val-innovation">3</div>
+            </div>
+        </div>
+
+        <!-- 线索商店 -->
+        <div id="clue-shop">
+            <div class="shop-header">
+                <span class="shop-title">🛒 线索商店</span>
+                <span class="shop-info">使用经济分数购买所需线索（每张1经济分）</span>
+            </div>
+            <div class="shop-cards-row" id="shop-cards-row"></div>
+        </div>
+
+        <!-- 手牌区域 -->
+        <div id="hand-area">
+            <div class="card-section" id="section-truth">
+                <div class="card-section-header">
+                    <span>📜 真相卡</span>
+                    <span class="count" id="count-truth">0</span>
+                </div>
+                <div class="cards-row" id="cards-truth"></div>
+            </div>
+            <div class="card-section" id="section-hidden">
+                <div class="card-section-header">
+                    <span>🔮 隐藏真相卡</span>
+                    <span class="count" id="count-hidden">0</span>
+                </div>
+                <div class="cards-row" id="cards-hidden"></div>
+            </div>
+            <div class="card-section" id="section-keyq">
+                <div class="card-section-header">
+                    <span>❓ 关键问题卡</span>
+                    <span class="count" id="count-keyq">0</span>
+                </div>
+                <div class="cards-row" id="cards-keyq"></div>
+            </div>
+            <div class="card-section" id="section-clue">
+                <div class="card-section-header">
+                    <span>🧩 线索卡</span>
+                    <span class="count" id="count-clue">0</span>
+                </div>
+                <div class="cards-row" id="cards-clue"></div>
+            </div>
+            <div class="card-section" id="section-ending">
+                <div class="card-section-header">
+                    <span>🏁 结局卡</span>
+                    <span class="count" id="count-ending">0</span>
+                </div>
+                <div class="cards-row" id="cards-ending"></div>
+            </div>
+        </div>
+
+        <!-- 执行按钮 -->
+        <div id="button-area">
+            <button class="faction-btn order" id="btn-order" data-faction="order">
+                ⚖️ 秩序
+                <span class="btn-score">分数: <span id="btn-score-order">3</span></span>
+            </button>
+            <button class="faction-btn economy" id="btn-economy" data-faction="economy">
+                💰 经济
+                <span class="btn-score">分数: <span id="btn-score-economy">3</span></span>
+            </button>
+            <button class="faction-btn doubt" id="btn-doubt" data-faction="doubt">
+                🔍 质疑
+                <span class="btn-score">分数: <span id="btn-score-doubt">3</span></span>
+            </button>
+            <button class="faction-btn innovation" id="btn-innovation" data-faction="innovation">
+                💡 创新
+                <span class="btn-score">分数: <span id="btn-score-innovation">3</span></span>
+            </button>
+        </div>
+
+        <!-- 执行区域 -->
+        <div id="execute-area" class="inactive">
+            <div class="execute-header">
+                <span id="execute-faction-label" class="inactive">请先选择一个执行按钮</span>
+            </div>
+            <div id="execute-slot">
+                <span class="placeholder">将卡牌拖入此处（需先选择执行按钮）</span>
+            </div>
+            <div class="execute-actions">
+                <div class="invest-control">
+                    <label for="invest-amount">投入分数:</label>
+                    <input type="number" id="invest-amount" value="1" min="1" max="1" disabled>
+                    <span class="max-hint">/ <span id="max-invest-hint">0</span></span>
+                </div>
+                <button class="panel-btn" id="btn-execute" disabled>⚡ 执行</button>
+                <button class="panel-btn" id="btn-clear-slot">🗑️ 清空</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        (function() {
+            const TYPE_LABELS = {
+                'truth': '真相',
+                'hidden-truth': '隐藏真相',
+                'key-question': '关键问题',
+                'clue': '线索',
+                'ending': '结局'
+            };
+
+            const ALL_CARDS = {
+                'TRUTH_INNER': { id: 'TRUTH_INNER', type: 'truth', name: '真相：有人出卖了"无名者"，这个内鬼是谁？', displayName: '有人出卖了"无名者"，这个内鬼是谁？' },
+                'TRUTH_REPORT': { id: 'TRUTH_REPORT', type: 'truth', name: '真相：如果没有"内鬼"，那么谁会想举报"无名者"？', displayName: '如果没有"内鬼"，谁会想举报"无名者"？' },
+                'HIDDEN_ANTA': { id: 'HIDDEN_ANTA', type: 'hidden-truth', name: '隐藏真相：Anta的身份', displayName: 'Anta的身份' },
+                'KQ_ASTROLOGER': { id: 'KQ_ASTROLOGER', type: 'key-question', name: '关键问题：37岁职业占星师', displayName: '37岁职业占星师' },
+                'KQ_JUDGE': { id: 'KQ_JUDGE', type: 'key-question', name: '关键问题：59岁候补法官', displayName: '59岁候补法官' },
+                'KQ_STREAMER': { id: 'KQ_STREAMER', type: 'key-question', name: '关键问题：13岁游戏主播', displayName: '13岁游戏主播' },
+                'KQ_BLOGGER': { id: 'KQ_BLOGGER', type: 'key-question', name: '关键问题：阴谋论博客主持人', displayName: '阴谋论博客主持人' },
+                'KQ_PHD': { id: 'KQ_PHD', type: 'key-question', name: '关键问题：42岁失业哲学博士', displayName: '42岁失业哲学博士' },
+                'KQ_ANTA': { id: 'KQ_ANTA', type: 'key-question', name: '关键问题：Anta', displayName: 'Anta' },
+                'KQ_MOTHER': { id: 'KQ_MOTHER', type: 'key-question', name: '关键问题：你母亲', displayName: '你母亲' },
+                'KQ_LANDLORD': { id: 'KQ_LANDLORD', type: 'key-question', name: '关键问题：前房东', displayName: '前房东' },
+                'KQ_CLEANER': { id: 'KQ_CLEANER', type: 'key-question', name: '关键问题：保洁员', displayName: '保洁员' },
+                'KQ_CAPTAIN': { id: 'KQ_CAPTAIN', type: 'key-question', name: '关键问题：前成员船长', displayName: '前成员船长' },
+                'KQ_POLITICIAN': { id: 'KQ_POLITICIAN', type: 'key-question', name: '关键问题：为达目的不择手段的政治家', displayName: '为达目的不择手段的政治家' },
+                'KQ_ALIEN': { id: 'KQ_ALIEN', type: 'key-question', name: '关键问题：外星人侵略地球理论爱好者', displayName: '外星人侵略地球理论爱好者' },
+                'KQ_NEGLECT': { id: 'KQ_NEGLECT', type: 'key-question', name: '关键问题：失职的母亲', displayName: '失职的母亲' },
+                'KQ_ECONOMIST': { id: 'KQ_ECONOMIST', type: 'key-question', name: '关键问题：经济学家', displayName: '经济学家' },
+                'KQ_FITNESS': { id: 'KQ_FITNESS', type: 'key-question', name: '关键问题：虚假的健身达人', displayName: '虚假的健身达人' },
+                'CLUE_RECORD': { id: 'CLUE_RECORD', type: 'clue', name: '线索：偷偷录音', displayName: '偷偷录音' },
+                'CLUE_STAKE': { id: 'CLUE_STAKE', type: 'clue', name: '线索：蹲守地库', displayName: '蹲守地库' },
+                'CLUE_ADDRESS': { id: 'CLUE_ADDRESS', type: 'clue', name: '线索：公开地址', displayName: '公开地址' },
+                'CLUE_ABSENT': { id: 'CLUE_ABSENT', type: 'clue', name: '线索：会议缺席', displayName: '会议缺席' },
+                'CLUE_WIND': { id: 'CLUE_WIND', type: 'clue', name: '线索：意外之财', displayName: '意外之财' },
+                'CLUE_CAMPAIGN': { id: 'CLUE_CAMPAIGN', type: 'clue', name: '线索：首相竞选', displayName: '首相竞选' },
+                'CLUE_ATTACK1': { id: 'CLUE_ATTACK1', type: 'clue', name: '线索：言论攻击', displayName: '言论攻击' },
+                'CLUE_ATTACK2': { id: 'CLUE_ATTACK2', type: 'clue', name: '线索：言论攻击2', displayName: '言论攻击2' },
+                'CLUE_ATTACK3': { id: 'CLUE_ATTACK3', type: 'clue', name: '线索：言论攻击3', displayName: '言论攻击3' },
+                'CLUE_INTERVIEW': { id: 'CLUE_INTERVIEW', type: 'clue', name: '线索：采访', displayName: '采访' },
+                'CLUE_CHILDHOOD': { id: 'CLUE_CHILDHOOD', type: 'clue', name: '线索：童年回忆', displayName: '童年回忆' },
+                'CLUE_CULT': { id: 'CLUE_CULT', type: 'clue', name: '线索：邪教组织', displayName: '邪教组织' },
+                'CLUE_SMUGGLE': { id: 'CLUE_SMUGGLE', type: 'clue', name: '线索：走私物', displayName: '走私物' },
+                'CLUE_PM_SELECT': { id: 'CLUE_PM_SELECT', type: 'clue', name: '线索：首相精选', displayName: '首相精选' },
+                'CLUE_FISHING': { id: 'CLUE_FISHING', type: 'clue', name: '线索：钓鱼执法', displayName: '钓鱼执法' },
+                'CLUE_INVADE': { id: 'CLUE_INVADE', type: 'clue', name: '线索：入侵地球', displayName: '入侵地球' },
+                'CLUE_SPACE': { id: 'CLUE_SPACE', type: 'clue', name: '线索：宇宙探索', displayName: '宇宙探索' },
+                'CLUE_SUBSIDY': { id: 'CLUE_SUBSIDY', type: 'clue', name: '线索：切断补助', displayName: '切断补助' },
+                'CLUE_MARKET': { id: 'CLUE_MARKET', type: 'clue', name: '线索：市场自由', displayName: '市场自由' },
+                'CLUE_PAPER': { id: 'CLUE_PAPER', type: 'clue', name: '线索：研究论文', displayName: '研究论文' },
+                'CLUE_HYPOCRISY': { id: 'CLUE_HYPOCRISY', type: 'clue', name: '线索：虚伪', displayName: '虚伪' },
+                'END_ASTROLOGER': { id: 'END_ASTROLOGER', type: 'ending', name: '结局：占星师不是内鬼', displayName: '占星师不是内鬼' },
+                'END_JUDGE': { id: 'END_JUDGE', type: 'ending', name: '结局：候补法官不是内鬼', displayName: '候补法官不是内鬼' },
+                'END_STREAMER': { id: 'END_STREAMER', type: 'ending', name: '结局：游戏主播不是内鬼', displayName: '游戏主播不是内鬼' },
+                'END_BLOGGER': { id: 'END_BLOGGER', type: 'ending', name: '结局：阴谋论博客主持人不是内鬼', displayName: '阴谋论博客主持人不是内鬼' },
+                'END_PHD': { id: 'END_PHD', type: 'ending', name: '结局：42岁失业哲学博士', displayName: '42岁失业哲学博士' },
+                'END_ANTA_REPORT': { id: 'END_ANTA_REPORT', type: 'ending', name: '结局：Anta举报的', displayName: 'Anta举报的' },
+                'END_MOTHER_REPORT': { id: 'END_MOTHER_REPORT', type: 'ending', name: '结局：母亲举报的', displayName: '母亲举报的' },
+                'END_TOO_MANY': { id: 'END_TOO_MANY', type: 'ending', name: '结局：有举报嫌疑的太多', displayName: '有举报嫌疑的太多' },
+                'END_CAPTAIN_REPORT': { id: 'END_CAPTAIN_REPORT', type: 'ending', name: '结局：前成员船长举报的', displayName: '前成员船长举报的' },
+                'END_ANTA_MULTI': { id: 'END_ANTA_MULTI', type: 'ending', name: '结局：Anta有多个身份', displayName: 'Anta有多个身份' },
+            };
+
+            // 真相与结局的关联映射
+            const TRUTH_ENDING_MAP = {
+                'TRUTH_INNER': ['END_ASTROLOGER', 'END_JUDGE', 'END_STREAMER', 'END_BLOGGER', 'END_PHD'],
+                'TRUTH_REPORT': ['END_ANTA_REPORT', 'END_MOTHER_REPORT', 'END_TOO_MANY', 'END_CAPTAIN_REPORT'],
+                'HIDDEN_ANTA': ['END_ANTA_MULTI']
+            };
+
+            // 生产规则（不含结局标记，标记单独处理）
+            const PRODUCTION_RULES = [
+                { resultId: 'KQ_ASTROLOGER', requiredIds: ['TRUTH_INNER'], cost: 1 },
+                { resultId: 'KQ_JUDGE', requiredIds: ['TRUTH_INNER'], cost: 2 },
+                { resultId: 'KQ_STREAMER', requiredIds: ['TRUTH_INNER'], cost: 2 },
+                { resultId: 'KQ_BLOGGER', requiredIds: ['TRUTH_INNER'], cost: 2 },
+                { resultId: 'KQ_PHD', requiredIds: ['TRUTH_INNER'], cost: 2 },
+                { resultId: 'KQ_ANTA', requiredIds: ['TRUTH_REPORT'], cost: 2 },
+                { resultId: 'KQ_MOTHER', requiredIds: ['TRUTH_REPORT'], cost: 2 },
+                { resultId: 'KQ_LANDLORD', requiredIds: ['TRUTH_REPORT'], cost: 2 },
+                { resultId: 'KQ_CLEANER', requiredIds: ['TRUTH_REPORT'], cost: 1 },
+                { resultId: 'KQ_CAPTAIN', requiredIds: ['TRUTH_REPORT'], cost: 2 },
+                { resultId: 'KQ_POLITICIAN', requiredIds: ['HIDDEN_ANTA', 'CLUE_ATTACK2'], cost: 2 },
+                { resultId: 'KQ_ALIEN', requiredIds: ['HIDDEN_ANTA', 'CLUE_ATTACK3'], cost: 2 },
+                { resultId: 'KQ_NEGLECT', requiredIds: ['HIDDEN_ANTA'], cost: 1 },
+                { resultId: 'KQ_ECONOMIST', requiredIds: ['HIDDEN_ANTA'], cost: 2 },
+                { resultId: 'KQ_FITNESS', requiredIds: ['HIDDEN_ANTA'], cost: 2 },
+                { resultId: 'END_ASTROLOGER', requiredIds: ['KQ_ASTROLOGER'], cost: 1 },
+                { resultId: 'END_JUDGE', requiredIds: ['KQ_JUDGE', 'CLUE_RECORD', 'CLUE_STAKE'], cost: 2 },
+                { resultId: 'END_STREAMER', requiredIds: ['KQ_STREAMER', 'CLUE_ADDRESS'], cost: 1 },
+                { resultId: 'END_BLOGGER', requiredIds: ['KQ_BLOGGER'], cost: 1 },
+                { resultId: 'END_PHD', requiredIds: ['KQ_PHD', 'CLUE_ABSENT', 'CLUE_WIND'], cost: 2 },
+                { resultId: 'END_ANTA_REPORT', requiredIds: ['KQ_ANTA', 'CLUE_CAMPAIGN', 'CLUE_ATTACK1', 'CLUE_ATTACK2', 'CLUE_ATTACK3'], cost: 4 },
+                { resultId: 'END_MOTHER_REPORT', requiredIds: ['KQ_MOTHER', 'CLUE_INTERVIEW', 'CLUE_CHILDHOOD'], cost: 2 },
+                { resultId: 'END_TOO_MANY', requiredIds: ['KQ_LANDLORD', 'CLUE_CULT'], cost: 1 },
+                { resultId: 'END_TOO_MANY', requiredIds: ['KQ_CLEANER'], cost: 1 },
+                { resultId: 'END_CAPTAIN_REPORT', requiredIds: ['KQ_CAPTAIN', 'CLUE_SMUGGLE'], cost: 1 },
+                { resultId: 'END_ANTA_MULTI', requiredIds: ['KQ_POLITICIAN', 'CLUE_CAMPAIGN', 'CLUE_FISHING'], cost: 2 },
+                { resultId: 'END_ANTA_MULTI', requiredIds: ['KQ_ALIEN', 'CLUE_INVADE', 'CLUE_SPACE'], cost: 2 },
+                { resultId: 'END_ANTA_MULTI', requiredIds: ['KQ_NEGLECT', 'CLUE_SUBSIDY'], cost: 1 },
+                { resultId: 'END_ANTA_MULTI', requiredIds: ['KQ_ECONOMIST', 'CLUE_MARKET', 'CLUE_PAPER'], cost: 2 },
+                { resultId: 'END_ANTA_MULTI', requiredIds: ['KQ_FITNESS', 'CLUE_HYPOCRISY'], cost: 1 },
+            ];
+
+            const FACTION_NAMES = { order: '秩序', economy: '经济', doubt: '质疑', innovation: '创新' };
+            const FACTION_ICONS = { order: '⚖️', economy: '💰', doubt: '🔍', innovation: '💡' };
+            const FACTION_KEYS = ['order', 'economy', 'doubt', 'innovation'];
+
+            const state = {
+                scores: { order: 3, economy: 3, doubt: 3, innovation: 3 },
+                obtainedCards: new Set(),
+                hand: { truth: [], 'hidden-truth': [], 'key-question': [], clue: [], ending: [] },
+                gameEnded: false,
+                activeButton: null,
+                panelCards: [],
+                investAmount: 1,
+                hiddenTruthUnlocked: false,
+                hiddenTruthThreshold: 5,
+                initialClueCount: 5,
+                markCost: 2,          // 标记结局消耗分数
+                cluePrice: 1,
+                truthMarks: {},       // 记录每张真相卡标记的结局ID
+            };
+
+            // DOM 引用
+            const $ = (sel) => document.querySelector(sel);
+            const cardsContainers = {
+                truth: $('#cards-truth'),
+                'hidden-truth': $('#cards-hidden'),
+                'key-question': $('#cards-keyq'),
+                clue: $('#cards-clue'),
+                ending: $('#cards-ending'),
+            };
+            const countsEls = {
+                truth: $('#count-truth'),
+                'hidden-truth': $('#count-hidden'),
+                'key-question': $('#count-keyq'),
+                clue: $('#count-clue'),
+                ending: $('#count-ending'),
+            };
+            const executeSlot = $('#execute-slot');
+            const executeArea = $('#execute-area');
+            const executeFactionLabel = $('#execute-faction-label');
+            const btnExecute = $('#btn-execute');
+            const btnClearSlot = $('#btn-clear-slot');
+            const gameStatusEl = $('#game-status');
+            const toastContainer = $('#toast-container');
+            const investInput = $('#invest-amount');
+            const maxInvestHint = $('#max-invest-hint');
+            const shopCardsRow = $('#shop-cards-row');
+
+            function getCardDef(cardId) { return ALL_CARDS[cardId] || null; }
+            function isCardObtained(cardId) { return state.obtainedCards.has(cardId); }
+            function getCardDisplayName(cardId) { const def = getCardDef(cardId); return def ? def.displayName : cardId; }
+            function isTruthCard(cardId) { const def = getCardDef(cardId); return def && (def.type === 'truth' || def.type === 'hidden-truth'); }
+
+            function updateScoreUI() {
+                FACTION_KEYS.forEach(fk => {
+                    const val = state.scores[fk];
+                    document.getElementById(`score-val-${fk}`).textContent = val;
+                    document.getElementById(`btn-score-${fk}`).textContent = val;
+                    const item = document.getElementById(`score-${fk}`);
+                    if (item) item.classList.toggle('low', val <= 0);
+                });
+                updateInvestInputMax();
+                renderShop();
+            }
+
+            function updateInvestInputMax() {
+                if (state.activeButton && !state.gameEnded) {
+                    const maxScore = state.scores[state.activeButton];
+                    investInput.disabled = false;
+                    investInput.max = maxScore;
+                    maxInvestHint.textContent = maxScore;
+                    let currentVal = parseInt(investInput.value, 10) || 1;
+                    if (currentVal > maxScore) currentVal = maxScore;
+                    if (currentVal < 1) currentVal = 1;
+                    investInput.value = currentVal;
+                    state.investAmount = currentVal;
+                } else {
+                    investInput.disabled = true;
+                    investInput.max = 0;
+                    maxInvestHint.textContent = '0';
+                    investInput.value = 1;
+                    state.investAmount = 1;
+                }
+                updateExecuteButtonState();
+            }
+
+            function showToast(message, type = 'info', duration = 3200) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                if (type === 'success') toast.classList.add('success');
+                if (type === 'error') toast.classList.add('error');
+                if (type === 'locked') toast.classList.add('locked');
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+                setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, duration + 400);
+            }
+
+            function createCardElement(cardId, forShop = false) {
+                const def = getCardDef(cardId);
+                if (!def) return null;
+                const el = document.createElement('div');
+                el.className = `card ${def.type}`;
+                el.draggable = true;
+                el.dataset.cardId = cardId;
+                el.dataset.cardType = def.type;
+                el.title = def.name;
+                el.innerHTML = `
+                    <span class="card-type-tag">${TYPE_LABELS[def.type] || def.type}</span>
+                    <span class="card-name">${def.displayName}</span>
+                `;
+                // 标记装饰
+                if (state.truthMarks && state.truthMarks[cardId]) {
+                    el.classList.add('marked');
+                    el.title += `\n（已标记：${getCardDisplayName(state.truthMarks[cardId])}）`;
+                }
+                if (!forShop) {
+                    el.addEventListener('dragstart', handleDragStart);
+                    el.addEventListener('dragend', handleDragEnd);
+                    el.addEventListener('click', (e) => {
+                        if (state.gameEnded) return;
+                        if (state.activeButton) {
+                            tryAddToPanel(cardId);
+                        } else {
+                            showToast('请先选择一个执行按钮', 'error');
+                        }
+                    });
+                }
+                return el;
+            }
+
+            function renderHand() {
+                ['truth', 'hidden-truth', 'key-question', 'clue', 'ending'].forEach(type => {
+                    const container = cardsContainers[type];
+                    const handCards = state.hand[type] || [];
+                    container.innerHTML = '';
+                    if (handCards.length === 0) {
+                        container.classList.add('empty');
+                    } else {
+                        container.classList.remove('empty');
+                        handCards.forEach(cardId => {
+                            const el = createCardElement(cardId);
+                            if (el) {
+                                container.appendChild(el);
+                            }
+                        });
+                    }
+                    if (countsEls[type]) countsEls[type].textContent = handCards.length;
+                });
+                updateFactionButtons();
+                updateExecuteButtonState();
+            }
+
+            function updateFactionButtons() {
+                FACTION_KEYS.forEach(fk => {
+                    const btn = document.getElementById(`btn-${fk}`);
+                    if (btn) {
+                        if (state.gameEnded) {
+                            btn.disabled = true;
+                            btn.classList.remove('active');
+                        } else {
+                            btn.disabled = false;
+                            if (state.activeButton === fk) {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateExecuteButtonState() {
+                if (btnExecute) {
+                    btnExecute.disabled = !(state.panelCards.length > 0 && state.activeButton && !state.gameEnded);
+                }
+            }
+
+            function handleDragStart(e) {
+                if (state.gameEnded) { e.preventDefault(); return; }
+                const cardEl = e.target.closest('.card');
+                if (!cardEl) return;
+                const cardId = cardEl.dataset.cardId;
+                if (!cardId) return;
+                e.dataTransfer.setData('text/plain', cardId);
+                e.dataTransfer.effectAllowed = 'move';
+                cardEl.classList.add('dragging');
+                window._draggedCardId = cardId;
+            }
+            function handleDragEnd(e) {
+                const cardEl = e.target.closest('.card');
+                if (cardEl) cardEl.classList.remove('dragging');
+                window._draggedCardId = null;
+            }
+
+            executeSlot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!state.activeButton || state.gameEnded) return;
+                e.dataTransfer.dropEffect = 'move';
+                executeSlot.classList.add('drag-over');
+            });
+            executeSlot.addEventListener('dragleave', () => executeSlot.classList.remove('drag-over'));
+            executeSlot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                executeSlot.classList.remove('drag-over');
+                if (state.gameEnded) { showToast('游戏已结束，无法操作', 'error'); return; }
+                if (!state.activeButton) { showToast('请先选择一个执行按钮', 'error'); return; }
+                const cardId = e.dataTransfer.getData('text/plain') || window._draggedCardId;
+                if (cardId) tryAddToPanel(cardId);
+                window._draggedCardId = null;
+            });
+
+            function tryAddToPanel(cardId) {
+                if (!cardId) return;
+                if (state.gameEnded) { showToast('游戏已结束，无法操作', 'error'); return; }
+                if (!state.activeButton) { showToast('请先选择一个执行按钮', 'error'); return; }
+                if (!isCardObtained(cardId)) { showToast('这张卡尚未获得', 'error'); return; }
+                if (state.panelCards.includes(cardId)) {
+                    showToast(`「${getCardDisplayName(cardId)}」已在执行槽中`, 'error');
+                    return;
+                }
+                state.panelCards.push(cardId);
+                renderPanel();
+                showToast(`已将「${getCardDisplayName(cardId)}」放入执行槽`, 'info', 1500);
+            }
+
+            function renderPanel() {
+                executeSlot.innerHTML = '';
+                if (state.panelCards.length === 0) {
+                    executeSlot.innerHTML = '<span class="placeholder">将卡牌拖入此处（需先选择执行按钮）</span>';
+                } else {
+                    state.panelCards.forEach(cardId => {
+                        const el = createCardElement(cardId);
+                        if (el) {
+                            el.draggable = false;
+                            el.style.cursor = 'pointer';
+                            el.title = '点击移出执行槽';
+                            el.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                removeFromPanel(cardId);
+                            });
+                            executeSlot.appendChild(el);
+                        }
+                    });
+                }
+                updateExecuteButtonState();
+            }
+
+            function removeFromPanel(cardId) {
+                state.panelCards = state.panelCards.filter(id => id !== cardId);
+                renderPanel();
+            }
+
+            function selectFaction(factionKey) {
+                if (state.gameEnded) { showToast('游戏已结束，无法操作', 'error'); return; }
+                if (state.activeButton === factionKey) {
+                    state.activeButton = null;
+                    state.panelCards = [];
+                    state.investAmount = 1;
+                    investInput.value = 1;
+                    updateExecuteAreaUI();
+                    renderPanel();
+                    updateFactionButtons();
+                    showToast('已取消选择', 'info', 1200);
+                } else {
+                    state.activeButton = factionKey;
+                    state.panelCards = [];
+                    state.investAmount = 1;
+                    investInput.value = 1;
+                    updateExecuteAreaUI();
+                    renderPanel();
+                    updateFactionButtons();
+                    showToast(`已选择 ${FACTION_NAMES[factionKey]} 按钮`, 'info', 1200);
+                }
+                updateInvestInputMax();
+            }
+
+            function updateExecuteAreaUI() {
+                if (state.activeButton) {
+                    executeArea.classList.remove('inactive');
+                    executeFactionLabel.classList.remove('inactive');
+                    executeFactionLabel.textContent =
+                        `${FACTION_ICONS[state.activeButton]} 当前执行按钮：${FACTION_NAMES[state.activeButton]}`;
+                } else {
+                    executeArea.classList.add('inactive');
+                    executeFactionLabel.classList.add('inactive');
+                    executeFactionLabel.textContent = '请先选择一个执行按钮';
+                }
+                updateExecuteButtonState();
+            }
+
+            FACTION_KEYS.forEach(fk => {
+                const btn = document.getElementById(`btn-${fk}`);
+                if (btn) btn.addEventListener('click', () => selectFaction(fk));
+            });
+
+            investInput.addEventListener('input', () => {
+                let val = parseInt(investInput.value, 10);
+                if (isNaN(val) || val < 1) val = 1;
+                const maxScore = state.activeButton ? state.scores[state.activeButton] : 0;
+                if (val > maxScore) val = maxScore;
+                investInput.value = val;
+                state.investAmount = val;
+            });
+
+            btnClearSlot.addEventListener('click', () => {
+                state.panelCards = [];
+                renderPanel();
+                showToast('已清空执行槽', 'info', 1500);
+            });
+
+            btnExecute.addEventListener('click', () => {
+                if (state.gameEnded) { showToast('游戏已结束', 'error'); return; }
+                if (!state.activeButton) { showToast('请先选择一个执行按钮', 'error'); return; }
+                if (state.panelCards.length === 0) { showToast('执行槽中没有卡牌', 'error'); return; }
+                const investedAmount = state.investAmount;
+                if (investedAmount < 1 || investedAmount > state.scores[state.activeButton]) {
+                    showToast('投入分数无效，请重新输入', 'error');
+                    return;
+                }
+                executeAction(state.activeButton, [...state.panelCards], investedAmount);
+            });
+
+            function executeAction(factionKey, cardIds, investedAmount) {
+                const currentFaction = factionKey;
+                for (const cid of cardIds) {
+                    if (!isCardObtained(cid)) {
+                        showToast(`卡牌「${getCardDisplayName(cid)}」尚未获得`, 'error');
+                        return;
+                    }
+                }
+
+                // 检测是否为“真相+结局”标记组合
+                const truthCards = cardIds.filter(id => isTruthCard(id));
+                const endingCards = cardIds.filter(id => getCardDef(id)?.type === 'ending');
+
+                if (truthCards.length > 0 && endingCards.length > 0) {
+                    // 只允许一个真相和一个结局
+                    if (truthCards.length > 1 || endingCards.length > 1 || cardIds.length !== 2) {
+                        showToast('标记结局需要恰好一张真相卡和一张结局卡', 'error');
+                        return;
+                    }
+                    const truthId = truthCards[0];
+                    const endingId = endingCards[0];
+                    // 检查关联
+                    const allowedEndings = TRUTH_ENDING_MAP[truthId] || [];
+                    if (!allowedEndings.includes(endingId)) {
+                        showToast('该真相与该结局无关联，无法标记', 'error');
+                        return;
+                    }
+                    // 检查该真相是否已标记
+                    if (state.truthMarks[truthId]) {
+                        showToast(`真相「${getCardDisplayName(truthId)}」已标记，无法再标记其他结局`, 'error');
+                        return;
+                    }
+                    // 检查投入分数必须为 markCost
+                    if (investedAmount !== state.markCost) {
+                        showToast(`标记结局需要投入 ${state.markCost} 分，当前投入 ${investedAmount} 分`, 'error');
+                        return;
+                    }
+                    // 扣除分数
+                    state.scores[currentFaction] -= investedAmount;
+                    updateScoreUI();
+                    flashScore(currentFaction);
+                    // 执行标记
+                    state.truthMarks[truthId] = endingId;
+                    showToast(`⭐ 标记成功：${getCardDisplayName(truthId)} → ${getCardDisplayName(endingId)}`, 'success', 3000);
+                    // 更新卡牌显示
+                    renderHand();
+                    // 清空面板
+                    state.panelCards = [];
+                    renderPanel();
+                    return;
+                }
+
+                // 否则按生产规则处理
+                const matchedRule = findMatchingRule(cardIds, investedAmount);
+                if (!matchedRule) {
+                    showToast('投入分数与卡牌组合不匹配任何产出规则', 'error');
+                    return;
+                }
+                const resultId = matchedRule.resultId;
+                if (isCardObtained(resultId)) {
+                    showToast(`「${getCardDisplayName(resultId)}」已经获得，无法重复获取`, 'error');
+                    return;
+                }
+
+                // 扣除投入分数
+                state.scores[currentFaction] -= investedAmount;
+                updateScoreUI();
+                flashScore(currentFaction);
+
+                // 获得结果卡
+                state.obtainedCards.add(resultId);
+                const resultDef = getCardDef(resultId);
+                if (resultDef) {
+                    const typeKey = resultDef.type;
+                    if (!state.hand[typeKey]) state.hand[typeKey] = [];
+                    state.hand[typeKey].push(resultId);
+                }
+
+                // 奖励分数与额外线索
+                const isKeyQuestionResult = resultDef?.type === 'key-question';
+                const isEndingResult = resultDef?.type === 'ending';
+                let bonusAmount = 0;
+                if (isKeyQuestionResult) bonusAmount = 1;
+                else if (isEndingResult) bonusAmount = 2;
+                if (bonusAmount > 0) {
+                    state.scores[currentFaction] += bonusAmount;
+                    updateScoreUI();
+                    flashScore(currentFaction);
+                    showToast(`➕ 奖励 ${bonusAmount} 点${FACTION_NAMES[currentFaction]}分数`, 'info', 1500);
+                }
+                if (isKeyQuestionResult) {
+                    grantRandomClue(1);
+                }
+
+                showToast(`✅ 获得「${getCardDisplayName(resultId)}」`, 'success');
+                state.panelCards = [];
+                renderPanel();
+                renderHand();
+                checkHiddenTruthUnlock();
+            }
+
+            function findMatchingRule(cardIds, investedAmount) {
+                const sortedIds = [...cardIds].sort();
+                const sortedRules = [...PRODUCTION_RULES].sort((a, b) => b.requiredIds.length - a.requiredIds.length);
+                for (const rule of sortedRules) {
+                    if (rule.cost !== investedAmount) continue;
+                    const reqSorted = [...rule.requiredIds].sort();
+                    if (arraysEqual(reqSorted, sortedIds)) return rule;
+                }
+                return null;
+            }
+            function arraysEqual(a, b) {
+                if (a.length !== b.length) return false;
+                for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+                return true;
+            }
+
+            // ---------- 线索商店 ----------
+            function getAllClueIds() {
+                return Object.keys(ALL_CARDS).filter(id => ALL_CARDS[id].type === 'clue');
+            }
+            function getUnobtainedClueIds() {
+                return getAllClueIds().filter(id => !isCardObtained(id));
+            }
+
+            function renderShop() {
+                const available = getUnobtainedClueIds();
+                shopCardsRow.innerHTML = '';
+                if (available.length === 0) {
+                    shopCardsRow.classList.add('empty');
+                    return;
+                }
+                shopCardsRow.classList.remove('empty');
+                available.forEach(clueId => {
+                    const def = getCardDef(clueId);
+                    const el = document.createElement('div');
+                    el.className = 'shop-card';
+                    el.dataset.clueId = clueId;
+                    el.innerHTML = `
+                        <span class="shop-card-name">${def.displayName}</span>
+                        <span class="shop-card-price">💰 ${state.cluePrice} 经济分</span>
+                    `;
+                    if (state.gameEnded || state.scores.economy < state.cluePrice) {
+                        el.classList.add('disabled');
+                    } else {
+                        el.addEventListener('click', () => buyClue(clueId));
+                    }
+                    shopCardsRow.appendChild(el);
+                });
+            }
+
+            function buyClue(clueId) {
+                if (state.gameEnded) return;
+                if (isCardObtained(clueId)) {
+                    showToast('这张线索卡已获得', 'info');
+                    renderShop();
+                    return;
+                }
+                if (state.scores.economy < state.cluePrice) {
+                    showToast('经济分数不足，无法购买线索', 'error');
+                    return;
+                }
+                state.scores.economy -= state.cluePrice;
+                updateScoreUI();
+                state.obtainedCards.add(clueId);
+                state.hand.clue.push(clueId);
+                renderHand();
+                renderShop();
+                showToast(`🛒 花费${state.cluePrice}点经济分数，购得「${getCardDisplayName(clueId)}」`, 'success');
+            }
+
+            function grantRandomClue(count = 1) {
+                const available = getUnobtainedClueIds();
+                if (available.length === 0) return 0;
+                let granted = 0;
+                for (let i = 0; i < count && available.length > 0; i++) {
+                    const idx = Math.floor(Math.random() * available.length);
+                    const clueId = available.splice(idx, 1)[0];
+                    if (!isCardObtained(clueId)) {
+                        state.obtainedCards.add(clueId);
+                        state.hand.clue.push(clueId);
+                        granted++;
+                    }
+                }
+                if (granted > 0) {
+                    renderHand();
+                    renderShop();
+                }
+                return granted;
+            }
+
+            function flashScore(factionKey) {
+                const item = document.getElementById(`score-${factionKey}`);
+                if (item) {
+                    item.classList.add('score-flash');
+                    setTimeout(() => item.classList.remove('score-flash'), 650);
+                }
+            }
+
+            function checkHiddenTruthUnlock() {
+                if (state.hiddenTruthUnlocked || state.gameEnded) return;
+                let maxScore = 0;
+                FACTION_KEYS.forEach(fk => { if (state.scores[fk] > maxScore) maxScore = state.scores[fk]; });
+                if (maxScore >= state.hiddenTruthThreshold) {
+                    state.hiddenTruthUnlocked = true;
+                    if (!isCardObtained('HIDDEN_ANTA')) {
+                        state.obtainedCards.add('HIDDEN_ANTA');
+                        state.hand['hidden-truth'].push('HIDDEN_ANTA');
+                        renderHand();
+                        showToast('🔮 隐藏真相已解锁：获得「隐藏真相：Anta的身份」', 'locked', 4000);
+                    }
+                }
+            }
+
+            function initGame() {
+                state.scores = { order: 3, economy: 3, doubt: 3, innovation: 3 };
+                state.obtainedCards.clear();
+                state.hand = { truth: [], 'hidden-truth': [], 'key-question': [], clue: [], ending: [] };
+                state.gameEnded = false;
+                state.activeButton = null;
+                state.panelCards = [];
+                state.investAmount = 1;
+                investInput.value = 1;
+                state.hiddenTruthUnlocked = false;
+                state.truthMarks = {};
+                gameStatusEl.textContent = '调查进行中...';
+                gameStatusEl.classList.remove('ended');
+
+                // 初始真相卡
+                state.obtainedCards.add('TRUTH_INNER');
+                state.hand.truth.push('TRUTH_INNER');
+                state.obtainedCards.add('TRUTH_REPORT');
+                state.hand.truth.push('TRUTH_REPORT');
+
+                // 初始线索卡
+                const allClues = getAllClueIds();
+                const shuffled = [...allClues];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                const clueCount = Math.min(state.initialClueCount, shuffled.length);
+                for (let i = 0; i < clueCount; i++) {
+                    state.obtainedCards.add(shuffled[i]);
+                    state.hand.clue.push(shuffled[i]);
+                }
+
+                updateScoreUI();
+                updateExecuteAreaUI();
+                updateInvestInputMax();
+                renderPanel();
+                renderHand();
+                renderShop();
+                showToast('🃏 游戏开始：已发放2张普通真相卡和' + clueCount + '张线索卡。点击执行按钮，组合卡牌并投入分数。', 'info', 5000);
+            }
+
+            initGame();
+
+            window.__state = state;
+            window.__ALL_CARDS = ALL_CARDS;
+        })();
+    </script>
+</body>
+</html>
