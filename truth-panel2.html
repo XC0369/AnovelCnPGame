@@ -3,568 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>无名者档案 - 卡牌推理游戏（debug金币调整）</title>
+    <title>无名者档案 - 卡牌推理游戏（去星标记版）</title>
     <style>
         :root {
-            --bg: #1a1410;
-            --panel-bg: #2a2018;
-            --card-bg: #3a2e22;
-            --border: #5a4a3a;
-            --text: #e8dcc0;
-            --text-dim: #a89880;
-            --gold: #c8a870;
-            --gold-dark: #8a7040;
-            --order-color: #4a80c0;
-            --economy-color: #c8a040;
-            --doubt-color: #a060a0;
-            --innov-color: #50a070;
-            --truth-color: #c89030;
-            --hidden-color: #9060c0;
-            --keyq-color: #4070b0;
-            --clue-color: #50a060;
-            --ending-color: #c05050;
-            --danger: #c04040;
-            --success: #6ac07a;
-            --coin-color: #d4af37;
-            --debug-bg: #3a2a20;
-            --debug-border: #8a6050;
+            --bg:#1a1410; --panel-bg:#2a2018; --card-bg:#3a2e22; --border:#5a4a3a;
+            --text:#e8dcc0; --text-dim:#a89880; --gold:#c8a870; --gold-dark:#8a7040;
+            --order-color:#4a80c0; --economy-color:#c8a040; --doubt-color:#a060a0; --innov-color:#50a070;
+            --truth-color:#c89030; --hidden-color:#9060c0; --keyq-color:#4070b0; --clue-color:#50a060; --ending-color:#c05050;
+            --danger:#c04040; --success:#6ac07a; --coin-color:#d4af37; --debug-bg:#3a2a20; --debug-border:#8a6050;
+            --card-width:150px;
+            --card-height:210px;
         }
         * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none; }
         body { background:var(--bg); color:var(--text); font-family:'Georgia','SimSun','Noto Serif SC',serif; min-height:100vh; display:flex; justify-content:center; padding:12px 8px; overflow-x:hidden; }
-        #game-container { width:100%; max-width:1200px; display:flex; flex-direction:column; gap:10px; position:relative; }
+        #game-container { width:100%; max-width:1200px; display:flex; flex-direction:column; gap:10px; }
         #header { display:flex; justify-content:space-between; align-items:center; background:var(--panel-bg); border:2px solid var(--border); border-radius:8px; padding:10px 16px; flex-wrap:wrap; gap:8px; }
-        #title { font-size:1.5em; font-weight:bold; color:var(--gold); letter-spacing:2px; text-shadow:0 0 8px rgba(200,168,112,0.4); }
+        #title { font-size:1.5em; font-weight:bold; color:var(--gold); letter-spacing:2px; }
         #game-status { font-size:0.85em; color:var(--text-dim); font-style:italic; }
         #gold-display { display:flex; align-items:center; gap:4px; font-size:1.2em; font-weight:bold; color:var(--coin-color); }
-        .coin-icon { display:inline-block; width:20px; height:20px; background:radial-gradient(circle,#ffe066,#b8860b); border-radius:50%; box-shadow:0 0 6px rgba(255,215,0,0.7); margin-right:4px; }
-        #debug-panel {
-            display:flex; align-items:center; gap:8px; background:var(--debug-bg); border:2px solid var(--debug-border); border-radius:8px; padding:6px 12px; margin:2px 0;
-            flex-wrap:wrap; font-size:0.85em;
-        }
-        #debug-panel label { color:var(--text-dim); font-weight:bold; letter-spacing:0.5px; }
-        #debug-gold-input { width:70px; padding:4px 6px; background:#1a1410; border:1px solid var(--debug-border); border-radius:4px; color:var(--coin-color); font-weight:bold; font-size:0.9em; text-align:center; font-family:inherit; }
-        #debug-gold-btn { background:transparent; border:1px solid var(--coin-color); color:var(--coin-color); padding:4px 10px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.85em; transition:background 0.2s; }
+        .coin-icon { width:20px;height:20px;background:radial-gradient(circle,#ffe066,#b8860b);border-radius:50%;box-shadow:0 0 6px rgba(255,215,0,0.7);display:inline-block; }
+        #debug-panel { display:flex;align-items:center;gap:8px;background:var(--debug-bg);border:2px solid var(--debug-border);border-radius:8px;padding:6px 12px;flex-wrap:wrap;font-size:0.85em; }
+        #debug-panel label { color:var(--text-dim);font-weight:bold; }
+        #debug-gold-input { width:70px;padding:4px 6px;background:#1a1410;border:1px solid var(--debug-border);border-radius:4px;color:var(--coin-color);font-weight:bold;text-align:center; }
+        #debug-gold-btn { background:transparent;border:1px solid var(--coin-color);color:var(--coin-color);padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:bold; }
         #debug-gold-btn:hover { background:rgba(212,175,55,0.2); }
-        #score-bar { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
-        .score-item { flex:1; min-width:110px; background:var(--panel-bg); border:2px solid var(--border); border-radius:8px; padding:8px 12px; text-align:center; transition:all 0.3s; position:relative; }
-        .score-item.low { border-color:var(--danger); box-shadow:0 0 8px rgba(192,64,64,0.3); }
-        .score-item .score-name { font-size:0.85em; font-weight:bold; letter-spacing:1px; margin-bottom:2px; }
-        .score-item .score-value { font-size:1.7em; font-weight:bold; transition:all 0.3s; }
+        #score-bar { display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap; }
+        .score-item { flex:1;min-width:110px;background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center; }
+        .score-item.low { border-color:var(--danger); }
+        .score-item .score-name { font-size:0.85em;font-weight:bold;letter-spacing:1px;margin-bottom:2px; }
+        .score-item .score-value { font-size:1.7em;font-weight:bold; }
         .score-item.order .score-name{color:var(--order-color)} .score-item.order .score-value{color:var(--order-color)}
         .score-item.economy .score-name{color:var(--economy-color)} .score-item.economy .score-value{color:var(--economy-color)}
         .score-item.doubt .score-name{color:var(--doubt-color)} .score-item.doubt .score-value{color:var(--doubt-color)}
         .score-item.innovation .score-name{color:var(--innov-color)} .score-item.innovation .score-value{color:var(--innov-color)}
         .score-flash { animation:scoreFlash 0.6s ease; }
         @keyframes scoreFlash { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
-        #buff-area { background:var(--panel-bg); border:2px solid var(--border); border-radius:8px; padding:8px 12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-height:40px; }
-        #buff-area .buff-title { font-weight:bold; color:var(--gold); letter-spacing:1px; margin-right:8px; }
-        .buff-icon { background:#2a2018; border-radius:8px; padding:6px 10px; cursor:help; font-size:1.1em; border:1px solid var(--gold-dark); }
-        #clue-shop { background:var(--panel-bg); border:2px solid var(--coin-color); border-radius:10px; padding:10px 16px; margin-top:4px; display:flex; flex-direction:column; gap:8px; }
-        #clue-shop .shop-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
-        #clue-shop .shop-title { font-size:1.1em; font-weight:bold; color:var(--coin-color); letter-spacing:1px; }
-        #clue-shop .shop-info { font-size:0.8em; color:var(--text-dim); }
-        .shop-cards-row { display:flex; flex-wrap:wrap; gap:6px; min-height:38px; }
-        .shop-cards-row.empty::after { content:'(所有线索均已获得)'; color:var(--text-dim); font-size:0.8em; font-style:italic; align-self:center; padding:4px 8px; }
-        .shop-card { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 14px; border-radius:6px; border:2px solid var(--clue-color); background:linear-gradient(135deg,#102820,#183a2a); box-shadow:0 0 6px rgba(80,160,96,0.3); cursor:pointer; font-size:0.8em; text-align:center; min-width:110px; max-width:180px; min-height:70px; word-break:break-word; line-height:1.25; transition:all 0.2s; position:relative; gap:4px; }
-        .shop-card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.5); border-color:var(--coin-color); }
-        .shop-card .shop-card-price { font-size:0.75em; color:var(--coin-color); font-weight:bold; }
-        .shop-card .shop-card-name { font-weight:bold; color:#80d090; font-size:0.85em; }
-        .shop-card.disabled { opacity:0.5; cursor:not-allowed; pointer-events:none; filter:grayscale(0.8); }
-        #hand-area { display:flex; flex-direction:column; gap:8px; flex:1; min-height:200px; }
-        .card-section { background:var(--panel-bg); border:2px solid var(--border); border-radius:8px; padding:8px 10px; }
-        .card-section-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-size:0.9em; font-weight:bold; letter-spacing:1px; padding:2px 4px 6px 4px; color:var(--text-dim); border-bottom:1px solid var(--border); margin-bottom:8px; }
-        .card-section-header .count { font-size:0.8em; color:var(--text-dim); font-weight:normal; }
-        .cards-row { display:flex; flex-wrap:wrap; gap:6px; min-height:38px; }
-        .cards-row.empty::after { content:'(空)'; color:var(--text-dim); font-size:0.8em; font-style:italic; align-self:center; padding:4px 8px; }
-        .card { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 12px; border-radius:6px; border:2px solid; cursor:grab; font-size:0.8em; text-align:center; min-width:90px; max-width:160px; min-height:48px; word-break:break-word; line-height:1.25; transition:all 0.2s; position:relative; background:var(--card-bg); gap:2px; }
-        .card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.5); z-index:10; }
-        .card:active { cursor:grabbing; transform:scale(0.95); }
-        .card.dragging { opacity:0.4; transform:scale(0.9); }
-        .card.disabled { opacity:0.45; cursor:not-allowed; pointer-events:none; filter:grayscale(0.7); }
-        .card.marked { border-color:var(--gold); box-shadow:0 0 8px rgba(200,168,112,0.6); }
-        .card.marked::after { content:'⭐'; position:absolute; top:-8px; right:-8px; font-size:1.2em; background:#2a2018; border-radius:50%; padding:2px; }
-        .card .card-type-tag { font-size:0.65em; letter-spacing:1px; opacity:0.8; }
-        .card .card-name { font-weight:bold; font-size:0.85em; }
-        .card .card-bonus { font-size:0.65em; color:var(--text-dim); }
-        .card.truth { border-color:var(--truth-color); background:linear-gradient(135deg,#3a2a10,#4a3518); box-shadow:0 0 6px rgba(200,144,48,0.3); }
-        .card.truth .card-type-tag { color:var(--truth-color); } .card.truth .card-name { color:#e8c070; }
-        .card.hidden-truth { border-color:var(--hidden-color); background:linear-gradient(135deg,#2a1030,#3a1845); box-shadow:0 0 10px rgba(144,96,192,0.4); }
-        .card.hidden-truth .card-type-tag { color:var(--hidden-color); } .card.hidden-truth .card-name { color:#c890e0; }
-        .card.key-question { border-color:var(--keyq-color); background:linear-gradient(135deg,#101830,#182540); box-shadow:0 0 6px rgba(64,112,176,0.3); }
-        .card.key-question .card-type-tag { color:var(--keyq-color); } .card.key-question .card-name { color:#80b0e0; }
-        .card.clue { border-color:var(--clue-color); background:linear-gradient(135deg,#102820,#183a2a); box-shadow:0 0 6px rgba(80,160,96,0.3); }
-        .card.clue .card-type-tag { color:var(--clue-color); } .card.clue .card-name { color:#80d090; }
-        .card.ending { border-color:var(--ending-color); background:linear-gradient(135deg,#301010,#451818); box-shadow:0 0 10px rgba(192,80,80,0.5); }
-        .card.ending .card-type-tag { color:var(--ending-color); } .card.ending .card-name { color:#e09090; }
-        #button-area { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; padding:4px 0; }
-        .faction-btn { flex:1; min-width:100px; max-width:180px; padding:14px 10px; border-radius:10px; border:3px solid; font-size:1.05em; font-weight:bold; letter-spacing:2px; cursor:pointer; transition:all 0.25s; font-family:inherit; text-align:center; position:relative; background:var(--panel-bg); }
-        .faction-btn:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,0.5); }
-        .faction-btn:active:not(:disabled) { transform:translateY(0); }
-        .faction-btn:disabled { opacity:0.4; cursor:not-allowed; }
-        .faction-btn.active { transform:translateY(-3px); box-shadow:0 6px 24px rgba(0,0,0,0.6); animation:pulseGlow 1.2s infinite alternate; }
+        #buff-area { background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:40px; }
+        #buff-area .buff-title { font-weight:bold;color:var(--gold); }
+        .buff-icon { background:#2a2018;border-radius:8px;padding:6px 10px;cursor:help;font-size:1.1em;border:1px solid var(--gold-dark); }
+        #clue-shop { background:var(--panel-bg);border:2px solid var(--coin-color);border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;gap:8px;transition:all 0.3s; }
+        #clue-shop.collapsed { padding:8px 16px; }
+        #clue-shop .shop-header { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px; }
+        #clue-shop .shop-title { font-size:1.1em;font-weight:bold;color:var(--coin-color); }
+        #clue-shop .shop-info { font-size:0.8em;color:var(--text-dim); }
+        #shop-toggle-btn { background:transparent;border:1px solid var(--coin-color);color:var(--coin-color);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:0.85em;font-weight:bold;transition:background 0.2s; }
+        #shop-toggle-btn:hover { background:rgba(212,175,55,0.2); }
+        .shop-cards-row { display:flex;flex-wrap:wrap;gap:8px;min-height:38px;transition:all 0.3s; }
+        .shop-cards-row.hidden { display:none; }
+        .shop-cards-row.empty::after { content:'(所有线索均已获得)';color:var(--text-dim);font-size:0.8em;font-style:italic;padding:4px 8px; }
+        .shop-card { display:inline-flex;flex-direction:column;align-items:center;justify-content:flex-start;width:var(--card-width);height:var(--card-height);border-radius:8px;border:2px solid var(--clue-color);cursor:pointer;font-size:0.72em;text-align:center;word-break:break-word;line-height:1.2;transition:all 0.2s;gap:4px;position:relative;overflow:hidden;background:var(--card-bg);padding:10px 8px; }
+        .shop-card:hover { transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.5); }
+        .shop-card .shop-card-price { font-size:0.75em;color:var(--coin-color);font-weight:bold;margin-top:auto; }
+        .shop-card .shop-card-name { font-weight:bold;color:#80d090;font-size:0.85em; }
+        .shop-card.disabled { opacity:0.5;cursor:not-allowed;pointer-events:none;filter:grayscale(0.8); }
+        #hand-area { display:flex;flex-direction:column;gap:8px;flex:1; }
+        .card-section { background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:8px 10px; }
+        .card-section-header { display:flex;justify-content:space-between;align-items:center;font-size:0.9em;font-weight:bold;letter-spacing:1px;padding:2px 4px 6px 4px;color:var(--text-dim);border-bottom:1px solid var(--border);margin-bottom:8px; }
+        .card-section-header .count { font-size:0.8em;color:var(--text-dim);font-weight:normal; }
+        .cards-row { display:flex;flex-wrap:wrap;gap:8px;min-height:38px; }
+        .cards-row.empty::after { content:'(空)';color:var(--text-dim);font-size:0.8em;font-style:italic;padding:4px 8px; }
+        .card { display:inline-flex;flex-direction:column;align-items:center;justify-content:flex-start;width:var(--card-width);height:var(--card-height);border-radius:8px;border:2px solid;cursor:grab;font-size:0.72em;text-align:center;word-break:break-word;line-height:1.2;transition:all 0.2s;position:relative;background:var(--card-bg);gap:4px;padding:12px 8px 8px;overflow:hidden; }
+        .card:hover { transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.5);z-index:10; }
+        .card:active { cursor:grabbing;transform:scale(0.96); }
+        .card.dragging { opacity:0.4;transform:scale(0.9); }
+        .card.marked { border-color:var(--gold); box-shadow:0 0 16px rgba(200,168,112,0.8); }
+        .card .card-type-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.7em; letter-spacing:1px; font-weight:bold; background:rgba(0,0,0,0.25); color:#fff; margin-bottom:2px; backdrop-filter:blur(2px); }
+        .card .card-name { font-weight:bold;font-size:0.88em;margin-bottom:2px; }
+        .card .card-bonus { font-size:0.65em;color:var(--text-dim); }
+        .card.truth { border-color:var(--truth-color); background:linear-gradient(160deg,#3a2a10,#4a3518); border-style:solid; }
+        .card.truth .card-type-tag { background:rgba(200,144,48,0.4); }
+        .card.truth .card-name { color:#e8c070; }
+        .card.truth::before { content:'📜'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
+        .card.truth::after { content:'真相'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(200,144,48,0.2); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.key-question { border-color:var(--keyq-color); background:linear-gradient(160deg,#101830,#182540); border-style:dashed; }
+        .card.key-question .card-type-tag { background:rgba(64,112,176,0.4); }
+        .card.key-question .card-name { color:#80b0e0; }
+        .card.key-question::before { content:'❓'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
+        .card.key-question::after { content:'关键问题'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:2.2em; color:rgba(64,112,176,0.2); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.ending { border-color:var(--ending-color); background:linear-gradient(160deg,#301010,#451818); border-style:double; }
+        .card.ending .card-type-tag { background:rgba(192,80,80,0.4); }
+        .card.ending .card-name { color:#90c0e0; }
+        .card.ending::before { content:'🏁'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
+        .card.ending::after { content:'结局'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(192,80,80,0.2); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.clue { border-color:var(--clue-color); background:linear-gradient(160deg,#102820,#183a2a); border-style:solid; }
+        .card.clue .card-type-tag { background:rgba(80,160,96,0.4); }
+        .card.clue .card-name { color:#80d090; }
+        .card.clue::before { content:'🧩'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
+        .card.clue::after { content:'线索'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(80,160,96,0.2); font-weight:bold; pointer-events:none; z-index:0; }
+        .bonus-indicator { display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:auto;margin-bottom:2px;z-index:1; position:relative; }
+        .bonus-dot { width:14px;height:14px;border-radius:50%;display:inline-block;box-shadow:0 0 4px rgba(0,0,0,0.4); }
+        .bonus-dot.order { background:var(--order-color); }
+        .bonus-dot.economy { background:var(--economy-color); }
+        .bonus-dot.doubt { background:var(--doubt-color); }
+        .bonus-dot.innovation { background:var(--innov-color); }
+        .mark-label { margin-top:auto; width:100%; background:linear-gradient(180deg, rgba(200,168,112,0.95), rgba(100,70,30,0.95)); color:#fff; font-size:0.65em; font-weight:bold; padding:3px 4px; border-radius:4px; text-align:center; letter-spacing:0.5px; box-shadow:0 0 6px rgba(200,168,112,0.8); z-index:1; position:relative; }
+        #button-area { display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:4px 0; }
+        .faction-btn { flex:1;min-width:100px;max-width:180px;padding:14px 10px;border-radius:10px;border:3px solid;font-size:1.05em;font-weight:bold;letter-spacing:2px;cursor:pointer;transition:all 0.25s;background:var(--panel-bg); }
+        .faction-btn:hover:not(:disabled) { transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.5); }
+        .faction-btn.active { transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,0.6);animation:pulseGlow 1.2s infinite alternate; }
         @keyframes pulseGlow { 0%{box-shadow:0 6px 18px rgba(0,0,0,0.5)} 100%{box-shadow:0 6px 28px rgba(200,168,112,0.5)} }
-        .faction-btn .btn-score { display:block; font-size:0.7em; font-weight:normal; letter-spacing:0; margin-top:3px; opacity:0.8; }
+        .faction-btn .btn-score { display:block;font-size:0.7em;font-weight:normal;margin-top:3px;opacity:0.8; }
         .faction-btn.order{border-color:var(--order-color);color:var(--order-color)} .faction-btn.economy{border-color:var(--economy-color);color:var(--economy-color)}
         .faction-btn.doubt{border-color:var(--doubt-color);color:var(--doubt-color)} .faction-btn.innovation{border-color:var(--innov-color);color:var(--innov-color)}
-        #execute-area { background:var(--panel-bg); border:2px solid var(--gold-dark); border-radius:10px; padding:12px 16px; margin-top:4px; display:flex; flex-direction:column; gap:10px; transition:all 0.3s; box-shadow:0 4px 16px rgba(0,0,0,0.3); }
-        #execute-area.inactive { opacity:0.7; border-color:var(--border); }
-        .execute-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
-        #execute-faction-label { font-size:1em; font-weight:bold; letter-spacing:1px; color:var(--gold); }
-        #execute-faction-label.inactive { color:var(--text-dim); font-style:italic; }
-        #execute-slot { background:#1a1410; border:2px dashed var(--border); border-radius:8px; min-height:70px; padding:10px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; transition:all 0.3s; position:relative; }
-        #execute-slot.drag-over { border-color:var(--gold); background:#2a2018; box-shadow:0 0 16px rgba(200,168,112,0.3); }
-        #execute-slot .placeholder { color:var(--text-dim); font-size:0.8em; font-style:italic; pointer-events:none; }
+        #execute-area { background:var(--panel-bg);border:2px solid var(--gold-dark);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:10px; }
+        #execute-area.inactive { opacity:0.7;border-color:var(--border); }
+        .execute-header { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px; }
+        #execute-faction-label { font-size:1em;font-weight:bold;letter-spacing:1px;color:var(--gold); }
+        #execute-faction-label.inactive { color:var(--text-dim);font-style:italic; }
+        #execute-slot { background:#1a1410;border:2px dashed var(--border);border-radius:8px;min-height:80px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center; }
+        #execute-slot.drag-over { border-color:var(--gold);background:#2a2018; }
+        #execute-slot .placeholder { color:var(--text-dim);font-size:0.8em;font-style:italic; }
         #execute-slot .card { cursor:pointer; }
-        #execute-slot .card:hover { transform:scale(1.03); box-shadow:0 0 10px rgba(200,168,112,0.5); }
-        .execute-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center; }
-        .panel-btn { padding:8px 20px; border-radius:8px; border:2px solid; font-size:0.9em; font-weight:bold; cursor:pointer; letter-spacing:1px; font-family:inherit; transition:all 0.25s; }
-        .panel-btn:disabled { opacity:0.4; cursor:not-allowed; }
-        #btn-execute { border-color:var(--gold); background:#3a2a10; color:var(--gold); }
-        #btn-execute:hover:not(:disabled) { background:#4a3518; box-shadow:0 0 14px rgba(200,168,112,0.4); }
-        #btn-clear-slot { border-color:var(--danger); background:#2a1510; color:var(--danger); font-size:0.8em; padding:6px 12px; }
-        #btn-clear-slot:hover:not(:disabled) { background:#3a1a10; }
-        #toast-container { position:fixed; top:16px; right:16px; z-index:200; display:flex; flex-direction:column; gap:8px; max-width:340px; pointer-events:none; }
-        .toast { background:var(--panel-bg); border:2px solid var(--border); border-radius:8px; padding:10px 14px; font-size:0.85em; color:var(--text); box-shadow:0 4px 16px rgba(0,0,0,0.5); animation:toastIn 0.3s ease,toastOut 0.4s ease 2.8s forwards; pointer-events:auto; line-height:1.4; }
-        .toast.success{border-color:var(--success);box-shadow:0 0 12px rgba(106,192,122,0.4)} .toast.error{border-color:var(--danger);box-shadow:0 0 12px rgba(192,64,64,0.4)} .toast.locked{border-color:var(--gold);box-shadow:0 0 20px rgba(200,168,112,0.6);font-weight:bold} .toast.info{border-color:var(--gold-dark)}
+        .execute-actions { display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center; }
+        .panel-btn { padding:8px 20px;border-radius:8px;border:2px solid;font-size:0.9em;font-weight:bold;cursor:pointer;letter-spacing:1px; }
+        .panel-btn:disabled { opacity:0.4;cursor:not-allowed; }
+        #btn-execute { border-color:var(--gold);background:#3a2a10;color:var(--gold); }
+        #btn-execute:hover:not(:disabled) { background:#4a3518; }
+        #btn-clear-slot { border-color:var(--danger);background:#2a1510;color:var(--danger);font-size:0.8em;padding:6px 12px; }
+        #toast-container { position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:340px;pointer-events:none; }
+        .toast { background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.85em;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.5);animation:toastIn 0.3s ease,toastOut 0.4s ease 2.8s forwards;pointer-events:auto; }
+        .toast.success{border-color:var(--success)} .toast.error{border-color:var(--danger)} .toast.locked{border-color:var(--gold)} .toast.info{border-color:var(--gold-dark)}
         @keyframes toastIn { from{transform:translateX(60px);opacity:0} to{transform:translateX(0);opacity:1} }
         @keyframes toastOut { to{transform:translateX(60px);opacity:0} }
-        .sell-btn { margin-top:4px; background:transparent; border:1px solid var(--coin-color); color:var(--coin-color); border-radius:4px; padding:4px 12px; cursor:pointer; font-size:0.7em; transition:background 0.2s; pointer-events:auto; }
-        .sell-btn:hover { background:rgba(212,175,55,0.2); }
-        .sell-btn:active { background:rgba(212,175,55,0.4); }
-        @media (max-width:700px) { .faction-btn{min-width:70px;font-size:0.85em;padding:10px 6px;letter-spacing:1px} .card{min-width:70px;max-width:130px;padding:6px 8px;font-size:0.7em} #title{font-size:1.1em} .score-item .score-value{font-size:1.3em} #execute-area{padding:10px 8px} #execute-slot{min-height:50px;padding:6px} .shop-card{min-width:80px;padding:6px 8px;font-size:0.7em} }
+        .sell-btn { margin-top:auto;background:transparent;border:1px solid var(--coin-color);color:var(--coin-color);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:0.7em;pointer-events:auto;z-index:1; position:relative; }
+        .sell-btn:hover { background:rgba(212,175,55,0.25); }
+        @media (max-width:760px) { :root { --card-width:110px; --card-height:155px; } .faction-btn{min-width:70px;font-size:0.85em;padding:10px 6px} #title{font-size:1.1em} .score-item .score-value{font-size:1.3em} #execute-area{padding:10px 8px} #execute-slot{min-height:50px;padding:6px} .card.truth::after,.card.key-question::after,.card.ending::after,.card.clue::after{font-size:2em;} .mark-label{font-size:0.55em; padding:2px 2px;} }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="header">
-            <span id="title">🔍 无名者档案</span>
-            <span id="game-status">调查进行中...</span>
-            <div id="gold-display"><span class="coin-icon"></span><span id="gold-amount">0</span> 金币</div>
+<div id="game-container">
+    <div id="header">
+        <span id="title">🔍 无名者档案</span>
+        <span id="game-status">调查进行中...</span>
+        <div id="gold-display"><span class="coin-icon"></span><span id="gold-amount">0</span> 金币</div>
+    </div>
+    <div id="debug-panel">
+        <label>🛠️ 调试：</label><span>设置金币</span>
+        <input type="number" id="debug-gold-input" min="0" value="0">
+        <button id="debug-gold-btn">应用</button>
+    </div>
+    <div id="score-bar">
+        <div class="score-item order" id="score-order"><div class="score-name">⚖️ 秩序</div><div class="score-value" id="score-val-order">3</div></div>
+        <div class="score-item economy" id="score-economy"><div class="score-name">💰 经济</div><div class="score-value" id="score-val-economy">3</div></div>
+        <div class="score-item doubt" id="score-doubt"><div class="score-name">🔍 质疑</div><div class="score-value" id="score-val-doubt">3</div></div>
+        <div class="score-item innovation" id="score-innovation"><div class="score-name">💡 创新</div><div class="score-value" id="score-val-innovation">3</div></div>
+    </div>
+    <div id="buff-area"><span class="buff-title">🏆 Buff 奖励：</span><span id="buff-container">暂无</span></div>
+    <div id="clue-shop">
+        <div class="shop-header">
+            <span class="shop-title">🛒 线索商店</span>
+            <span class="shop-info">使用金币购买线索（买价10，卖价8）</span>
+            <button id="shop-toggle-btn">收起 ▲</button>
         </div>
-        <!-- 调试面板 -->
-        <div id="debug-panel">
-            <label>🛠️ 调试：</label>
-            <span>设置金币</span>
-            <input type="number" id="debug-gold-input" min="0" value="0">
-            <button id="debug-gold-btn">应用</button>
-        </div>
-        <div id="score-bar">
-            <div class="score-item order" id="score-order"><div class="score-name">⚖️ 秩序</div><div class="score-value" id="score-val-order">3</div></div>
-            <div class="score-item economy" id="score-economy"><div class="score-name">💰 经济</div><div class="score-value" id="score-val-economy">3</div></div>
-            <div class="score-item doubt" id="score-doubt"><div class="score-name">🔍 质疑</div><div class="score-value" id="score-val-doubt">3</div></div>
-            <div class="score-item innovation" id="score-innovation"><div class="score-name">💡 创新</div><div class="score-value" id="score-val-innovation">3</div></div>
-        </div>
-        <div id="buff-area"><span class="buff-title">🏆 Buff 奖励：</span><span id="buff-container">暂无</span></div>
-        <div id="clue-shop">
-            <div class="shop-header"><span class="shop-title">🛒 线索商店</span><span class="shop-info">使用金币购买线索（买价10，卖价8）</span></div>
-            <div class="shop-cards-row" id="shop-cards-row"></div>
-        </div>
-        <div id="hand-area">
-            <div class="card-section" id="section-truth"><div class="card-section-header"><span>📜 真相卡</span><span class="count" id="count-truth">0</span></div><div class="cards-row" id="cards-truth"></div></div>
-            <div class="card-section" id="section-hidden"><div class="card-section-header"><span>🔮 隐藏真相卡</span><span class="count" id="count-hidden">0</span></div><div class="cards-row" id="cards-hidden"></div></div>
-            <div class="card-section" id="section-keyq"><div class="card-section-header"><span>❓ 关键问题卡</span><span class="count" id="count-keyq">0</span></div><div class="cards-row" id="cards-keyq"></div></div>
-            <div class="card-section" id="section-clue"><div class="card-section-header"><span>🧩 线索卡</span><span class="count" id="count-clue">0</span></div><div class="cards-row" id="cards-clue"></div></div>
-            <div class="card-section" id="section-ending"><div class="card-section-header"><span>🏁 结局卡</span><span class="count" id="count-ending">0</span></div><div class="cards-row" id="cards-ending"></div></div>
-        </div>
-        <div id="button-area">
-            <button class="faction-btn order" id="btn-order" data-faction="order">⚖️ 秩序<span class="btn-score">分数: <span id="btn-score-order">3</span></span></button>
-            <button class="faction-btn economy" id="btn-economy" data-faction="economy">💰 经济<span class="btn-score">分数: <span id="btn-score-economy">3</span></span></button>
-            <button class="faction-btn doubt" id="btn-doubt" data-faction="doubt">🔍 质疑<span class="btn-score">分数: <span id="btn-score-doubt">3</span></span></button>
-            <button class="faction-btn innovation" id="btn-innovation" data-faction="innovation">💡 创新<span class="btn-score">分数: <span id="btn-score-innovation">3</span></span></button>
-        </div>
-        <div id="execute-area" class="inactive">
-            <div class="execute-header"><span id="execute-faction-label" class="inactive">请先选择一个执行按钮</span></div>
-            <div id="execute-slot"><span class="placeholder">将卡牌拖入此处（需先选择执行按钮）</span></div>
-            <div class="execute-actions">
-                <button class="panel-btn" id="btn-execute" disabled>⚡ 执行</button>
-                <button class="panel-btn" id="btn-clear-slot">🗑️ 清空</button>
-            </div>
+        <div class="shop-cards-row" id="shop-cards-row"></div>
+    </div>
+    <div id="hand-area">
+        <div class="card-section" id="section-truth"><div class="card-section-header"><span>📜 真相卡</span><span class="count" id="count-truth">0</span></div><div class="cards-row" id="cards-truth"></div></div>
+        <div class="card-section" id="section-keyq"><div class="card-section-header"><span>❓ 关键问题卡</span><span class="count" id="count-keyq">0</span></div><div class="cards-row" id="cards-keyq"></div></div>
+        <div class="card-section" id="section-clue"><div class="card-section-header"><span>🧩 线索卡</span><span class="count" id="count-clue">0</span></div><div class="cards-row" id="cards-clue"></div></div>
+        <div class="card-section" id="section-ending"><div class="card-section-header"><span>🏁 结局卡</span><span class="count" id="count-ending">0</span></div><div class="cards-row" id="cards-ending"></div></div>
+    </div>
+    <div id="button-area">
+        <button class="faction-btn order" id="btn-order" data-faction="order">⚖️ 秩序<span class="btn-score">分数: <span id="btn-score-order">3</span></span></button>
+        <button class="faction-btn economy" id="btn-economy" data-faction="economy">💰 经济<span class="btn-score">分数: <span id="btn-score-economy">3</span></span></button>
+        <button class="faction-btn doubt" id="btn-doubt" data-faction="doubt">🔍 质疑<span class="btn-score">分数: <span id="btn-score-doubt">3</span></span></button>
+        <button class="faction-btn innovation" id="btn-innovation" data-faction="innovation">💡 创新<span class="btn-score">分数: <span id="btn-score-innovation">3</span></span></button>
+    </div>
+    <div id="execute-area" class="inactive">
+        <div class="execute-header"><span id="execute-faction-label" class="inactive">请先选择一个执行按钮</span></div>
+        <div id="execute-slot"><span class="placeholder">将卡牌拖入此处（需先选择执行按钮）</span></div>
+        <div class="execute-actions">
+            <button class="panel-btn" id="btn-execute" disabled>⚡ 执行</button>
+            <button class="panel-btn" id="btn-clear-slot">🗑️ 清空</button>
         </div>
     </div>
-    <div id="toast-container"></div>
-    <script>
-        (function() {
-            const TYPE_LABELS = { 'truth':'真相','hidden-truth':'隐藏真相','key-question':'关键问题','clue':'线索','ending':'结局' };
-            const FACTION_KEYS = ['order','economy','doubt','innovation'];
-            const FACTION_NAMES = { order:'秩序', economy:'经济', doubt:'质疑', innovation:'创新' };
-            const FACTION_ICONS = { order:'⚖️', economy:'💰', doubt:'🔍', innovation:'💡' };
+</div>
+<div id="toast-container"></div>
+<script>
+(function() {
+    const TYPE_LABELS = { 'truth':'真相','key-question':'关键问题','clue':'线索','ending':'结局' };
+    const FACTION_KEYS = ['order','economy','doubt','innovation'];
+    const FACTION_NAMES = { order:'秩序', economy:'经济', doubt:'质疑', innovation:'创新' };
+    const FACTION_ICONS = { order:'⚖️', economy:'💰', doubt:'🔍', innovation:'💡' };
 
-            const ALL_CARDS = {
-                'TRUTH_INNER': { id:'TRUTH_INNER', type:'truth', name:'真相：有人出卖了"无名者"，这个内鬼是谁？', displayName:'有人出卖了"无名者"', bonus:null },
-                'TRUTH_REPORT': { id:'TRUTH_REPORT', type:'truth', name:'真相：如果没有"内鬼"，那么谁会想举报"无名者"？', displayName:'如果没有"内鬼"', bonus:null },
-                'HIDDEN_ANTA': { id:'HIDDEN_ANTA', type:'hidden-truth', name:'隐藏真相：Anta的身份', displayName:'Anta的身份', bonus:null },
-                'KQ_ASTROLOGER': { id:'KQ_ASTROLOGER', type:'key-question', name:'关键问题：37岁职业占星师', displayName:'37岁职业占星师', bonus:null },
-                'KQ_JUDGE': { id:'KQ_JUDGE', type:'key-question', name:'关键问题：59岁候补法官', displayName:'59岁候补法官', bonus:{faction:'order',amount:2} },
-                'KQ_STREAMER': { id:'KQ_STREAMER', type:'key-question', name:'关键问题：13岁游戏主播', displayName:'13岁游戏主播', bonus:{faction:'innovation',amount:2} },
-                'KQ_BLOGGER': { id:'KQ_BLOGGER', type:'key-question', name:'关键问题：阴谋论博客主持人', displayName:'阴谋论博客主持人', bonus:{faction:'doubt',amount:2} },
-                'KQ_PHD': { id:'KQ_PHD', type:'key-question', name:'关键问题：42岁失业哲学博士', displayName:'42岁失业哲学博士', bonus:{faction:'economy',amount:2} },
-                'KQ_ANTA': { id:'KQ_ANTA', type:'key-question', name:'关键问题：Anta', displayName:'Anta', bonus:{faction:'order',amount:2} },
-                'KQ_MOTHER': { id:'KQ_MOTHER', type:'key-question', name:'关键问题：你母亲', displayName:'你母亲', bonus:{faction:'innovation',amount:2} },
-                'KQ_LANDLORD': { id:'KQ_LANDLORD', type:'key-question', name:'关键问题：前房东', displayName:'前房东', bonus:{faction:'economy',amount:2} },
-                'KQ_CLEANER': { id:'KQ_CLEANER', type:'key-question', name:'关键问题：保洁员', displayName:'保洁员', bonus:null },
-                'KQ_CAPTAIN': { id:'KQ_CAPTAIN', type:'key-question', name:'关键问题：前成员船长', displayName:'前成员船长', bonus:{faction:'doubt',amount:2} },
-                'KQ_POLITICIAN': { id:'KQ_POLITICIAN', type:'key-question', name:'关键问题：为达目的不择手段的政治家', displayName:'为达目的不择手段的政治家', bonus:{faction:'order',amount:2} },
-                'KQ_ALIEN': { id:'KQ_ALIEN', type:'key-question', name:'关键问题：外星人侵略地球理论爱好者', displayName:'外星人侵略地球理论爱好者', bonus:{faction:'innovation',amount:2} },
-                'KQ_NEGLECT': { id:'KQ_NEGLECT', type:'key-question', name:'关键问题：失职的母亲', displayName:'失职的母亲', bonus:null },
-                'KQ_ECONOMIST': { id:'KQ_ECONOMIST', type:'key-question', name:'关键问题：经济学家', displayName:'经济学家', bonus:null },
-                'KQ_FITNESS': { id:'KQ_FITNESS', type:'key-question', name:'关键问题：虚假的健身达人', displayName:'虚假的健身达人', bonus:null },
-                'CLUE_ASTRO_TEMP': { id:'CLUE_ASTRO_TEMP', type:'clue', name:'线索：占星师暂定线索', displayName:'占星师暂定线索', bonus:null },
-                'CLUE_BLOG_TEMP': { id:'CLUE_BLOG_TEMP', type:'clue', name:'线索：博客主持人暂定线索', displayName:'博客主持人暂定线索', bonus:null },
-                'CLUE_CLEAN_TEMP': { id:'CLUE_CLEAN_TEMP', type:'clue', name:'线索：保洁员暂定线索', displayName:'保洁员暂定线索', bonus:null },
-                'CLUE_RECORD': { id:'CLUE_RECORD', type:'clue', name:'线索：偷偷录音', displayName:'偷偷录音', bonus:{faction:'order',amount:1} },
-                'CLUE_STAKE': { id:'CLUE_STAKE', type:'clue', name:'线索：蹲守地库', displayName:'蹲守地库', bonus:{faction:'order',amount:1} },
-                'CLUE_ADDRESS': { id:'CLUE_ADDRESS', type:'clue', name:'线索：公开地址', displayName:'公开地址', bonus:{faction:'innovation',amount:1} },
-                'CLUE_ABSENT': { id:'CLUE_ABSENT', type:'clue', name:'线索：会议缺席', displayName:'会议缺席', bonus:{faction:'economy',amount:1} },
-                'CLUE_WIND': { id:'CLUE_WIND', type:'clue', name:'线索：意外之财', displayName:'意外之财', bonus:{faction:'economy',amount:1} },
-                'CLUE_CAMPAIGN': { id:'CLUE_CAMPAIGN', type:'clue', name:'线索：首相竞选', displayName:'首相竞选', bonus:{faction:'order',amount:1} },
-                'CLUE_ATTACK1': { id:'CLUE_ATTACK1', type:'clue', name:'线索：言论攻击', displayName:'言论攻击', bonus:{faction:'order',amount:1} },
-                'CLUE_ATTACK2': { id:'CLUE_ATTACK2', type:'clue', name:'线索：言论攻击2', displayName:'言论攻击2', bonus:{faction:'order',amount:1} },
-                'CLUE_ATTACK3': { id:'CLUE_ATTACK3', type:'clue', name:'线索：言论攻击3', displayName:'言论攻击3', bonus:{faction:'order',amount:1} },
-                'CLUE_INTERVIEW': { id:'CLUE_INTERVIEW', type:'clue', name:'线索：采访', displayName:'采访', bonus:{faction:'innovation',amount:1} },
-                'CLUE_CHILDHOOD': { id:'CLUE_CHILDHOOD', type:'clue', name:'线索：童年回忆', displayName:'童年回忆', bonus:{faction:'innovation',amount:1} },
-                'CLUE_CULT': { id:'CLUE_CULT', type:'clue', name:'线索：邪教组织', displayName:'邪教组织', bonus:{faction:'economy',amount:1} },
-                'CLUE_SMUGGLE': { id:'CLUE_SMUGGLE', type:'clue', name:'线索：走私物', displayName:'走私物', bonus:{faction:'doubt',amount:1} },
-                'CLUE_PM_SELECT': { id:'CLUE_PM_SELECT', type:'clue', name:'线索：首相精选', displayName:'首相精选', bonus:{faction:'order',amount:1} },
-                'CLUE_FISHING': { id:'CLUE_FISHING', type:'clue', name:'线索：钓鱼执法', displayName:'钓鱼执法', bonus:{faction:'order',amount:1} },
-                'CLUE_INVADE': { id:'CLUE_INVADE', type:'clue', name:'线索：入侵地球', displayName:'入侵地球', bonus:{faction:'innovation',amount:1} },
-                'CLUE_SPACE': { id:'CLUE_SPACE', type:'clue', name:'线索：宇宙探索', displayName:'宇宙探索', bonus:{faction:'innovation',amount:1} },
-                'CLUE_SUBSIDY': { id:'CLUE_SUBSIDY', type:'clue', name:'线索：切断补助', displayName:'切断补助', bonus:{faction:'economy',amount:1} },
-                'CLUE_MARKET': { id:'CLUE_MARKET', type:'clue', name:'线索：市场自由', displayName:'市场自由', bonus:null },
-                'CLUE_PAPER': { id:'CLUE_PAPER', type:'clue', name:'线索：研究论文', displayName:'研究论文', bonus:null },
-                'CLUE_HYPOCRISY': { id:'CLUE_HYPOCRISY', type:'clue', name:'线索：虚伪', displayName:'虚伪', bonus:{faction:'doubt',amount:1} },
-                'END_ASTROLOGER': { id:'END_ASTROLOGER', type:'ending', name:'结局：占星师不是内鬼', displayName:'占星师不是内鬼', bonus:null },
-                'END_JUDGE': { id:'END_JUDGE', type:'ending', name:'结局：候补法官不是内鬼', displayName:'候补法官不是内鬼', bonus:null },
-                'END_STREAMER': { id:'END_STREAMER', type:'ending', name:'结局：游戏主播不是内鬼', displayName:'游戏主播不是内鬼', bonus:null },
-                'END_BLOGGER': { id:'END_BLOGGER', type:'ending', name:'结局：阴谋论博客主持人不是内鬼', displayName:'阴谋论博客主持人不是内鬼', bonus:null },
-                'END_PHD': { id:'END_PHD', type:'ending', name:'结局：42岁失业哲学博士', displayName:'42岁失业哲学博士', bonus:null },
-                'END_ANTA_REPORT': { id:'END_ANTA_REPORT', type:'ending', name:'结局：Anta举报的', displayName:'Anta举报的', bonus:null },
-                'END_MOTHER_REPORT': { id:'END_MOTHER_REPORT', type:'ending', name:'结局：母亲举报的', displayName:'母亲举报的', bonus:null },
-                'END_TOO_MANY': { id:'END_TOO_MANY', type:'ending', name:'结局：有举报嫌疑的太多', displayName:'有举报嫌疑的太多', bonus:null },
-                'END_CAPTAIN_REPORT': { id:'END_CAPTAIN_REPORT', type:'ending', name:'结局：前成员船长举报的', displayName:'前成员船长举报的', bonus:null },
-                'END_ANTA_MULTI': { id:'END_ANTA_MULTI', type:'ending', name:'结局：Anta有多个身份', displayName:'Anta有多个身份', bonus:null }
-            };
+    const TRUTH_NAMES = ['谁动了我的脚踏车','无名者的发展','谁是内鬼？','谁举报了无名者？','Anta与母亲的关系是？','神秘男子是谁？','Shangri-la计划是什么？','Shangri-la计划是什么？2','Phoenix Bar为何突然终止营业？','旧城区为何至今存在？','Shangri-la计划的初衷是什么？','谁举报了我？或者说，谁毁了我的人生？','退休案的设立是为了解决什么问题？','母亲为何沉默','为何要公开这一切？','谁来参与直播？','Shangri-la委员会老档案里都有些什么？','等待的人们是谁？','爆炸案的真相是什么？','无名者究竟在做些什么？'];
+    const truthCards = TRUTH_NAMES.map((name,i)=>({id:`TRUTH_${i}`, type:'truth', name, displayName:name, bonuses:[]}));
+    const truthIdByName = {}; truthCards.forEach(c=>truthIdByName[c.name]=c.id);
 
-            const TRUTH_ENDING_MAP = {
-                'TRUTH_INNER': ['END_ASTROLOGER','END_JUDGE','END_STREAMER','END_BLOGGER','END_PHD'],
-                'TRUTH_REPORT': ['END_ANTA_REPORT','END_MOTHER_REPORT','END_TOO_MANY','END_CAPTAIN_REPORT'],
-                'HIDDEN_ANTA': ['END_ANTA_MULTI']
-            };
+    const CLUES_DATA = [
+        ['被破坏的院子',[]], ['争吵',[]], ['碎掉的鸟蛋',[['innovation',1]]], ['联手罢工',[]], ['线下活动',[['innovation',1]]],
+        ['学术研讨会',[['order',1]]], ['狂欢派对！',[['doubt',1]]], ['看星盘',[]], ['情绪化',[]], ['书记员',[['order',1]]],
+        ['录音机',[['order',1]]], ['蹲守地库',[['order',1]]], ['不理解无名者',[['innovation',1]]], ['公开地址',[['innovation',1]]],
+        ['器官移植',[['doubt',1]]], ['研究课题',[['economy',1]]], ['缺席会议',[['economy',1]]], ['意外之财',[['economy',1]]],
+        ['免费咖啡',[]], ['过节',[]], ['保守党领袖',[['order',1]]], ['首相竞选',[['order',1]]], ['言论攻击1',[['order',1]]],
+        ['言论攻击2',[['order',1]]], ['言论攻击3',[['order',1]]], ['创新党领袖',[['innovation',1]]], ['恨铁不成钢',[['innovation',1]]],
+        ['采访',[['innovation',1]]], ['童年回忆',[['innovation',1]]], ['退租',[['economy',1]]], ['邪教组织',[['economy',1]]], ['邋遢',[]],
+        ['前成员',[['doubt',1]]], ['胡闹',[['doubt',1]]], ['走私物',[['doubt',1]]], ['政见不一',[['order',1]]], ['合影',[['innovation',1]]],
+        ['爱而不得',[['doubt',1]]], ['眼熟',[]], ['艺术感穿搭',[]], ['辨识度低',[]], ['熟络',[]],
+        ['《园丁协议》',[]], ['《晚间和谐法案》',[['order',1]]], ['竞选语录',[['order',1]]], ['实现基础收入',[['economy',1]]],
+        ['《不工作权》',[['economy',1]]], ['死亡率数据',[]], ['《昨日重现》',[]], ['北境地图',[]], ['《卢门文明》',[]],
+        ['星期二法则',[]], ['《冷战遗产继承公证处》',[['doubt',1]]], ['冷战尚未结束',[['doubt',1]]],
+        ['《第二次人口普查》',[['innovation',1]]], ['《人类说明书》',[['innovation',1]]], ['《天气预报人》',[['innovation',1]]],
+        ['高方差个体',[['innovation',1]]], ['《请让我走》',[]], ['酒吧合影',[]], ['心怀鬼胎',[]], ['亚文化',[['innovation',1]]],
+        ['无所事事',[['doubt',1]]], ['破产',[['economy',1]]], ['天文爱好者',[['innovation',1]]], ['全民饮酒',[['order',1]]],
+        ['公共场合可饮酒',[['order',1]]], ['健康原因',[['doubt',1]]], ['酒神不喜欢清醒的人',[['doubt',1]]], ['规划失败',[['order',1]]],
+        ['资金问题',[['economy',1]]], ['老城区',[['innovation',1]]], ['财报藏匿点',[['doubt',1]]], ['守墓人',[['doubt',1]]], ['医疗技术',[]],
+        ['《连续性协议》',[]], ['《恒定值》',[['innovation',1]]], ['《自发秩序》',[['innovation',1]]], ['乌托邦幻想',[['economy',1]]],
+        ['语录1',[]], ['语录2',[]], ['优化方案',[['order',1]]], ['机器化运行',[['order',1]]], ['落魄的年轻人',[['doubt',1]]],
+        ['无所事事',[]], ['无名者',[]], ['困境',[]], ['冷漠',[]], ['原生家庭',[]], ['长寿计划',[]],
+        ['失权',[]], ['老人不退场',[['doubt',1]]], ['资产没有自然重新分配',[['doubt',1]]], ['"人生窗口"被压缩',[['doubt',1]]],
+        ['父母掌权',[['doubt',1]]], ['代沟',[['doubt',1]]], ['生育率下降',[['doubt',1]]], ['终身工作',[['doubt',1]]], ['死亡即解放',[['doubt',1]]],
+        ['不再创新',[['doubt',1]]], ['母亲卸任',[]], ['疲倦',[]], ['修正错误',[['doubt',1]]], ['举报无名者',[['order',1]]], ['亏欠',[]],
+        ['推行退休案',[['economy',1]]], ['无名者是正确的',[['doubt',1]]], ['无名者无罪',[['doubt',1]]], ['退休法案必须推行',[['economy',1]]],
+        ['夺回话语权',[['economy',1]]], ['等待的学者',[['innovation',1]]], ['希望破灭者',[['economy',1]]], ['一辈子的书记员',[['order',1]]],
+        ['懵懂的青少年',[['economy',1]]], ['伙伴',[['doubt',1]]], ['组织者',[['doubt',1]]], ['普通人',[]], ['阴谋论者',[['doubt',1]]],
+        ['消除衰老',[['innovation',1]]], ['医学技术',[['innovation',1]]], ['预测',[['doubt',1]]], ['社会模型',[['doubt',1]]], ['自由市场',[['economy',1]]],
+        ['异化',[['economy',1]]], ['经验主义',[['order',1]]], ['不该离开',[['order',1]]], ['资源浪费',[]], ['法律开始拥有记忆',[['doubt',1]]],
+        ['谁有资格定义未来？',[['doubt',1]]], ['什么时候才算治好了？',[['doubt',1]]], ['长期性犯罪',[['doubt',1]]], ['望不到头',[['doubt',1]]],
+        ['年久失修',[]], ['维修部门上报',[]], ['财政拒绝拨款',[]], ['偷工减料',[]], ['无风险预警',[]],
+        ['无立案处理',[]], ['为何需要不确定性',[]], ['反对固化的社会身份',[]], ['反对没有选择的"长寿"',[]],
+        ['反对被预测的人生',[]], ['为什么会被称为"恐怖组织"',[]], ['拒绝口号',[]]
+    ];
+    const clueCards = CLUES_DATA.map((data,i)=>{
+        const bonuses = data[1].map(([faction,amount])=>({faction,amount}));
+        return {id:`CLUE_${i}`, type:'clue', name:data[0], displayName:data[0], bonuses};
+    });
+    const clueIdByName = {}; clueCards.forEach(c=>clueIdByName[c.name]=c.id);
 
-            const ENDING_BUFFS = {
-                'END_ASTROLOGER': { name:'星辰指引', icon:'🌟' },
-                'END_JUDGE': { name:'正义裁决', icon:'⚖️' },
-                'END_STREAMER': { name:'游戏达人', icon:'🎮' },
-                'END_BLOGGER': { name:'真相之眼', icon:'📡' },
-                'END_PHD': { name:'智慧启迪', icon:'📚' },
-                'END_ANTA_REPORT': { name:'匿名线人', icon:'🕵️' },
-                'END_MOTHER_REPORT': { name:'母爱庇护', icon:'❤️' },
-                'END_TOO_MANY': { name:'疑云重重', icon:'🌀' },
-                'END_CAPTAIN_REPORT': { name:'老船长之誓', icon:'⚓' },
-                'END_ANTA_MULTI': { name:'千面人', icon:'🎭' }
-            };
+    const KQ_NAMES = ['邻居','好友','鸟','成为一个反抗资本主义的组织','成为一个反抗社会结构化的组织','成为一个学术研讨的组织','专注自我为所欲为','37岁职业占星师','59岁候补法官','13岁游戏主播','阴谋论博客主持人','42岁失业哲学博士','牙医','好友','Anta','母亲','前房东','保洁员','船长','宿敌','朋友','情人','故交','酒吧老板','路人','旧情人','种族灭绝','推广全民饮酒','组织年轻人步入社会','突破人类寿命极限','寻找秘境Shangri-la','外星人入侵计划','冷战遗留问题','AI数据革命','器官移植名单出现异常','饮酒俱乐部','自命不凡者','亚文化拥护行动','Losers','资金短缺','追逐梦想','全民饮酒计划所致','无法适应长寿社会','历史遗物','预算不足','出于情怀被保留','此地无银三百两','实现全人类延寿','政治技术','经济发展','自欺欺人','恐惧死亡','重构社会制度','泄愤','我自己','母亲','Shangri-la委员会','社会','权力固化','财富冻结','年轻人激进化','家庭结构崩塌','价值观冲突','人口比例失衡','就业市场停滞','死亡特权','社会停止发展','第一个主动退休者','一代人的忏悔','无言以对','一意孤行','承认错误','为无名者脱罪','公开Shangri-la计划','重建社会秩序','哲学博士','占星师','候补法官','游戏主播','好友','我','牙医','博客主持人','医疗水平提升','量化社会','自由经济','连续性','对过去社会的不满','创业者','律师','教师','医生','警察','年迈的人','政务无作为','施工问题','媒体无作为','警方无作为','反对确定性','身份自由','拥有选择权','不可预测性','拒绝被命名','漫无目的'];
+    const kqCards = KQ_NAMES.map((name,i)=>({id:`KQ_${i}`, type:'key-question', name, displayName:name, bonuses:[]}));
+    const endingCards = KQ_NAMES.map((name,i)=>({id:`END_${i}`, type:'ending', name, displayName:name, bonuses:[]}));
 
-            const KEY_QUESTION_RULES = [
-                { resultId:'KQ_ASTROLOGER', clues:['CLUE_ASTRO_TEMP'], button:'any' },
-                { resultId:'KQ_JUDGE', clues:['CLUE_RECORD','CLUE_STAKE'], button:'order' },
-                { resultId:'KQ_STREAMER', clues:['CLUE_ADDRESS'], button:'innovation' },
-                { resultId:'KQ_BLOGGER', clues:['CLUE_BLOG_TEMP'], button:'any' },
-                { resultId:'KQ_PHD', clues:['CLUE_ABSENT','CLUE_WIND'], button:'economy' },
-                { resultId:'KQ_ANTA', clues:['CLUE_CAMPAIGN','CLUE_ATTACK1','CLUE_ATTACK2','CLUE_ATTACK3'], button:'order' },
-                { resultId:'KQ_MOTHER', clues:['CLUE_INTERVIEW','CLUE_CHILDHOOD'], button:'innovation' },
-                { resultId:'KQ_LANDLORD', clues:['CLUE_CULT'], button:'economy' },
-                { resultId:'KQ_CLEANER', clues:['CLUE_CLEAN_TEMP'], button:'any' },
-                { resultId:'KQ_CAPTAIN', clues:['CLUE_SMUGGLE'], button:'doubt' },
-                { resultId:'KQ_POLITICIAN', clues:['CLUE_ATTACK2','CLUE_CAMPAIGN','CLUE_FISHING'], button:'order' },
-                { resultId:'KQ_ALIEN', clues:['CLUE_INVADE','CLUE_ATTACK3','CLUE_SPACE'], button:'innovation' },
-                { resultId:'KQ_NEGLECT', clues:['CLUE_SUBSIDY'], button:'economy' },
-                { resultId:'KQ_ECONOMIST', clues:['CLUE_MARKET','CLUE_PAPER'], button:'any' },
-                { resultId:'KQ_FITNESS', clues:['CLUE_HYPOCRISY'], button:'doubt' }
-            ];
+    const KQ_RULE_DATA = [
+        { truth:'谁动了我的脚踏车', clues:['被破坏的院子'] },
+        { truth:'谁动了我的脚踏车', clues:['争吵'] },
+        { truth:'谁动了我的脚踏车', clues:['碎掉的鸟蛋'] },
+        { truth:'无名者的发展', clues:['联手罢工'] },
+        { truth:'无名者的发展', clues:['线下活动'] },
+        { truth:'无名者的发展', clues:['学术研讨会'] },
+        { truth:'无名者的发展', clues:['狂欢派对！'] },
+        { truth:'谁是内鬼？', clues:['看星盘','情绪化'] },
+        { truth:'谁是内鬼？', clues:['书记员','录音机','蹲守地库'] },
+        { truth:'谁是内鬼？', clues:['不理解无名者','公开地址'] },
+        { truth:'谁是内鬼？', clues:['器官移植'] },
+        { truth:'谁是内鬼？', clues:['研究课题','缺席会议','意外之财'] },
+        { truth:'谁是内鬼？', clues:['免费咖啡'] },
+        { truth:'谁是内鬼？', clues:['过节'] },
+        { truth:'谁举报了无名者？', clues:['保守党领袖','首相竞选','言论攻击1','言论攻击2','言论攻击3'] },
+        { truth:'谁举报了无名者？', clues:['创新党领袖','恨铁不成钢','采访','童年回忆'] },
+        { truth:'谁举报了无名者？', clues:['退租','邪教组织'] },
+        { truth:'谁举报了无名者？', clues:['邋遢'] },
+        { truth:'谁举报了无名者？', clues:['前成员','胡闹','走私物'] },
+        { truth:'Anta与母亲的关系是？', clues:['政见不一'] },
+        { truth:'Anta与母亲的关系是？', clues:['合影'] },
+        { truth:'Anta与母亲的关系是？', clues:['爱而不得'] },
+        { truth:'神秘男子是谁？', clues:['眼熟'] },
+        { truth:'神秘男子是谁？', clues:['艺术感穿搭'] },
+        { truth:'神秘男子是谁？', clues:['辨识度低'] },
+        { truth:'神秘男子是谁？', clues:['熟络'] },
+        { truth:'Shangri-la计划是什么？', clues:['《园丁协议》'] },
+        { truth:'Shangri-la计划是什么？', clues:['《晚间和谐法案》','竞选语录'] },
+        { truth:'Shangri-la计划是什么？', clues:['实现基础收入','《不工作权》'] },
+        { truth:'Shangri-la计划是什么？', clues:['死亡率数据','《昨日重现》'] },
+        { truth:'Shangri-la计划是什么？', clues:['北境地图'] },
+        { truth:'Shangri-la计划是什么？', clues:['《卢门文明》','星期二法则'] },
+        { truth:'Shangri-la计划是什么？', clues:['《冷战遗产继承公证处》','冷战尚未结束'] },
+        { truth:'Shangri-la计划是什么？', clues:['《第二次人口普查》','《人类说明书》','《天气预报人》','高方差个体'] },
+        { truth:'Shangri-la计划是什么？', clues:['《请让我走》'] },
+        { truth:'Shangri-la计划是什么？2', clues:['酒吧合影'] },
+        { truth:'Shangri-la计划是什么？2', clues:['心怀鬼胎'] },
+        { truth:'Shangri-la计划是什么？2', clues:['亚文化'] },
+        { truth:'Shangri-la计划是什么？2', clues:['无所事事'] },
+        { truth:'Phoenix Bar为何突然终止营业？', clues:['破产'] },
+        { truth:'Phoenix Bar为何突然终止营业？', clues:['天文爱好者'] },
+        { truth:'Phoenix Bar为何突然终止营业？', clues:['全民饮酒','公共场合可饮酒'] },
+        { truth:'Phoenix Bar为何突然终止营业？', clues:['健康原因','酒神不喜欢清醒的人'] },
+        { truth:'旧城区为何至今存在？', clues:['规划失败'] },
+        { truth:'旧城区为何至今存在？', clues:['资金问题'] },
+        { truth:'旧城区为何至今存在？', clues:['老城区'] },
+        { truth:'旧城区为何至今存在？', clues:['财报藏匿点','守墓人'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['医疗技术'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['《连续性协议》'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['《恒定值》','《自发秩序》'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['乌托邦幻想'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['语录1','语录2'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['优化方案','机器化运行'] },
+        { truth:'Shangri-la计划的初衷是什么？', clues:['落魄的年轻人'] },
+        { truth:'谁举报了我？或者说，谁毁了我的人生？', clues:['无所事事','无名者','困境'] },
+        { truth:'谁举报了我？或者说，谁毁了我的人生？', clues:['冷漠','原生家庭'] },
+        { truth:'谁举报了我？或者说，谁毁了我的人生？', clues:['长寿计划'] },
+        { truth:'谁举报了我？或者说，谁毁了我的人生？', clues:['失权'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['老人不退场'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['资产没有自然重新分配'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['"人生窗口"被压缩'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['父母掌权'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['代沟'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['生育率下降'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['终身工作'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['死亡即解放'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['不再创新'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['母亲卸任','疲倦'] },
+        { truth:'退休案的设立是为了解决什么问题？', clues:['修正错误'] },
+        { truth:'母亲为何沉默', clues:['举报无名者','亏欠'] },
+        { truth:'母亲为何沉默', clues:['推行退休案'] },
+        { truth:'母亲为何沉默', clues:['无名者是正确的'] },
+        { truth:'为何要公开这一切？', clues:['无名者无罪'] },
+        { truth:'为何要公开这一切？', clues:['长寿计划'] },
+        { truth:'为何要公开这一切？', clues:['退休法案必须推行','夺回话语权'] },
+        { truth:'谁来参与直播？', clues:['等待的学者'] },
+        { truth:'谁来参与直播？', clues:['希望破灭者'] },
+        { truth:'谁来参与直播？', clues:['一辈子的书记员'] },
+        { truth:'谁来参与直播？', clues:['懵懂的青少年'] },
+        { truth:'谁来参与直播？', clues:['伙伴'] },
+        { truth:'谁来参与直播？', clues:['组织者'] },
+        { truth:'谁来参与直播？', clues:['普通人'] },
+        { truth:'谁来参与直播？', clues:['阴谋论者'] },
+        { truth:'Shangri-la委员会老档案里都有些什么？', clues:['消除衰老','医学技术'] },
+        { truth:'Shangri-la委员会老档案里都有些什么？', clues:['预测','社会模型'] },
+        { truth:'Shangri-la委员会老档案里都有些什么？', clues:['自由市场','异化'] },
+        { truth:'Shangri-la委员会老档案里都有些什么？', clues:['经验主义','不该离开'] },
+        { truth:'Shangri-la委员会老档案里都有些什么？', clues:['资源浪费'] },
+        { truth:'等待的人们是谁？', clues:['不再创新'] },
+        { truth:'等待的人们是谁？', clues:['法律开始拥有记忆'] },
+        { truth:'等待的人们是谁？', clues:['谁有资格定义未来？'] },
+        { truth:'等待的人们是谁？', clues:['什么时候才算治好了？'] },
+        { truth:'等待的人们是谁？', clues:['长期性犯罪'] },
+        { truth:'等待的人们是谁？', clues:['望不到头'] },
+        { truth:'爆炸案的真相是什么？', clues:['年久失修','维修部门上报','财政拒绝拨款'] },
+        { truth:'爆炸案的真相是什么？', clues:['偷工减料'] },
+        { truth:'爆炸案的真相是什么？', clues:['无风险预警'] },
+        { truth:'爆炸案的真相是什么？', clues:['无立案处理'] },
+        { truth:'无名者究竟在做些什么？', clues:['为何需要不确定性'] },
+        { truth:'无名者究竟在做些什么？', clues:['反对固化的社会身份'] },
+        { truth:'无名者究竟在做些什么？', clues:['反对没有选择的"长寿"'] },
+        { truth:'无名者究竟在做些什么？', clues:['反对被预测的人生'] },
+        { truth:'无名者究竟在做些什么？', clues:['为什么会被称为"恐怖组织"'] },
+        { truth:'无名者究竟在做些什么？', clues:['拒绝口号'] }
+    ];
 
-            const ENDING_RULES = [
-                { resultId:'END_ASTROLOGER', keyq:'KQ_ASTROLOGER', button:'any', costFaction:'corresponding', costAmount:1 },
-                { resultId:'END_JUDGE', keyq:'KQ_JUDGE', button:'order', costFaction:'order', costAmount:1 },
-                { resultId:'END_STREAMER', keyq:'KQ_STREAMER', button:'innovation', costFaction:'innovation', costAmount:1 },
-                { resultId:'END_BLOGGER', keyq:'KQ_BLOGGER', button:'any', costFaction:'corresponding', costAmount:1 },
-                { resultId:'END_PHD', keyq:'KQ_PHD', button:'economy', costFaction:'economy', costAmount:1 },
-                { resultId:'END_ANTA_REPORT', keyq:'KQ_ANTA', button:'order', costFaction:'order', costAmount:1 },
-                { resultId:'END_MOTHER_REPORT', keyq:'KQ_MOTHER', button:'innovation', costFaction:'innovation', costAmount:1 },
-                { resultId:'END_TOO_MANY', keyq:'KQ_LANDLORD', button:'economy', costFaction:'economy', costAmount:1 },
-                { resultId:'END_TOO_MANY', keyq:'KQ_CLEANER', button:'any', costFaction:'corresponding', costAmount:1 },
-                { resultId:'END_CAPTAIN_REPORT', keyq:'KQ_CAPTAIN', button:'doubt', costFaction:'doubt', costAmount:1 },
-                { resultId:'END_ANTA_MULTI', keyq:'KQ_POLITICIAN', button:'order', costFaction:'order', costAmount:1 },
-                { resultId:'END_ANTA_MULTI', keyq:'KQ_ALIEN', button:'innovation', costFaction:'innovation', costAmount:2 },
-                { resultId:'END_ANTA_MULTI', keyq:'KQ_NEGLECT', button:'economy', costFaction:'innovation', costAmount:1 },
-                { resultId:'END_ANTA_MULTI', keyq:'KQ_ECONOMIST', button:'any', costFaction:'corresponding', costAmount:1 },
-                { resultId:'END_ANTA_MULTI', keyq:'KQ_FITNESS', button:'doubt', costFaction:'doubt', costAmount:1 }
-            ];
+    const keyQuestionRules = kqCards.map((kq, i) => {
+        const data = KQ_RULE_DATA[i];
+        if (!data) return null;
+        const truthId = truthIdByName[data.truth];
+        const clueIds = data.clues.map(name => clueIdByName[name]);
+        return { resultId: kq.id, truthId, clueIds };
+    }).filter(Boolean);
 
-            const state = {
-                baseScores: { order:3, economy:3, doubt:3, innovation:3 },
-                gold: 0,
-                clueBuyPrice: 10,
-                clueSellPrice: 8,
-                obtainedCards: new Set(),
-                hand: { truth:[], 'hidden-truth':[], 'key-question':[], clue:[], ending:[] },
-                gameEnded: false,
-                activeButton: null,
-                panelCards: [],
-                hiddenTruthUnlocked: false,
-                hiddenTruthThreshold: 5,
-                markCost: 2,
-                truthMarks: {}
-            };
+    const endingRules = endingCards.map((end,i)=>({resultId:end.id, keyqId:kqCards[i].id, button:'any', costFaction:'corresponding', costAmount:1}));
 
-            const $ = s => document.querySelector(s);
-            const cardsContainers = {
-                truth: $('#cards-truth'), 'hidden-truth': $('#cards-hidden'), 'key-question': $('#cards-keyq'), clue: $('#cards-clue'), ending: $('#cards-ending')
-            };
-            const countsEls = { truth:$('#count-truth'),'hidden-truth':$('#count-hidden'),'key-question':$('#count-keyq'),clue:$('#count-clue'),ending:$('#count-ending') };
-            const executeSlot = $('#execute-slot');
-            const executeArea = $('#execute-area');
-            const executeFactionLabel = $('#execute-faction-label');
-            const btnExecute = $('#btn-execute');
-            const btnClearSlot = $('#btn-clear-slot');
-            const gameStatusEl = $('#game-status');
-            const toastContainer = $('#toast-container');
-            const shopCardsRow = $('#shop-cards-row');
-            const goldAmountEl = $('#gold-amount');
-            const buffContainer = $('#buff-container');
-            const debugGoldInput = $('#debug-gold-input');
-            const debugGoldBtn = $('#debug-gold-btn');
+    const ALL_CARDS = {};
+    truthCards.forEach(c=>ALL_CARDS[c.id]=c);
+    clueCards.forEach(c=>ALL_CARDS[c.id]=c);
+    kqCards.forEach(c=>ALL_CARDS[c.id]=c);
+    endingCards.forEach(c=>ALL_CARDS[c.id]=c);
+    const TRUTH_ENDING_MAP = {};
+    truthCards.forEach(t=>{ TRUTH_ENDING_MAP[t.id]=endingCards.map(e=>e.id); });
+    const ENDING_BUFFS = {};
+    endingCards.forEach(e=>{ ENDING_BUFFS[e.id]={name:e.displayName,icon:'🎭'}; });
 
-            function getCardDef(id){ return ALL_CARDS[id] || null; }
-            function isObtained(id){ return state.obtainedCards.has(id); }
-            function displayName(id){ const d=getCardDef(id); return d?d.displayName:id; }
-            function isTruthType(id){ const d=getCardDef(id); return d && (d.type==='truth'||d.type==='hidden-truth'); }
+    const state = {
+        baseScores:{order:3,economy:3,doubt:3,innovation:3}, gold:0, clueBuyPrice:10, clueSellPrice:8,
+        obtainedCards:new Set(), hand:{truth:[],'key-question':[],clue:[],ending:[]},
+        gameEnded:false, activeButton:null, panelCards:[], markCost:2, truthMarks:{}, shopCollapsed:false
+    };
+    state.obtainedCards = new Set(truthCards.map(c=>c.id));
+    state.hand.truth = truthCards.map(c=>c.id);
+    const allClueIds = clueCards.map(c=>c.id);
+    const shuffled=[...allClueIds]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+    const initialClueCount=Math.min(5,shuffled.length);
+    for(let i=0;i<initialClueCount;i++){state.obtainedCards.add(shuffled[i]);state.hand.clue.push(shuffled[i]);}
 
-            function getTotalScores() {
-                const totals = {...state.baseScores};
-                for (const id of state.obtainedCards) {
-                    const def = getCardDef(id);
-                    if (def && def.bonus) totals[def.bonus.faction] += def.bonus.amount;
-                }
-                return totals;
+    const $=s=>document.querySelector(s);
+    const cardsContainers={truth:$('#cards-truth'),'key-question':$('#cards-keyq'),clue:$('#cards-clue'),ending:$('#cards-ending')};
+    const countsEls={truth:$('#count-truth'),'key-question':$('#count-keyq'),clue:$('#count-clue'),ending:$('#count-ending')};
+    const executeSlot=$('#execute-slot'),executeArea=$('#execute-area'),executeFactionLabel=$('#execute-faction-label');
+    const btnExecute=$('#btn-execute'),btnClearSlot=$('#btn-clear-slot'),gameStatusEl=$('#game-status');
+    const toastContainer=$('#toast-container'),shopCardsRow=$('#shop-cards-row'),goldAmountEl=$('#gold-amount');
+    const buffContainer=$('#buff-container'),debugGoldInput=$('#debug-gold-input'),debugGoldBtn=$('#debug-gold-btn');
+    const shopToggleBtn=$('#shop-toggle-btn'),clueShop=$('#clue-shop');
+
+    function getCardDef(id){return ALL_CARDS[id];}
+    function isObtained(id){return state.obtainedCards.has(id);}
+    function displayName(id){const d=getCardDef(id);return d?d.displayName:id;}
+    function isTruthType(id){const d=getCardDef(id);return d&&d.type==='truth';}
+    function getTotalScores(){
+        const totals={...state.baseScores};
+        for(const id of state.obtainedCards){const def=getCardDef(id);if(def)for(const b of(def.bonuses||[]))totals[b.faction]+=b.amount;}
+        return totals;
+    }
+    function updateScoreUI(){
+        const totals=getTotalScores();
+        FACTION_KEYS.forEach(fk=>{document.getElementById(`score-val-${fk}`).textContent=totals[fk];document.getElementById(`btn-score-${fk}`).textContent=totals[fk];document.getElementById(`score-${fk}`).classList.toggle('low',totals[fk]<=0);});
+        updateGoldUI();renderShop();
+    }
+    function updateGoldUI(){goldAmountEl.textContent=state.gold;}
+    function flashScore(fk){const item=document.getElementById(`score-${fk}`);if(item){item.classList.add('score-flash');setTimeout(()=>item.classList.remove('score-flash'),650);}}
+    function showToast(msg,type='info',duration=3200){const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;toastContainer.appendChild(t);setTimeout(()=>t.remove(),duration+400);}
+
+    function getClueColorClass(bonuses){ return ''; }
+
+    function createCardElement(cardId){
+        const def=getCardDef(cardId);
+        const el=document.createElement('div');
+        let cls=`card ${def.type}`;
+        if(def.type==='clue'){const cc=getClueColorClass(def.bonuses||[]);if(cc)cls+=' '+cc;}
+        el.className=cls;el.draggable=true;el.dataset.cardId=cardId;el.title=def.name;
+        let bonusHtml='';
+        const bonuses=def.bonuses||[];
+        if(bonuses.length>0){
+            const dots=bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');
+            const text=bonuses.map(b=>`${FACTION_NAMES[b.faction]}+${b.amount}`).join(' ');
+            bonusHtml=`<span class="bonus-indicator">${dots}</span><span class="card-bonus">${text}</span>`;
+        }
+        el.innerHTML=`<span class="card-type-tag">${TYPE_LABELS[def.type]}</span><span class="card-name">${def.displayName}</span>${bonusHtml}`;
+        if(state.truthMarks[cardId]){
+            el.classList.add('marked');
+            el.title += ' (已标记：' + displayName(state.truthMarks[cardId]) + ')';
+            const markLabel = document.createElement('div');
+            markLabel.className = 'mark-label';
+            markLabel.textContent = `🔒 ${displayName(state.truthMarks[cardId])}`;
+            el.appendChild(markLabel);
+        }
+        el.addEventListener('dragstart',handleDragStart);el.addEventListener('dragend',handleDragEnd);
+        el.addEventListener('click',e=>{if(state.gameEnded)return;if(e.target.closest('.sell-btn'))return;if(state.activeButton)tryAddToPanel(cardId);else showToast('请先选择一个执行按钮','error');});
+        return el;
+    }
+    function createSellableClueElement(clueId){
+        const def=getCardDef(clueId);
+        const el=document.createElement('div');
+        let cls='card clue'; const cc=getClueColorClass(def.bonuses||[]); if(cc)cls+=' '+cc;
+        el.className=cls;el.draggable=true;el.dataset.cardId=clueId;el.title=def.name+' (点击卡片放入执行槽，点击按钮出售)';
+        let bonusHtml='';
+        const bonuses=def.bonuses||[];
+        if(bonuses.length>0){
+            const dots=bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');
+            const text=bonuses.map(b=>`${FACTION_NAMES[b.faction]}+${b.amount}`).join(' ');
+            bonusHtml=`<span class="bonus-indicator">${dots}</span><span class="card-bonus">${text}</span>`;
+        }
+        el.innerHTML=`<span class="card-type-tag">${TYPE_LABELS['clue']}</span><span class="card-name">${def.displayName}</span>${bonusHtml}<button class="sell-btn">卖${state.clueSellPrice}</button>`;
+        el.addEventListener('dragstart',handleDragStart);el.addEventListener('dragend',handleDragEnd);
+        el.addEventListener('click',e=>{if(e.target.closest('.sell-btn'))return;if(state.gameEnded)return;if(state.activeButton)tryAddToPanel(clueId);else showToast('请先选择一个执行按钮','error');});
+        el.querySelector('.sell-btn').addEventListener('click',e=>{e.stopPropagation();sellClue(clueId);});
+        return el;
+    }
+    function renderHand(){
+        ['truth','key-question','ending'].forEach(type=>{
+            const container=cardsContainers[type];const cards=state.hand[type]||[];container.innerHTML='';
+            if(cards.length===0){container.classList.add('empty');}else{container.classList.remove('empty');cards.forEach(id=>container.appendChild(createCardElement(id)));}
+            countsEls[type].textContent=cards.length;
+        });
+        const clueContainer=cardsContainers.clue;const clues=state.hand.clue||[];clueContainer.innerHTML='';
+        if(clues.length===0){clueContainer.classList.add('empty');}else{clueContainer.classList.remove('empty');clues.forEach(id=>clueContainer.appendChild(createSellableClueElement(id)));}
+        countsEls.clue.textContent=clues.length;
+        updateFactionButtons();updateExecuteButtonState();updateBuffDisplay();
+    }
+    function updateFactionButtons(){FACTION_KEYS.forEach(fk=>{const btn=document.getElementById(`btn-${fk}`);if(btn){btn.disabled=state.gameEnded;btn.classList.toggle('active',state.activeButton===fk&&!state.gameEnded);}});}
+    function updateExecuteButtonState(){btnExecute.disabled=!(state.panelCards.length>0&&state.activeButton&&!state.gameEnded);}
+    function updateBuffDisplay(){
+        const entries=Object.values(state.truthMarks).filter(id=>id);
+        if(entries.length===0){buffContainer.textContent='暂无';return;}
+        buffContainer.innerHTML='';
+        entries.forEach(endingId=>{const buff=ENDING_BUFFS[endingId]||{name:'未知',icon:'❓'};const span=document.createElement('span');span.className='buff-icon';span.title=buff.icon+' '+buff.name+' ('+displayName(endingId)+')';span.textContent=buff.icon+' '+buff.name;buffContainer.appendChild(span);});
+    }
+    function handleDragStart(e){if(state.gameEnded){e.preventDefault();return;}const card=e.target.closest('.card');if(!card)return;e.dataTransfer.setData('text/plain',card.dataset.cardId);card.classList.add('dragging');window._draggedCardId=card.dataset.cardId;}
+    function handleDragEnd(e){const card=e.target.closest('.card');if(card)card.classList.remove('dragging');window._draggedCardId=null;}
+    executeSlot.addEventListener('dragover',e=>{e.preventDefault();if(state.activeButton&&!state.gameEnded){executeSlot.classList.add('drag-over');e.dataTransfer.dropEffect='move';}});
+    executeSlot.addEventListener('dragleave',()=>executeSlot.classList.remove('drag-over'));
+    executeSlot.addEventListener('drop',e=>{e.preventDefault();executeSlot.classList.remove('drag-over');if(state.gameEnded){showToast('游戏已结束','error');return;}if(!state.activeButton){showToast('请先选择执行按钮','error');return;}const id=e.dataTransfer.getData('text/plain')||window._draggedCardId;if(id)tryAddToPanel(id);window._draggedCardId=null;});
+    function tryAddToPanel(cardId){
+        if(!cardId||state.gameEnded)return;if(!state.activeButton){showToast('请先选择执行按钮','error');return;}if(!isObtained(cardId)){showToast('这张卡尚未获得','error');return;}if(state.panelCards.includes(cardId)){showToast('已在执行槽中','error');return;}
+        state.panelCards.push(cardId);renderPanel();showToast(`已将「${displayName(cardId)}」放入执行槽`,'info',1500);
+    }
+    function renderPanel(){
+        executeSlot.innerHTML='';
+        if(state.panelCards.length===0){executeSlot.innerHTML='<span class="placeholder">将卡牌拖入此处</span>';}
+        else{state.panelCards.forEach(id=>{const el=createCardElement(id);el.draggable=false;el.style.cursor='pointer';el.addEventListener('click',()=>removeFromPanel(id));executeSlot.appendChild(el);});}
+        updateExecuteButtonState();
+    }
+    function removeFromPanel(id){state.panelCards=state.panelCards.filter(x=>x!==id);renderPanel();}
+    function selectFaction(fk){
+        if(state.gameEnded)return;
+        if(state.activeButton===fk){state.activeButton=null;state.panelCards=[];updateExecuteAreaUI();renderPanel();}
+        else{state.activeButton=fk;state.panelCards=[];updateExecuteAreaUI();renderPanel();}
+        updateFactionButtons();
+    }
+    function updateExecuteAreaUI(){
+        if(state.activeButton){executeArea.classList.remove('inactive');executeFactionLabel.classList.remove('inactive');executeFactionLabel.textContent=`${FACTION_ICONS[state.activeButton]} 当前执行按钮：${FACTION_NAMES[state.activeButton]}`;}
+        else{executeArea.classList.add('inactive');executeFactionLabel.classList.add('inactive');executeFactionLabel.textContent='请先选择一个执行按钮';}
+        updateExecuteButtonState();
+    }
+    FACTION_KEYS.forEach(fk=>{document.getElementById(`btn-${fk}`).addEventListener('click',()=>selectFaction(fk));});
+    btnClearSlot.addEventListener('click',()=>{state.panelCards=[];renderPanel();showToast('已清空执行槽','info',1500);});
+    btnExecute.addEventListener('click',()=>{
+        if(state.gameEnded)return;if(!state.activeButton)return;if(state.panelCards.length===0)return;
+        executeAction(state.activeButton,[...state.panelCards]);
+    });
+
+    function executeAction(currentFaction,cardIds){
+        for(const id of cardIds){if(!isObtained(id)){showToast(`「${displayName(id)}」尚未获得`,'error');return;}}
+        const truthIds=cardIds.filter(id=>isTruthType(id));
+        const endingIds=cardIds.filter(id=>getCardDef(id)?.type==='ending');
+        if(truthIds.length>0&&endingIds.length>0){
+            if(truthIds.length!==1||endingIds.length!==1||cardIds.length!==2){showToast('标记结局需要恰好一张真相和一张结局','error');return;}
+            const truthId=truthIds[0],endingId=endingIds[0];
+            if(state.truthMarks[truthId]){showToast('该真相已标记，不可重复标记','error');return;}
+            const total=getTotalScores()[currentFaction];
+            if(total<state.markCost){showToast(`标记需要${state.markCost}点${FACTION_NAMES[currentFaction]}分数，当前不足`,'error');return;}
+            state.baseScores[currentFaction]-=state.markCost;updateScoreUI();flashScore(currentFaction);
+            state.truthMarks[truthId]=endingId;
+            showToast(`⭐ 标记成功：${displayName(truthId)} → ${displayName(endingId)}`,'success',3000);
+            state.panelCards=[];renderPanel();renderHand();return;
+        }
+        for(const rule of keyQuestionRules){
+            const requiredIds = [rule.truthId, ...rule.clueIds];
+            const req=[...requiredIds].sort();
+            const have=[...cardIds].sort();
+            if(req.length===have.length && req.every((v,i)=>v===have[i])){
+                if(isObtained(rule.resultId)){showToast('该关键问题卡已获得','error');return;}
+                state.obtainedCards.add(rule.resultId);state.hand['key-question'].push(rule.resultId);
+                showToast(`✅ 获得「${displayName(rule.resultId)}」`,'success');
+                state.panelCards=[];renderPanel();renderHand();return;
             }
+        }
+        for(const rule of endingRules){
+            if(cardIds.length===1 && cardIds[0]===rule.keyqId){
+                if(isObtained(rule.resultId)){showToast('该结局卡已获得','error');return;}
+                const costFaction=rule.costFaction==='corresponding'?currentFaction:rule.costFaction;
+                const total=getTotalScores()[costFaction];
+                if(total<rule.costAmount){showToast(`需要消耗${rule.costAmount}点${FACTION_NAMES[costFaction]}分数，当前不足`,'error');return;}
+                state.baseScores[costFaction]-=rule.costAmount;updateScoreUI();flashScore(costFaction);
+                state.obtainedCards.add(rule.resultId);state.hand.ending.push(rule.resultId);
+                showToast(`✅ 获得「${displayName(rule.resultId)}」（消耗${rule.costAmount}${FACTION_NAMES[costFaction]}）`,'success');
+                state.panelCards=[];renderPanel();renderHand();return;
+            }
+        }
+        showToast('当前组合无法执行任何操作','error');
+    }
 
-            function updateScoreUI() {
-                const totals = getTotalScores();
-                FACTION_KEYS.forEach(fk => {
-                    document.getElementById(`score-val-${fk}`).textContent = totals[fk];
-                    document.getElementById(`btn-score-${fk}`).textContent = totals[fk];
-                    document.getElementById(`score-${fk}`).classList.toggle('low', totals[fk] <= 0);
-                });
-                updateGoldUI();
-                renderShop();
-            }
+    function renderShop(){
+        const available=clueCards.filter(c=>!isObtained(c.id)).map(c=>c.id);
+        shopCardsRow.innerHTML='';
+        if(available.length===0){shopCardsRow.classList.add('empty');return;}
+        shopCardsRow.classList.remove('empty');
+        available.forEach(clueId=>{
+            const def=getCardDef(clueId);
+            const el=document.createElement('div');
+            let cls='shop-card';const cc=getClueColorClass(def.bonuses||[]);if(cc)cls+=' '+cc;
+            el.className=cls;
+            let dots='';const bonuses=def.bonuses||[];
+            if(bonuses.length>0){dots=bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');}
+            el.innerHTML=`<span class="shop-card-name">${def.displayName}</span>${dots?`<span class="bonus-indicator">${dots}</span>`:''}<span class="shop-card-price">💰 ${state.clueBuyPrice} 金币</span>`;
+            if(state.gameEnded||state.gold<state.clueBuyPrice){el.classList.add('disabled');}else{el.addEventListener('click',()=>buyClue(clueId));}
+            shopCardsRow.appendChild(el);
+        });
+    }
+    function buyClue(clueId){
+        if(state.gameEnded)return;if(isObtained(clueId))return;if(state.gold<state.clueBuyPrice){showToast('金币不足','error');return;}
+        state.gold-=state.clueBuyPrice;state.obtainedCards.add(clueId);state.hand.clue.push(clueId);
+        updateGoldUI();renderHand();renderShop();updateScoreUI();
+        showToast(`🛒 购买「${displayName(clueId)}」`,'success');
+    }
+    function sellClue(clueId){
+        if(!isObtained(clueId))return;
+        state.hand.clue=state.hand.clue.filter(x=>x!==clueId);state.obtainedCards.delete(clueId);state.gold+=state.clueSellPrice;
+        updateGoldUI();renderHand();renderShop();updateScoreUI();
+        showToast(`💰 出售「${displayName(clueId)}」`,'success');
+    }
 
-            function updateGoldUI(){ goldAmountEl.textContent = state.gold; }
-            function flashScore(factionKey){
-                const item=document.getElementById(`score-${factionKey}`); if(item){ item.classList.add('score-flash'); setTimeout(()=>item.classList.remove('score-flash'),650); }
-            }
-            function showToast(msg,type='info',duration=3200){
-                const t=document.createElement('div'); t.className='toast '+type; t.textContent=msg; toastContainer.appendChild(t); setTimeout(()=>t.remove(), duration+400);
-            }
+    function setGoldFromDebug(){
+        const val=parseInt(debugGoldInput.value,10);
+        if(isNaN(val)||val<0){showToast('请输入非负整数','error');return;}
+        state.gold=val;updateGoldUI();renderShop();
+        showToast(`🔧 金币已设置为 ${state.gold}`,'success',2000);
+    }
+    debugGoldBtn.addEventListener('click',setGoldFromDebug);
+    debugGoldInput.addEventListener('keypress',e=>{if(e.key==='Enter')setGoldFromDebug();});
 
-            function createCardElement(cardId){
-                const def=getCardDef(cardId); if(!def) return null;
-                const el=document.createElement('div'); el.className=`card ${def.type}`; el.draggable=true; el.dataset.cardId=cardId;
-                el.title=def.name;
-                el.innerHTML=`<span class="card-type-tag">${TYPE_LABELS[def.type]}</span><span class="card-name">${def.displayName}</span>${def.bonus?'<span class="card-bonus">'+FACTION_NAMES[def.bonus.faction]+'+'+def.bonus.amount+'</span>':''}`;
-                if(state.truthMarks[cardId]){ el.classList.add('marked'); el.title+=' (已标记:'+displayName(state.truthMarks[cardId])+')'; }
-                el.addEventListener('dragstart',handleDragStart); el.addEventListener('dragend',handleDragEnd);
-                el.addEventListener('click',e=>{ if(state.gameEnded)return; if(e.target.closest('.sell-btn'))return; if(state.activeButton) tryAddToPanel(cardId); else showToast('请先选择一个执行按钮','error'); });
-                return el;
-            }
+    function toggleShop(){
+        state.shopCollapsed=!state.shopCollapsed;
+        if(state.shopCollapsed){
+            shopCardsRow.classList.add('hidden');
+            clueShop.classList.add('collapsed');
+            shopToggleBtn.textContent='展开 ▼';
+        }else{
+            shopCardsRow.classList.remove('hidden');
+            clueShop.classList.remove('collapsed');
+            shopToggleBtn.textContent='收起 ▲';
+        }
+    }
+    shopToggleBtn.addEventListener('click',toggleShop);
 
-            function createSellableClueElement(clueId){
-                const def=getCardDef(clueId); const el=document.createElement('div'); el.className='card clue'; el.draggable=true; el.dataset.cardId=clueId;
-                el.title=def.name+' (点击卡片放入执行槽，点击按钮出售)';
-                el.innerHTML=`<span class="card-type-tag">线索</span><span class="card-name">${def.displayName}</span>${def.bonus?'<span class="card-bonus">'+FACTION_NAMES[def.bonus.faction]+'+'+def.bonus.amount+'</span>':''}<button class="sell-btn">卖${state.clueSellPrice}</button>`;
-                el.addEventListener('dragstart',handleDragStart); el.addEventListener('dragend',handleDragEnd);
-                el.addEventListener('click',e=>{ if(e.target.closest('.sell-btn'))return; if(state.gameEnded)return; if(state.activeButton) tryAddToPanel(clueId); else showToast('请先选择一个执行按钮','error'); });
-                const sellBtn=el.querySelector('.sell-btn');
-                sellBtn.addEventListener('mousedown',e=>e.stopPropagation());
-                sellBtn.addEventListener('click',e=>{ e.stopPropagation(); sellClue(clueId); });
-                return el;
-            }
-
-            function renderHand(){
-                ['truth','hidden-truth','key-question','ending'].forEach(type=>{
-                    const container=cardsContainers[type]; const cards=state.hand[type]||[]; container.innerHTML='';
-                    if(cards.length===0){container.classList.add('empty');} else {container.classList.remove('empty'); cards.forEach(id=>container.appendChild(createCardElement(id)));}
-                    countsEls[type].textContent=cards.length;
-                });
-                const clueContainer=cardsContainers.clue; const clues=state.hand.clue||[]; clueContainer.innerHTML='';
-                if(clues.length===0){clueContainer.classList.add('empty');} else {clueContainer.classList.remove('empty'); clues.forEach(id=>clueContainer.appendChild(createSellableClueElement(id)));}
-                countsEls.clue.textContent=clues.length;
-                updateFactionButtons(); updateExecuteButtonState(); updateBuffDisplay();
-            }
-
-            function updateFactionButtons(){
-                FACTION_KEYS.forEach(fk=>{ const btn=document.getElementById(`btn-${fk}`); if(btn){ btn.disabled=state.gameEnded; btn.classList.toggle('active', state.activeButton===fk && !state.gameEnded); } });
-            }
-            function updateExecuteButtonState(){ btnExecute.disabled = !(state.panelCards.length>0 && state.activeButton && !state.gameEnded); }
-
-            function updateBuffDisplay(){
-                const entries=Object.values(state.truthMarks).filter(id=>id);
-                if(entries.length===0){ buffContainer.textContent='暂无'; return; }
-                buffContainer.innerHTML='';
-                entries.forEach(endingId=>{
-                    const buff=ENDING_BUFFS[endingId]||{name:'未知',icon:'❓'};
-                    const span=document.createElement('span'); span.className='buff-icon'; span.title=buff.icon+' '+buff.name+' ('+displayName(endingId)+')'; span.textContent=buff.icon+' '+buff.name; buffContainer.appendChild(span);
-                });
-            }
-
-            function handleDragStart(e){ if(state.gameEnded){e.preventDefault();return;} const card=e.target.closest('.card'); if(!card)return; e.dataTransfer.setData('text/plain',card.dataset.cardId); card.classList.add('dragging'); window._draggedCardId=card.dataset.cardId; }
-            function handleDragEnd(e){ const card=e.target.closest('.card'); if(card)card.classList.remove('dragging'); window._draggedCardId=null; }
-            executeSlot.addEventListener('dragover',e=>{ e.preventDefault(); if(state.activeButton&&!state.gameEnded){ executeSlot.classList.add('drag-over'); e.dataTransfer.dropEffect='move'; }});
-            executeSlot.addEventListener('dragleave',()=>executeSlot.classList.remove('drag-over'));
-            executeSlot.addEventListener('drop',e=>{ e.preventDefault(); executeSlot.classList.remove('drag-over'); if(state.gameEnded){showToast('游戏已结束','error');return;} if(!state.activeButton){showToast('请先选择执行按钮','error');return;} const id=e.dataTransfer.getData('text/plain')||window._draggedCardId; if(id)tryAddToPanel(id); window._draggedCardId=null; });
-
-            function tryAddToPanel(cardId){
-                if(!cardId||state.gameEnded)return; if(!state.activeButton){showToast('请先选择执行按钮','error');return;} if(!isObtained(cardId)){showToast('这张卡尚未获得','error');return;} if(state.panelCards.includes(cardId)){showToast('已在执行槽中','error');return;}
-                state.panelCards.push(cardId); renderPanel(); showToast(`已将「${displayName(cardId)}」放入执行槽`,'info',1500);
-            }
-            function renderPanel(){
-                executeSlot.innerHTML='';
-                if(state.panelCards.length===0){ executeSlot.innerHTML='<span class="placeholder">将卡牌拖入此处</span>'; }
-                else { state.panelCards.forEach(id=>{ const el=createCardElement(id); el.draggable=false; el.style.cursor='pointer'; el.addEventListener('click',()=>removeFromPanel(id)); executeSlot.appendChild(el); }); }
-                updateExecuteButtonState();
-            }
-            function removeFromPanel(id){ state.panelCards=state.panelCards.filter(x=>x!==id); renderPanel(); }
-
-            function selectFaction(fk){
-                if(state.gameEnded)return; if(state.activeButton===fk){ state.activeButton=null; state.panelCards=[]; updateExecuteAreaUI(); renderPanel(); } else { state.activeButton=fk; state.panelCards=[]; updateExecuteAreaUI(); renderPanel(); } updateFactionButtons();
-            }
-            function updateExecuteAreaUI(){
-                if(state.activeButton){ executeArea.classList.remove('inactive'); executeFactionLabel.classList.remove('inactive'); executeFactionLabel.textContent=`${FACTION_ICONS[state.activeButton]} 当前执行按钮：${FACTION_NAMES[state.activeButton]}`; }
-                else { executeArea.classList.add('inactive'); executeFactionLabel.classList.add('inactive'); executeFactionLabel.textContent='请先选择一个执行按钮'; }
-                updateExecuteButtonState();
-            }
-            FACTION_KEYS.forEach(fk=>{ document.getElementById(`btn-${fk}`).addEventListener('click',()=>selectFaction(fk)); });
-            btnClearSlot.addEventListener('click',()=>{ state.panelCards=[]; renderPanel(); showToast('已清空执行槽','info',1500); });
-
-            btnExecute.addEventListener('click',()=>{
-                if(state.gameEnded)return; if(!state.activeButton)return; if(state.panelCards.length===0)return;
-                executeAction(state.activeButton, [...state.panelCards]);
-            });
-
-            function executeAction(currentFaction, cardIds){
-                for(const id of cardIds){ if(!isObtained(id)){ showToast(`「${displayName(id)}」尚未获得`,'error'); return; } }
-                const truthIds=cardIds.filter(id=>isTruthType(id));
-                const endingIds=cardIds.filter(id=>getCardDef(id)?.type==='ending');
-                if(truthIds.length>0 && endingIds.length>0){
-                    if(truthIds.length!==1||endingIds.length!==1||cardIds.length!==2){ showToast('标记结局需要恰好一张真相和一张结局','error'); return; }
-                    const truthId=truthIds[0], endingId=endingIds[0];
-                    if(!(TRUTH_ENDING_MAP[truthId]||[]).includes(endingId)){ showToast('该真相与该结局无关联','error'); return; }
-                    if(state.truthMarks[truthId]){ showToast('该真相已标记，不可重复标记','error'); return; }
-                    const total=getTotalScores()[currentFaction];
-                    if(total < state.markCost){ showToast(`标记需要${state.markCost}点${FACTION_NAMES[currentFaction]}分数，当前不足`,'error'); return; }
-                    state.baseScores[currentFaction]-=state.markCost; updateScoreUI(); flashScore(currentFaction);
-                    state.truthMarks[truthId]=endingId;
-                    showToast(`⭐ 标记成功：${displayName(truthId)} → ${displayName(endingId)}`,'success',3000);
-                    state.panelCards=[]; renderPanel(); renderHand(); return;
-                }
-                const keyqRule=KEY_QUESTION_RULES.find(r=>{
-                    if(!(r.button==='any'||r.button===currentFaction)) return false;
-                    const req=[...r.clues].sort(); const have=[...cardIds].sort();
-                    return req.length===have.length && req.every((v,i)=>v===have[i]);
-                });
-                if(keyqRule){
-                    if(isObtained(keyqRule.resultId)){ showToast('该关键问题卡已获得','error'); return; }
-                    state.obtainedCards.add(keyqRule.resultId); state.hand['key-question'].push(keyqRule.resultId);
-                    showToast(`✅ 获得「${displayName(keyqRule.resultId)}」`,'success');
-                    state.panelCards=[]; renderPanel(); renderHand(); checkHiddenTruthUnlock(); return;
-                }
-                const endingRule=ENDING_RULES.find(r=>{
-                    if(!(r.button==='any'||r.button===currentFaction)) return false;
-                    return cardIds.length===1 && cardIds[0]===r.keyq;
-                });
-                if(endingRule){
-                    if(isObtained(endingRule.resultId)){ showToast('该结局卡已获得','error'); return; }
-                    const costFaction = endingRule.costFaction==='corresponding' ? currentFaction : endingRule.costFaction;
-                    const total=getTotalScores()[costFaction];
-                    if(total < endingRule.costAmount){ showToast(`需要消耗${endingRule.costAmount}点${FACTION_NAMES[costFaction]}分数，当前不足`,'error'); return; }
-                    state.baseScores[costFaction]-=endingRule.costAmount; updateScoreUI(); flashScore(costFaction);
-                    state.obtainedCards.add(endingRule.resultId); state.hand.ending.push(endingRule.resultId);
-                    showToast(`✅ 获得「${displayName(endingRule.resultId)}」（消耗${endingRule.costAmount}${FACTION_NAMES[costFaction]}）`,'success');
-                    state.panelCards=[]; renderPanel(); renderHand(); checkHiddenTruthUnlock(); return;
-                }
-                const possibleIncomplete = KEY_QUESTION_RULES.some(r=>{
-                    const reqSet=new Set(r.clues); const haveSet=new Set(cardIds);
-                    if(haveSet.size >= reqSet.size) return false;
-                    for(const id of haveSet){ if(!reqSet.has(id)) return false; }
-                    return true;
-                });
-                if(possibleIncomplete){ showToast('还缺少其他线索才能产出关键问题卡','info'); return; }
-                showToast('当前组合无法执行任何操作','error');
-            }
-
-            function getAllClueIds(){ return Object.keys(ALL_CARDS).filter(id=>ALL_CARDS[id].type==='clue'); }
-            function getUnobtainedClueIds(){ return getAllClueIds().filter(id=>!isObtained(id)); }
-            function renderShop(){
-                const available=getUnobtainedClueIds(); shopCardsRow.innerHTML='';
-                if(available.length===0){ shopCardsRow.classList.add('empty'); return; }
-                shopCardsRow.classList.remove('empty');
-                available.forEach(clueId=>{
-                    const def=getCardDef(clueId); const el=document.createElement('div'); el.className='shop-card';
-                    el.innerHTML=`<span class="shop-card-name">${def.displayName}</span><span class="shop-card-price">💰 ${state.clueBuyPrice} 金币</span>`;
-                    if(state.gameEnded||state.gold<state.clueBuyPrice){ el.classList.add('disabled'); } else { el.addEventListener('click',()=>buyClue(clueId)); }
-                    shopCardsRow.appendChild(el);
-                });
-            }
-            function buyClue(clueId){
-                if(state.gameEnded)return; if(isObtained(clueId))return; if(state.gold<state.clueBuyPrice){showToast('金币不足','error');return;}
-                state.gold-=state.clueBuyPrice; state.obtainedCards.add(clueId); state.hand.clue.push(clueId);
-                updateGoldUI(); renderHand(); renderShop(); updateScoreUI();
-                showToast(`🛒 购买「${displayName(clueId)}」`,'success');
-            }
-            function sellClue(clueId){
-                if(!isObtained(clueId))return; state.hand.clue=state.hand.clue.filter(x=>x!==clueId); state.obtainedCards.delete(clueId); state.gold+=state.clueSellPrice;
-                updateGoldUI(); renderHand(); renderShop(); updateScoreUI();
-                showToast(`💰 出售「${displayName(clueId)}」`,'success');
-            }
-
-            function checkHiddenTruthUnlock(){
-                if(state.hiddenTruthUnlocked) return;
-                const totals=getTotalScores(); let max=0; FACTION_KEYS.forEach(fk=>max=Math.max(max,totals[fk]));
-                if(max>=state.hiddenTruthThreshold){ state.hiddenTruthUnlocked=true; if(!isObtained('HIDDEN_ANTA')){ state.obtainedCards.add('HIDDEN_ANTA'); state.hand['hidden-truth'].push('HIDDEN_ANTA'); renderHand(); showToast('🔮 隐藏真相已解锁：获得「隐藏真相：Anta的身份」','locked',4000); } }
-            }
-
-            function initGame(){
-                state.baseScores={order:3,economy:3,doubt:3,innovation:3}; state.gold=0; state.obtainedCards.clear();
-                state.hand={truth:[],'hidden-truth':[],'key-question':[],clue:[],ending:[]}; state.gameEnded=false; state.activeButton=null; state.panelCards=[];
-                state.hiddenTruthUnlocked=false; state.truthMarks={}; gameStatusEl.textContent='调查进行中...'; gameStatusEl.classList.remove('ended');
-                state.obtainedCards.add('TRUTH_INNER'); state.hand.truth.push('TRUTH_INNER');
-                state.obtainedCards.add('TRUTH_REPORT'); state.hand.truth.push('TRUTH_REPORT');
-                const allClues=getAllClueIds(); const shuffled=[...allClues]; for(let i=shuffled.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
-                const cnt=Math.min(5,shuffled.length); for(let i=0;i<cnt;i++){ state.obtainedCards.add(shuffled[i]); state.hand.clue.push(shuffled[i]); }
-                updateScoreUI(); updateGoldUI(); updateExecuteAreaUI(); renderPanel(); renderHand(); renderShop(); updateBuffDisplay();
-                showToast('🃏 游戏开始：已发放2张真相卡和'+cnt+'张线索卡。线索卡影响阵营分数，可出售换取金币购买线索。','info',6000);
-            }
-
-            // 调试金币设置
-            function setGoldFromDebug(){
-                const val = parseInt(debugGoldInput.value, 10);
-                if (isNaN(val) || val < 0) {
-                    showToast('请输入非负整数','error');
-                    return;
-                }
-                state.gold = val;
-                updateGoldUI();
-                renderShop();
-                showToast(`🔧 金币已设置为 ${state.gold}`,'success',2000);
-            }
-
-            debugGoldBtn.addEventListener('click', setGoldFromDebug);
-            debugGoldInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') setGoldFromDebug();
-            });
-
-            initGame();
-            window.__state=state; window.__ALL_CARDS=ALL_CARDS;
-        })();
-    </script>
+    updateScoreUI();updateGoldUI();updateExecuteAreaUI();renderPanel();renderHand();renderShop();updateBuffDisplay();
+    showToast('🃏 游戏开始：所有真相卡已解锁，随机5张线索卡。组合对应真相与线索获得关键问题卡，再消耗分数获得结局。','info',6000);
+})();
+</script>
 </body>
 </html>
