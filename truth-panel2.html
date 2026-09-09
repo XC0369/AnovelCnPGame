@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>无名者档案 - 卡牌推理游戏（去星标记版）</title>
+    <title>无名者档案 - 卡牌推理游戏（多Tier Buff）</title>
     <style>
         :root {
             --bg:#1a1410; --panel-bg:#2a2018; --card-bg:#3a2e22; --border:#5a4a3a;
@@ -38,9 +38,12 @@
         .score-item.innovation .score-name{color:var(--innov-color)} .score-item.innovation .score-value{color:var(--innov-color)}
         .score-flash { animation:scoreFlash 0.6s ease; }
         @keyframes scoreFlash { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
-        #buff-area { background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:40px; }
-        #buff-area .buff-title { font-weight:bold;color:var(--gold); }
-        .buff-icon { background:#2a2018;border-radius:8px;padding:6px 10px;cursor:help;font-size:1.1em;border:1px solid var(--gold-dark); }
+        #buff-area { background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:44px; }
+        #buff-area .buff-title { font-weight:bold;color:var(--gold);letter-spacing:1px; }
+        .tier-buff { background:#2a2018;border-radius:8px;padding:4px 10px;cursor:help;font-size:0.82em;border:1px solid var(--gold-dark);display:inline-flex;align-items:center;gap:4px; }
+        .tier-buff .tier-icon { font-size:1.1em; }
+        .tier-buff .tier-name { font-weight:bold; }
+        .tier-buff .tier-level { color:var(--gold); font-weight:bold; font-size:0.9em; }
         #clue-shop { background:var(--panel-bg);border:2px solid var(--coin-color);border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;gap:8px;transition:all 0.3s; }
         #clue-shop.collapsed { padding:8px 16px; }
         #clue-shop .shop-header { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px; }
@@ -66,37 +69,39 @@
         .card:hover { transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.5);z-index:10; }
         .card:active { cursor:grabbing;transform:scale(0.96); }
         .card.dragging { opacity:0.4;transform:scale(0.9); }
-        .card.marked { border-color:var(--gold); box-shadow:0 0 16px rgba(200,168,112,0.8); }
-        .card .card-type-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.7em; letter-spacing:1px; font-weight:bold; background:rgba(0,0,0,0.25); color:#fff; margin-bottom:2px; backdrop-filter:blur(2px); }
+        .card .card-type-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.7em; letter-spacing:1px; font-weight:bold; background:rgba(0,0,0,0.25); color:#fff; margin-bottom:2px; }
         .card .card-name { font-weight:bold;font-size:0.88em;margin-bottom:2px; }
         .card .card-bonus { font-size:0.65em;color:var(--text-dim); }
-        .card.truth { border-color:var(--truth-color); background:linear-gradient(160deg,#3a2a10,#4a3518); border-style:solid; }
+        .card.truth { border-color:var(--truth-color); background:linear-gradient(160deg,#3a2a10,#4a3518); }
         .card.truth .card-type-tag { background:rgba(200,144,48,0.4); }
         .card.truth .card-name { color:#e8c070; }
         .card.truth::before { content:'📜'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
-        .card.truth::after { content:'真相'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(200,144,48,0.2); font-weight:bold; pointer-events:none; z-index:0; }
-        .card.key-question { border-color:var(--keyq-color); background:linear-gradient(160deg,#101830,#182540); border-style:dashed; }
+        .card.truth::after { content:'真相'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(200,144,48,0.15); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.key-question { border-color:var(--keyq-color); background:linear-gradient(160deg,#101830,#182540); }
         .card.key-question .card-type-tag { background:rgba(64,112,176,0.4); }
         .card.key-question .card-name { color:#80b0e0; }
         .card.key-question::before { content:'❓'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
-        .card.key-question::after { content:'关键问题'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:2.2em; color:rgba(64,112,176,0.2); font-weight:bold; pointer-events:none; z-index:0; }
-        .card.ending { border-color:var(--ending-color); background:linear-gradient(160deg,#301010,#451818); border-style:double; }
+        .card.key-question::after { content:'关键问题'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:2em; color:rgba(64,112,176,0.15); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.ending { border-color:var(--ending-color); background:linear-gradient(160deg,#301010,#451818); }
         .card.ending .card-type-tag { background:rgba(192,80,80,0.4); }
         .card.ending .card-name { color:#90c0e0; }
         .card.ending::before { content:'🏁'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
-        .card.ending::after { content:'结局'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(192,80,80,0.2); font-weight:bold; pointer-events:none; z-index:0; }
-        .card.clue { border-color:var(--clue-color); background:linear-gradient(160deg,#102820,#183a2a); border-style:solid; }
+        .card.ending::after { content:'结局'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(192,80,80,0.15); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.clue { border-color:var(--clue-color); background:linear-gradient(160deg,#102820,#183a2a); }
         .card.clue .card-type-tag { background:rgba(80,160,96,0.4); }
         .card.clue .card-name { color:#80d090; }
         .card.clue::before { content:'🧩'; position:absolute; top:4px; left:6px; font-size:1em; opacity:0.8; }
-        .card.clue::after { content:'线索'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(80,160,96,0.2); font-weight:bold; pointer-events:none; z-index:0; }
+        .card.clue::after { content:'线索'; position:absolute; bottom:15%; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:3em; color:rgba(80,160,96,0.15); font-weight:bold; pointer-events:none; z-index:0; }
+        .card .ending-category { font-size:0.65em; font-weight:bold; padding:2px 6px; border-radius:4px; margin-top:2px; z-index:1; position:relative; }
+        .card .ending-category.single { background:rgba(0,0,0,0.5); }
+        .card .ending-category.dual { background:rgba(0,0,0,0.5); }
+        .card .ending-category.none { background:rgba(0,0,0,0.5); color:var(--text-dim); }
         .bonus-indicator { display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:auto;margin-bottom:2px;z-index:1; position:relative; }
         .bonus-dot { width:14px;height:14px;border-radius:50%;display:inline-block;box-shadow:0 0 4px rgba(0,0,0,0.4); }
         .bonus-dot.order { background:var(--order-color); }
         .bonus-dot.economy { background:var(--economy-color); }
         .bonus-dot.doubt { background:var(--doubt-color); }
         .bonus-dot.innovation { background:var(--innov-color); }
-        .mark-label { margin-top:auto; width:100%; background:linear-gradient(180deg, rgba(200,168,112,0.95), rgba(100,70,30,0.95)); color:#fff; font-size:0.65em; font-weight:bold; padding:3px 4px; border-radius:4px; text-align:center; letter-spacing:0.5px; box-shadow:0 0 6px rgba(200,168,112,0.8); z-index:1; position:relative; }
         #button-area { display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:4px 0; }
         .faction-btn { flex:1;min-width:100px;max-width:180px;padding:14px 10px;border-radius:10px;border:3px solid;font-size:1.05em;font-weight:bold;letter-spacing:2px;cursor:pointer;transition:all 0.25s;background:var(--panel-bg); }
         .faction-btn:hover:not(:disabled) { transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.5); }
@@ -118,8 +123,8 @@
         .panel-btn { padding:8px 20px;border-radius:8px;border:2px solid;font-size:0.9em;font-weight:bold;cursor:pointer;letter-spacing:1px; }
         .panel-btn:disabled { opacity:0.4;cursor:not-allowed; }
         #btn-execute { border-color:var(--gold);background:#3a2a10;color:var(--gold); }
-        #btn-execute:hover:not(:disabled) { background:#4a3518; }
         #btn-clear-slot { border-color:var(--danger);background:#2a1510;color:var(--danger);font-size:0.8em;padding:6px 12px; }
+        #card-limit-info { font-size:0.8em;color:var(--text-dim);text-align:center; }
         #toast-container { position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:340px;pointer-events:none; }
         .toast { background:var(--panel-bg);border:2px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.85em;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.5);animation:toastIn 0.3s ease,toastOut 0.4s ease 2.8s forwards;pointer-events:auto; }
         .toast.success{border-color:var(--success)} .toast.error{border-color:var(--danger)} .toast.locked{border-color:var(--gold)} .toast.info{border-color:var(--gold-dark)}
@@ -127,7 +132,7 @@
         @keyframes toastOut { to{transform:translateX(60px);opacity:0} }
         .sell-btn { margin-top:auto;background:transparent;border:1px solid var(--coin-color);color:var(--coin-color);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:0.7em;pointer-events:auto;z-index:1; position:relative; }
         .sell-btn:hover { background:rgba(212,175,55,0.25); }
-        @media (max-width:760px) { :root { --card-width:110px; --card-height:155px; } .faction-btn{min-width:70px;font-size:0.85em;padding:10px 6px} #title{font-size:1.1em} .score-item .score-value{font-size:1.3em} #execute-area{padding:10px 8px} #execute-slot{min-height:50px;padding:6px} .card.truth::after,.card.key-question::after,.card.ending::after,.card.clue::after{font-size:2em;} .mark-label{font-size:0.55em; padding:2px 2px;} }
+        @media (max-width:760px) { :root { --card-width:110px; --card-height:155px; } .faction-btn{min-width:70px;font-size:0.85em;padding:10px 6px} #title{font-size:1.1em} .score-item .score-value{font-size:1.3em} #execute-area{padding:10px 8px} #execute-slot{min-height:50px;padding:6px} .card.truth::after,.card.key-question::after,.card.ending::after,.card.clue::after{font-size:1.8em;} }
     </style>
 </head>
 <body>
@@ -148,11 +153,12 @@
         <div class="score-item doubt" id="score-doubt"><div class="score-name">🔍 质疑</div><div class="score-value" id="score-val-doubt">3</div></div>
         <div class="score-item innovation" id="score-innovation"><div class="score-name">💡 创新</div><div class="score-value" id="score-val-innovation">3</div></div>
     </div>
-    <div id="buff-area"><span class="buff-title">🏆 Buff 奖励：</span><span id="buff-container">暂无</span></div>
+    <div id="card-limit-info">卡牌持有：<span id="card-hold-count">0</span> / <span id="card-hold-limit">20</span></div>
+    <div id="buff-area"><span class="buff-title">🏆 阵营 Buff：</span><span id="buff-container">暂无</span></div>
     <div id="clue-shop">
         <div class="shop-header">
             <span class="shop-title">🛒 线索商店</span>
-            <span class="shop-info">使用金币购买线索（买价10，卖价8）</span>
+            <span class="shop-info">金币买线索（买价10，卖价8）</span>
             <button id="shop-toggle-btn">收起 ▲</button>
         </div>
         <div class="shop-cards-row" id="shop-cards-row"></div>
@@ -231,8 +237,6 @@
     const clueIdByName = {}; clueCards.forEach(c=>clueIdByName[c.name]=c.id);
 
     const KQ_NAMES = ['邻居','好友','鸟','成为一个反抗资本主义的组织','成为一个反抗社会结构化的组织','成为一个学术研讨的组织','专注自我为所欲为','37岁职业占星师','59岁候补法官','13岁游戏主播','阴谋论博客主持人','42岁失业哲学博士','牙医','好友','Anta','母亲','前房东','保洁员','船长','宿敌','朋友','情人','故交','酒吧老板','路人','旧情人','种族灭绝','推广全民饮酒','组织年轻人步入社会','突破人类寿命极限','寻找秘境Shangri-la','外星人入侵计划','冷战遗留问题','AI数据革命','器官移植名单出现异常','饮酒俱乐部','自命不凡者','亚文化拥护行动','Losers','资金短缺','追逐梦想','全民饮酒计划所致','无法适应长寿社会','历史遗物','预算不足','出于情怀被保留','此地无银三百两','实现全人类延寿','政治技术','经济发展','自欺欺人','恐惧死亡','重构社会制度','泄愤','我自己','母亲','Shangri-la委员会','社会','权力固化','财富冻结','年轻人激进化','家庭结构崩塌','价值观冲突','人口比例失衡','就业市场停滞','死亡特权','社会停止发展','第一个主动退休者','一代人的忏悔','无言以对','一意孤行','承认错误','为无名者脱罪','公开Shangri-la计划','重建社会秩序','哲学博士','占星师','候补法官','游戏主播','好友','我','牙医','博客主持人','医疗水平提升','量化社会','自由经济','连续性','对过去社会的不满','创业者','律师','教师','医生','警察','年迈的人','政务无作为','施工问题','媒体无作为','警方无作为','反对确定性','身份自由','拥有选择权','不可预测性','拒绝被命名','漫无目的'];
-    const kqCards = KQ_NAMES.map((name,i)=>({id:`KQ_${i}`, type:'key-question', name, displayName:name, bonuses:[]}));
-    const endingCards = KQ_NAMES.map((name,i)=>({id:`END_${i}`, type:'ending', name, displayName:name, bonuses:[]}));
 
     const KQ_RULE_DATA = [
         { truth:'谁动了我的脚踏车', clues:['被破坏的院子'] },
@@ -341,6 +345,29 @@
         { truth:'无名者究竟在做些什么？', clues:['拒绝口号'] }
     ];
 
+    const kqCards = KQ_NAMES.map((name,i)=>{
+        const rule = KQ_RULE_DATA[i];
+        const bonuses = [];
+        if(rule && rule.clues) {
+            for(const clueName of rule.clues) {
+                const cid = clueIdByName[clueName];
+                if(cid) {
+                    const clueDef = clueCards.find(c=>c.id===cid);
+                    if(clueDef && clueDef.bonuses) {
+                        for(const b of clueDef.bonuses) {
+                            const existing = bonuses.find(x=>x.faction===b.faction);
+                            if(existing) existing.amount += b.amount;
+                            else bonuses.push({faction:b.faction, amount:b.amount});
+                        }
+                    }
+                }
+            }
+        }
+        return {id:`KQ_${i}`, type:'key-question', name, displayName:name, bonuses};
+    });
+
+    const endingCards = KQ_NAMES.map((name,i)=>({id:`END_${i}`, type:'ending', name, displayName:name, bonuses:[]}));
+
     const keyQuestionRules = kqCards.map((kq, i) => {
         const data = KQ_RULE_DATA[i];
         if (!data) return null;
@@ -349,23 +376,29 @@
         return { resultId: kq.id, truthId, clueIds };
     }).filter(Boolean);
 
-    const endingRules = endingCards.map((end,i)=>({resultId:end.id, keyqId:kqCards[i].id, button:'any', costFaction:'corresponding', costAmount:1}));
+    const endingRules = endingCards.map((end,i)=>({
+        resultId:end.id, keyqId:kqCards[i]?.id || null, truthRequired: true, costAmount: 1
+    })).filter(r=>r.keyqId);
 
     const ALL_CARDS = {};
     truthCards.forEach(c=>ALL_CARDS[c.id]=c);
     clueCards.forEach(c=>ALL_CARDS[c.id]=c);
     kqCards.forEach(c=>ALL_CARDS[c.id]=c);
     endingCards.forEach(c=>ALL_CARDS[c.id]=c);
-    const TRUTH_ENDING_MAP = {};
-    truthCards.forEach(t=>{ TRUTH_ENDING_MAP[t.id]=endingCards.map(e=>e.id); });
-    const ENDING_BUFFS = {};
-    endingCards.forEach(e=>{ ENDING_BUFFS[e.id]={name:e.displayName,icon:'🎭'}; });
 
     const state = {
-        baseScores:{order:3,economy:3,doubt:3,innovation:3}, gold:0, clueBuyPrice:10, clueSellPrice:8,
-        obtainedCards:new Set(), hand:{truth:[],'key-question':[],clue:[],ending:[]},
-        gameEnded:false, activeButton:null, panelCards:[], markCost:2, truthMarks:{}, shopCollapsed:false
+        baseScores:{order:3,economy:3,doubt:3,innovation:3},
+        gold:0, clueBuyPrice:10, clueSellPrice:8,
+        obtainedCards:new Set(),
+        hand:{truth:[],'key-question':[],clue:[],ending:[]},
+        endingBonuses:{},
+        gameEnded:false, activeButton:null, panelCards:[],
+        shopCollapsed:false,
+        cardLimitBase:20,
+        cardLimitPer10:10,
+        initialTotalScores:12
     };
+
     state.obtainedCards = new Set(truthCards.map(c=>c.id));
     state.hand.truth = truthCards.map(c=>c.id);
     const allClueIds = clueCards.map(c=>c.id);
@@ -381,71 +414,135 @@
     const toastContainer=$('#toast-container'),shopCardsRow=$('#shop-cards-row'),goldAmountEl=$('#gold-amount');
     const buffContainer=$('#buff-container'),debugGoldInput=$('#debug-gold-input'),debugGoldBtn=$('#debug-gold-btn');
     const shopToggleBtn=$('#shop-toggle-btn'),clueShop=$('#clue-shop');
+    const cardHoldCountEl=$('#card-hold-count'),cardHoldLimitEl=$('#card-hold-limit');
 
     function getCardDef(id){return ALL_CARDS[id];}
     function isObtained(id){return state.obtainedCards.has(id);}
     function displayName(id){const d=getCardDef(id);return d?d.displayName:id;}
     function isTruthType(id){const d=getCardDef(id);return d&&d.type==='truth';}
+
     function getTotalScores(){
         const totals={...state.baseScores};
-        for(const id of state.obtainedCards){const def=getCardDef(id);if(def)for(const b of(def.bonuses||[]))totals[b.faction]+=b.amount;}
+        for(const id of state.obtainedCards){
+            const def=getCardDef(id);
+            if(def){
+                let bonuses=def.bonuses;
+                if(def.type==='ending' && state.endingBonuses[id]) bonuses=state.endingBonuses[id];
+                if(bonuses) for(const b of bonuses) totals[b.faction]+=b.amount;
+            }
+        }
         return totals;
     }
+
+    function getCardHoldCount(){
+        return state.hand['key-question'].length + state.hand.clue.length + state.hand.ending.length;
+    }
+
+    function getCardHoldLimit(){
+        const sum=getTotalScores();
+        const total=sum.order+sum.economy+sum.doubt+sum.innovation;
+        return state.cardLimitBase + Math.max(0, Math.floor((total - state.initialTotalScores)/10))*state.cardLimitPer10;
+    }
+
+    function getEndingCategory(bonuses){
+        if(!bonuses||bonuses.length===0) return {type:'none', factions:[]};
+        const maxAmount=Math.max(...bonuses.map(b=>b.amount));
+        const topFactions=bonuses.filter(b=>b.amount===maxAmount).map(b=>b.faction);
+        if(topFactions.length===1) return {type:'single', factions:topFactions};
+        if(topFactions.length===2) return {type:'dual', factions:topFactions};
+        return {type:'none', factions:[]};
+    }
+
     function updateScoreUI(){
         const totals=getTotalScores();
         FACTION_KEYS.forEach(fk=>{document.getElementById(`score-val-${fk}`).textContent=totals[fk];document.getElementById(`btn-score-${fk}`).textContent=totals[fk];document.getElementById(`score-${fk}`).classList.toggle('low',totals[fk]<=0);});
-        updateGoldUI();renderShop();
+        updateGoldUI(); renderShop(); updateCardLimitUI(); updateBuffDisplay();
     }
     function updateGoldUI(){goldAmountEl.textContent=state.gold;}
+    function updateCardLimitUI(){cardHoldCountEl.textContent=getCardHoldCount();cardHoldLimitEl.textContent=getCardHoldLimit();}
     function flashScore(fk){const item=document.getElementById(`score-${fk}`);if(item){item.classList.add('score-flash');setTimeout(()=>item.classList.remove('score-flash'),650);}}
     function showToast(msg,type='info',duration=3200){const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;toastContainer.appendChild(t);setTimeout(()=>t.remove(),duration+400);}
 
-    function getClueColorClass(bonuses){ return ''; }
+    // ========== 核心修改：多Tier Buff显示 ==========
+    function updateBuffDisplay(){
+        const factionCounts={order:0,economy:0,doubt:0,innovation:0};
+        for(const endId of state.hand.ending){
+            const bonuses=state.endingBonuses[endId]||[];
+            const cat=getEndingCategory(bonuses);
+            if(cat.type==='single'||cat.type==='dual'){
+                cat.factions.forEach(f=>{factionCounts[f]=(factionCounts[f]||0)+1;});
+            }
+        }
+        buffContainer.innerHTML='';
+        let hasBuff=false;
+        FACTION_KEYS.forEach(fk=>{
+            const count=factionCounts[fk]||0;
+            const unlockedTiers=[];
+            if(count>=1) unlockedTiers.push(1);
+            if(count>=3) unlockedTiers.push(2);
+            if(count>=5) unlockedTiers.push(3);
+            if(count>=7) unlockedTiers.push(4);
+            if(count>=10) unlockedTiers.push(5);
+            if(unlockedTiers.length>0){
+                hasBuff=true;
+                unlockedTiers.forEach(tier=>{
+                    const span=document.createElement('span');
+                    span.className='tier-buff';
+                    span.title=`${FACTION_NAMES[fk]}阵营结局卡数量：${count}，Tier ${tier} 已解锁`;
+                    span.innerHTML=`<span class="tier-icon">${FACTION_ICONS[fk]}</span><span class="tier-name">${FACTION_NAMES[fk]}</span><span class="tier-level">T${tier}</span>`;
+                    buffContainer.appendChild(span);
+                });
+            }
+        });
+        if(!hasBuff) buffContainer.textContent='暂无（集齐对应阵营结局卡解锁）';
+    }
+
+    function getClueColorClass(){return '';}
 
     function createCardElement(cardId){
         const def=getCardDef(cardId);
         const el=document.createElement('div');
         let cls=`card ${def.type}`;
-        if(def.type==='clue'){const cc=getClueColorClass(def.bonuses||[]);if(cc)cls+=' '+cc;}
         el.className=cls;el.draggable=true;el.dataset.cardId=cardId;el.title=def.name;
+        let bonuses=def.bonuses||[];
+        if(def.type==='ending' && state.endingBonuses[cardId]) bonuses=state.endingBonuses[cardId];
         let bonusHtml='';
-        const bonuses=def.bonuses||[];
-        if(bonuses.length>0){
+        if(bonuses&&bonuses.length>0){
             const dots=bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');
-            const text=bonuses.map(b=>`${FACTION_NAMES[b.faction]}+${b.amount}`).join(' ');
-            bonusHtml=`<span class="bonus-indicator">${dots}</span><span class="card-bonus">${text}</span>`;
+            bonusHtml=`<span class="bonus-indicator">${dots}</span>`;
         }
-        el.innerHTML=`<span class="card-type-tag">${TYPE_LABELS[def.type]}</span><span class="card-name">${def.displayName}</span>${bonusHtml}`;
-        if(state.truthMarks[cardId]){
-            el.classList.add('marked');
-            el.title += ' (已标记：' + displayName(state.truthMarks[cardId]) + ')';
-            const markLabel = document.createElement('div');
-            markLabel.className = 'mark-label';
-            markLabel.textContent = `🔒 ${displayName(state.truthMarks[cardId])}`;
-            el.appendChild(markLabel);
+        let categoryHtml='';
+        if(def.type==='ending'){
+            const cat=getEndingCategory(bonuses);
+            let catLabel='';
+            if(cat.type==='single') catLabel=FACTION_NAMES[cat.factions[0]]+'系';
+            else if(cat.type==='dual') catLabel=cat.factions.map(f=>FACTION_NAMES[f]).join('+')+'双系';
+            else catLabel='无阵营';
+            const catClass=cat.type==='single'?'single':cat.type==='dual'?'dual':'none';
+            categoryHtml=`<span class="ending-category ${catClass}">${catLabel}</span>`;
         }
+        el.innerHTML=`<span class="card-type-tag">${TYPE_LABELS[def.type]}</span><span class="card-name">${def.displayName}</span>${bonusHtml}${categoryHtml}`;
         el.addEventListener('dragstart',handleDragStart);el.addEventListener('dragend',handleDragEnd);
         el.addEventListener('click',e=>{if(state.gameEnded)return;if(e.target.closest('.sell-btn'))return;if(state.activeButton)tryAddToPanel(cardId);else showToast('请先选择一个执行按钮','error');});
         return el;
     }
+
     function createSellableClueElement(clueId){
         const def=getCardDef(clueId);
         const el=document.createElement('div');
-        let cls='card clue'; const cc=getClueColorClass(def.bonuses||[]); if(cc)cls+=' '+cc;
-        el.className=cls;el.draggable=true;el.dataset.cardId=clueId;el.title=def.name+' (点击卡片放入执行槽，点击按钮出售)';
+        el.className='card clue';el.draggable=true;el.dataset.cardId=clueId;el.title=def.name+' (点击卡片放入执行槽，点击按钮出售)';
         let bonusHtml='';
-        const bonuses=def.bonuses||[];
-        if(bonuses.length>0){
-            const dots=bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');
-            const text=bonuses.map(b=>`${FACTION_NAMES[b.faction]}+${b.amount}`).join(' ');
-            bonusHtml=`<span class="bonus-indicator">${dots}</span><span class="card-bonus">${text}</span>`;
+        if(def.bonuses&&def.bonuses.length>0){
+            const dots=def.bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');
+            bonusHtml=`<span class="bonus-indicator">${dots}</span>`;
         }
-        el.innerHTML=`<span class="card-type-tag">${TYPE_LABELS['clue']}</span><span class="card-name">${def.displayName}</span>${bonusHtml}<button class="sell-btn">卖${state.clueSellPrice}</button>`;
+        el.innerHTML=`<span class="card-type-tag">线索</span><span class="card-name">${def.displayName}</span>${bonusHtml}<button class="sell-btn">卖${state.clueSellPrice}</button>`;
         el.addEventListener('dragstart',handleDragStart);el.addEventListener('dragend',handleDragEnd);
         el.addEventListener('click',e=>{if(e.target.closest('.sell-btn'))return;if(state.gameEnded)return;if(state.activeButton)tryAddToPanel(clueId);else showToast('请先选择一个执行按钮','error');});
         el.querySelector('.sell-btn').addEventListener('click',e=>{e.stopPropagation();sellClue(clueId);});
         return el;
     }
+
     function renderHand(){
         ['truth','key-question','ending'].forEach(type=>{
             const container=cardsContainers[type];const cards=state.hand[type]||[];container.innerHTML='';
@@ -455,16 +552,11 @@
         const clueContainer=cardsContainers.clue;const clues=state.hand.clue||[];clueContainer.innerHTML='';
         if(clues.length===0){clueContainer.classList.add('empty');}else{clueContainer.classList.remove('empty');clues.forEach(id=>clueContainer.appendChild(createSellableClueElement(id)));}
         countsEls.clue.textContent=clues.length;
-        updateFactionButtons();updateExecuteButtonState();updateBuffDisplay();
+        updateFactionButtons();updateExecuteButtonState();updateCardLimitUI();
     }
     function updateFactionButtons(){FACTION_KEYS.forEach(fk=>{const btn=document.getElementById(`btn-${fk}`);if(btn){btn.disabled=state.gameEnded;btn.classList.toggle('active',state.activeButton===fk&&!state.gameEnded);}});}
     function updateExecuteButtonState(){btnExecute.disabled=!(state.panelCards.length>0&&state.activeButton&&!state.gameEnded);}
-    function updateBuffDisplay(){
-        const entries=Object.values(state.truthMarks).filter(id=>id);
-        if(entries.length===0){buffContainer.textContent='暂无';return;}
-        buffContainer.innerHTML='';
-        entries.forEach(endingId=>{const buff=ENDING_BUFFS[endingId]||{name:'未知',icon:'❓'};const span=document.createElement('span');span.className='buff-icon';span.title=buff.icon+' '+buff.name+' ('+displayName(endingId)+')';span.textContent=buff.icon+' '+buff.name;buffContainer.appendChild(span);});
-    }
+
     function handleDragStart(e){if(state.gameEnded){e.preventDefault();return;}const card=e.target.closest('.card');if(!card)return;e.dataTransfer.setData('text/plain',card.dataset.cardId);card.classList.add('dragging');window._draggedCardId=card.dataset.cardId;}
     function handleDragEnd(e){const card=e.target.closest('.card');if(card)card.classList.remove('dragging');window._draggedCardId=null;}
     executeSlot.addEventListener('dragover',e=>{e.preventDefault();if(state.activeButton&&!state.gameEnded){executeSlot.classList.add('drag-over');e.dataTransfer.dropEffect='move';}});
@@ -499,44 +591,64 @@
         executeAction(state.activeButton,[...state.panelCards]);
     });
 
-    function executeAction(currentFaction,cardIds){
+    function executeAction(currentFaction, cardIds){
         for(const id of cardIds){if(!isObtained(id)){showToast(`「${displayName(id)}」尚未获得`,'error');return;}}
-        const truthIds=cardIds.filter(id=>isTruthType(id));
-        const endingIds=cardIds.filter(id=>getCardDef(id)?.type==='ending');
-        if(truthIds.length>0&&endingIds.length>0){
-            if(truthIds.length!==1||endingIds.length!==1||cardIds.length!==2){showToast('标记结局需要恰好一张真相和一张结局','error');return;}
-            const truthId=truthIds[0],endingId=endingIds[0];
-            if(state.truthMarks[truthId]){showToast('该真相已标记，不可重复标记','error');return;}
+        const truthIdsInSlot=cardIds.filter(id=>isTruthType(id));
+        const clueIdsInSlot=cardIds.filter(id=>getCardDef(id)?.type==='clue');
+        const kqIdsInSlot=cardIds.filter(id=>getCardDef(id)?.type==='key-question');
+
+        if(truthIdsInSlot.length===1 && kqIdsInSlot.length===1 && cardIds.length===2){
+            const truthId=truthIdsInSlot[0], kqId=kqIdsInSlot[0];
+            const rule=endingRules.find(r=>r.keyqId===kqId);
+            if(!rule){showToast('该关键问题卡无法合成结局','error');return;}
+            if(isObtained(rule.resultId)){showToast('该结局卡已获得','error');return;}
             const total=getTotalScores()[currentFaction];
-            if(total<state.markCost){showToast(`标记需要${state.markCost}点${FACTION_NAMES[currentFaction]}分数，当前不足`,'error');return;}
-            state.baseScores[currentFaction]-=state.markCost;updateScoreUI();flashScore(currentFaction);
-            state.truthMarks[truthId]=endingId;
-            showToast(`⭐ 标记成功：${displayName(truthId)} → ${displayName(endingId)}`,'success',3000);
-            state.panelCards=[];renderPanel();renderHand();return;
+            if(total<rule.costAmount){showToast(`需要消耗${rule.costAmount}点${FACTION_NAMES[currentFaction]}分数，当前不足`,'error');return;}
+            state.baseScores[currentFaction]-=rule.costAmount;updateScoreUI();flashScore(currentFaction);
+            state.hand.truth=state.hand.truth.filter(x=>x!==truthId);
+            state.obtainedCards.delete(truthId);
+            state.hand['key-question']=state.hand['key-question'].filter(x=>x!==kqId);
+            state.obtainedCards.delete(kqId);
+            const kqDef=getCardDef(kqId);
+            const kqBonuses=kqDef.bonuses||[];
+            const newBonuses={} ;
+            kqBonuses.forEach(b=>{newBonuses[b.faction]=(newBonuses[b.faction]||0)+b.amount;});
+            newBonuses[currentFaction]=(newBonuses[currentFaction]||0)+rule.costAmount;
+            const bonusArray=FACTION_KEYS.filter(f=>newBonuses[f]>0).map(f=>({faction:f,amount:newBonuses[f]}));
+            state.endingBonuses[rule.resultId]=bonusArray;
+            state.obtainedCards.add(rule.resultId);
+            state.hand.ending.push(rule.resultId);
+            showToast(`✅ 获得结局卡「${displayName(rule.resultId)}」`,'success');
+            state.panelCards=[];renderPanel();renderHand();
+            return;
         }
-        for(const rule of keyQuestionRules){
-            const requiredIds = [rule.truthId, ...rule.clueIds];
-            const req=[...requiredIds].sort();
-            const have=[...cardIds].sort();
-            if(req.length===have.length && req.every((v,i)=>v===have[i])){
-                if(isObtained(rule.resultId)){showToast('该关键问题卡已获得','error');return;}
-                state.obtainedCards.add(rule.resultId);state.hand['key-question'].push(rule.resultId);
-                showToast(`✅ 获得「${displayName(rule.resultId)}」`,'success');
-                state.panelCards=[];renderPanel();renderHand();return;
+
+        if(truthIdsInSlot.length===1 && clueIdsInSlot.length>0 && cardIds.length===1+clueIdsInSlot.length){
+            const truthId=truthIdsInSlot[0];
+            const sortedClues=[...clueIdsInSlot].sort();
+            for(const rule of keyQuestionRules){
+                if(rule.truthId!==truthId) continue;
+                const reqClues=[...rule.clueIds].sort();
+                if(reqClues.length===sortedClues.length && reqClues.every((v,i)=>v===sortedClues[i])){
+                    if(isObtained(rule.resultId)){showToast('该关键问题卡已获得','error');return;}
+                    if(getCardHoldCount() + 1 - sortedClues.length > getCardHoldLimit()){
+                        showToast('卡牌持有数量已达上限','error');return;
+                    }
+                    sortedClues.forEach(cid=>{
+                        state.hand.clue=state.hand.clue.filter(x=>x!==cid);
+                        state.obtainedCards.delete(cid);
+                    });
+                    state.obtainedCards.add(rule.resultId);
+                    state.hand['key-question'].push(rule.resultId);
+                    showToast(`✅ 获得关键问题卡「${displayName(rule.resultId)}」`,'success');
+                    state.panelCards=[];renderPanel();renderHand();
+                    return;
+                }
             }
+            showToast('当前线索组合无法匹配任何关键问题','error');
+            return;
         }
-        for(const rule of endingRules){
-            if(cardIds.length===1 && cardIds[0]===rule.keyqId){
-                if(isObtained(rule.resultId)){showToast('该结局卡已获得','error');return;}
-                const costFaction=rule.costFaction==='corresponding'?currentFaction:rule.costFaction;
-                const total=getTotalScores()[costFaction];
-                if(total<rule.costAmount){showToast(`需要消耗${rule.costAmount}点${FACTION_NAMES[costFaction]}分数，当前不足`,'error');return;}
-                state.baseScores[costFaction]-=rule.costAmount;updateScoreUI();flashScore(costFaction);
-                state.obtainedCards.add(rule.resultId);state.hand.ending.push(rule.resultId);
-                showToast(`✅ 获得「${displayName(rule.resultId)}」（消耗${rule.costAmount}${FACTION_NAMES[costFaction]}）`,'success');
-                state.panelCards=[];renderPanel();renderHand();return;
-            }
-        }
+
         showToast('当前组合无法执行任何操作','error');
     }
 
@@ -548,17 +660,19 @@
         available.forEach(clueId=>{
             const def=getCardDef(clueId);
             const el=document.createElement('div');
-            let cls='shop-card';const cc=getClueColorClass(def.bonuses||[]);if(cc)cls+=' '+cc;
-            el.className=cls;
-            let dots='';const bonuses=def.bonuses||[];
-            if(bonuses.length>0){dots=bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');}
+            el.className='shop-card';
+            let dots='';
+            if(def.bonuses&&def.bonuses.length>0){dots=def.bonuses.map(b=>`<span class="bonus-dot ${b.faction}"></span>`).join('');}
             el.innerHTML=`<span class="shop-card-name">${def.displayName}</span>${dots?`<span class="bonus-indicator">${dots}</span>`:''}<span class="shop-card-price">💰 ${state.clueBuyPrice} 金币</span>`;
-            if(state.gameEnded||state.gold<state.clueBuyPrice){el.classList.add('disabled');}else{el.addEventListener('click',()=>buyClue(clueId));}
+            if(state.gameEnded||state.gold<state.clueBuyPrice||getCardHoldCount()>=getCardHoldLimit()){el.classList.add('disabled');}else{el.addEventListener('click',()=>buyClue(clueId));}
             shopCardsRow.appendChild(el);
         });
     }
     function buyClue(clueId){
-        if(state.gameEnded)return;if(isObtained(clueId))return;if(state.gold<state.clueBuyPrice){showToast('金币不足','error');return;}
+        if(state.gameEnded)return;
+        if(isObtained(clueId))return;
+        if(state.gold<state.clueBuyPrice){showToast('金币不足','error');return;}
+        if(getCardHoldCount()>=getCardHoldLimit()){showToast('卡牌持有数量已达上限','error');return;}
         state.gold-=state.clueBuyPrice;state.obtainedCards.add(clueId);state.hand.clue.push(clueId);
         updateGoldUI();renderHand();renderShop();updateScoreUI();
         showToast(`🛒 购买「${displayName(clueId)}」`,'success');
@@ -593,8 +707,8 @@
     }
     shopToggleBtn.addEventListener('click',toggleShop);
 
-    updateScoreUI();updateGoldUI();updateExecuteAreaUI();renderPanel();renderHand();renderShop();updateBuffDisplay();
-    showToast('🃏 游戏开始：所有真相卡已解锁，随机5张线索卡。组合对应真相与线索获得关键问题卡，再消耗分数获得结局。','info',6000);
+    updateScoreUI();updateGoldUI();updateExecuteAreaUI();renderPanel();renderHand();renderShop();updateBuffDisplay();updateCardLimitUI();
+    showToast('🃏 游戏开始：所有真相卡已解锁，随机5张线索卡。拖入真相+线索合成关键问题，真相+关键问题合成结局。','info',6000);
 })();
 </script>
 </body>
