@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>无名者档案 - 卡牌推理游戏（多Tier Buff）</title>
+    <title>无名者档案 - 卡牌推理游戏（保留未消耗卡）</title>
     <style>
         :root {
             --bg:#1a1410; --panel-bg:#2a2018; --card-bg:#3a2e22; --border:#5a4a3a;
@@ -463,7 +463,6 @@
     function flashScore(fk){const item=document.getElementById(`score-${fk}`);if(item){item.classList.add('score-flash');setTimeout(()=>item.classList.remove('score-flash'),650);}}
     function showToast(msg,type='info',duration=3200){const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;toastContainer.appendChild(t);setTimeout(()=>t.remove(),duration+400);}
 
-    // ========== 核心修改：多Tier Buff显示 ==========
     function updateBuffDisplay(){
         const factionCounts={order:0,economy:0,doubt:0,innovation:0};
         for(const endId of state.hand.ending){
@@ -597,6 +596,7 @@
         const clueIdsInSlot=cardIds.filter(id=>getCardDef(id)?.type==='clue');
         const kqIdsInSlot=cardIds.filter(id=>getCardDef(id)?.type==='key-question');
 
+        // 结局合成：真相 + 关键问题 -> 结局（两者消耗）
         if(truthIdsInSlot.length===1 && kqIdsInSlot.length===1 && cardIds.length===2){
             const truthId=truthIdsInSlot[0], kqId=kqIdsInSlot[0];
             const rule=endingRules.find(r=>r.keyqId===kqId);
@@ -623,6 +623,7 @@
             return;
         }
 
+        // 关键问题合成：真相 + 线索 -> 关键问题（线索消耗，真相保留）
         if(truthIdsInSlot.length===1 && clueIdsInSlot.length>0 && cardIds.length===1+clueIdsInSlot.length){
             const truthId=truthIdsInSlot[0];
             const sortedClues=[...clueIdsInSlot].sort();
@@ -641,7 +642,10 @@
                     state.obtainedCards.add(rule.resultId);
                     state.hand['key-question'].push(rule.resultId);
                     showToast(`✅ 获得关键问题卡「${displayName(rule.resultId)}」`,'success');
-                    state.panelCards=[];renderPanel();renderHand();
+                    // 关键修改：执行后保留真相卡，仅清除线索卡
+                    state.panelCards = state.panelCards.filter(id => id === truthId);
+                    renderPanel();
+                    renderHand();
                     return;
                 }
             }
